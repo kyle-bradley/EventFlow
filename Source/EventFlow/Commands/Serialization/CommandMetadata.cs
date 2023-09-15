@@ -21,13 +21,12 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
 using System.Collections.Generic;
 using System;
 using EventFlow.Core;
 using EventFlow.Extensions;
-using Newtonsoft.Json;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace EventFlow.Commands.Serialization
 {
