@@ -198,6 +198,7 @@ namespace EventFlow
             serviceCollection.TryAddSingleton<IJsonSerializer, DefaultJsonSerializer>();
             serviceCollection.TryAddTransient<IJobScheduler, InstantJobScheduler>();
             serviceCollection.TryAddTransient<IJobRunner, JobRunner>();
+            serviceCollection.TryAddTransient<ICommandScheduler, CommandScheduler>();
             serviceCollection.TryAddTransient<IOptimisticConcurrencyRetryStrategy, OptimisticConcurrencyRetryStrategy>();
             serviceCollection.TryAddSingleton<IEventUpgradeManager, EventUpgradeManager>();
             serviceCollection.TryAddTransient<IAggregateFactory, AggregateFactory>();
