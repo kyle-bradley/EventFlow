@@ -39,6 +39,11 @@ namespace EventFlow.Sagas
             return Task.CompletedTask;
         }
 
+        public Task BeforeUpdateAsync(ISaga saga, ISagaTimeout sagaTimeout, SagaDetails details, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
         public Task<bool> HandleUpdateFailedAsync(ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,
@@ -48,11 +53,21 @@ namespace EventFlow.Sagas
             return Task.FromResult(false);
         }
 
+        public Task<bool> HandleUpdateFailedAsync(ISaga saga, ISagaTimeout sagaTimeout, SagaDetails details, Exception exception, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(false);
+        }
+
         public Task UpdateSucceededAsync(
             ISaga saga,
             IDomainEvent domainEvent,
             SagaDetails details,
             CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task UpdateSucceededAsync(ISaga saga, ISagaTimeout sagaTimeout, SagaDetails details, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

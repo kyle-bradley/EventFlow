@@ -32,6 +32,7 @@ using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Extensions;
+using EventFlow.Subscribers;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -72,10 +73,10 @@ namespace EventFlow.Sagas.AggregateSagas
                     sagaId,
                     sourceId,
                     async (s, c) =>
-                        {
-                            await updateSaga(s, c).ConfigureAwait(false);
-                            saga = s;
-                        },
+                    {
+                        await updateSaga(s, c).ConfigureAwait(false);
+                        saga = s;
+                    },
                     cancellationToken)
                 .ConfigureAwait(false);
 
@@ -98,7 +99,7 @@ namespace EventFlow.Sagas.AggregateSagas
             CancellationToken _)
         {
             var value = await _memoryCache.GetOrCreateAsync(
-                CacheKey.With(GetType(), sagaType.GetCacheKey()), 
+                CacheKey.With(GetType(), sagaType.GetCacheKey()),
                 e =>
                 {
                     e.AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(1);

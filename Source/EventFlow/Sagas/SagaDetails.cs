@@ -61,13 +61,18 @@ namespace EventFlow.Sagas
             var aggregateEventTypes = sagaHandlesTypes
                 .Select(i => i.GetGenericArguments()[2])
                 .ToList();
+            var aggregateTimeoutTypes = sagaInterfaces
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISagaTimeoutHandles<,,>))
+                .Select(i => i.GetGenericArguments()[2])
+                .ToList();
             var sagaInterfaceType = sagaInterfaces.Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ISaga<>));
 
             var sagaTypeDetails = new SagaDetails(
                 sagaType,
                 sagaInterfaceType.GetGenericArguments()[0],
                 sagaStartedByTypes,
-                aggregateEventTypes);
+                aggregateEventTypes,
+                aggregateTimeoutTypes);
 
             return sagaTypeDetails;
         }
@@ -78,18 +83,22 @@ namespace EventFlow.Sagas
             Type sagaType,
             Type sagaLocatorType,
             IEnumerable<Type> startedBy,
-            IReadOnlyCollection<Type> aggregateEventTypes)
+            IReadOnlyCollection<Type> aggregateEventTypes,
+            IReadOnlyCollection<Type> aggregateTimeoutTypes)
         {
             _startedBy = new HashSet<Type>(startedBy);
 
             SagaType = sagaType;
             SagaLocatorType = sagaLocatorType;
             AggregateEventTypes = aggregateEventTypes;
+            AggregateTimeoutTypes = aggregateTimeoutTypes;
         }
 
         public Type SagaType { get; }
         public Type SagaLocatorType { get; }
         public IReadOnlyCollection<Type> AggregateEventTypes { get; }
+        public IReadOnlyCollection<Type> AggregateTimeoutTypes { get; }
+        public IReadOnlyCollection<Type> AggregateHandlerTypes => AggregateEventTypes.Concat(AggregateTimeoutTypes).ToList();
 
         public bool IsStartedBy(Type aggregateEventType)
         {

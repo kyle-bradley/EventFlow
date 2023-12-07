@@ -211,6 +211,7 @@ namespace EventFlow
             serviceCollection.TryAddTransient<ISagaErrorHandler, SagaErrorHandler>();
             serviceCollection.TryAddTransient<IDispatchToSagas, DispatchToSagas>();
             serviceCollection.TryAddTransient(typeof(ISagaUpdater<,,,>), typeof(SagaUpdater<,,,>));
+            serviceCollection.TryAddTransient(typeof(ISagaTimeoutUpdater<,,>), typeof(SagaTimeoutUpdater<,,>));
             serviceCollection.TryAddTransient<IEventFlowConfiguration>(_ => _eventFlowConfiguration);
             serviceCollection.TryAddTransient<ICancellationConfiguration>(_ => _eventFlowConfiguration);
             serviceCollection.TryAddTransient(typeof(ITransientFaultHandler<>), typeof(TransientFaultHandler<>));

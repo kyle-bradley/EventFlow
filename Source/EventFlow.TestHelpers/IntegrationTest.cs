@@ -46,7 +46,7 @@ using NUnit.Framework;
 
 namespace EventFlow.TestHelpers
 {
-    public abstract class IntegrationTest: Test
+    public abstract class IntegrationTest : Test
     {
         protected Func<IServiceCollection, IServiceCollection> InjectedServices { get; set; } = new Func<IServiceCollection, IServiceCollection>((collection) => collection);
 
@@ -68,12 +68,13 @@ namespace EventFlow.TestHelpers
         {
             var eventFlowOptions = Options(EventFlowOptions.New())
                 .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>()
-                .AddDefaults(EventFlowTestHelpers.Assembly, 
+                .AddDefaults(EventFlowTestHelpers.Assembly,
                     type => type != typeof(DbContextQueryHandler))
+                .AddCommandHandlers()
                 .RegisterServices(c => {
                     c.AddTransient<IScopedContext, ScopedContext>();
                     InjectedServices(c);
-                    });
+                });
 
             ServiceProvider = Configure(eventFlowOptions);
 
@@ -131,7 +132,7 @@ namespace EventFlow.TestHelpers
 
         protected async Task<IReadOnlyCollection<ThingyPingCommand>> PublishPingCommandsAsync(
             ThingyId thingyId,
-            int count, 
+            int count,
             CancellationToken cancellationToken = default)
         {
             if (count <= 0)

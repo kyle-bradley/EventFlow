@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,23 +21,34 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Extensions;
 
 namespace EventFlow.Sagas
 {
-    public interface IDispatchToSagas
+    public class SagaTimeoutUpdater<TAggregate, TIdentity, TTimeout> : ISagaTimeoutUpdater<TAggregate, TIdentity, TTimeout>
+        where TAggregate : IAggregateRoot<TIdentity>, ISaga
+        where TIdentity : ISagaId
+        where TTimeout : ISagaTimeout<TAggregate, TIdentity>
     {
-        Task ProcessAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
-
-        Task ProcessAsync<TSaga, TIdentity>(
-            ISagaTimeout<TSaga, TIdentity> sagaTimeout,
+        public Task ProcessAsync(
+            ISaga saga,
+            ISagaTimeout sagaTimeout,
+            ISagaContext sagaContext,
             CancellationToken cancellationToken)
-        where TSaga : IAggregateRoot<TIdentity>
-        where TIdentity : ISagaId;
+        {
+            var specificTimeout = (TTimeout)Convert.ChangeType(sagaTimeout, typeof(TTimeout));
+            var specificSaga = saga as ISagaTimeoutHandles<TAggregate, TIdentity, TTimeout>;
+
+            if (specificTimeout == null)
+                throw new ArgumentException($"Timeout is not of type '{typeof(ISagaTimeout<TAggregate, TIdentity>).PrettyPrint()}'");
+            if (specificSaga == null)
+                throw new ArgumentException($"Saga is not of type '{typeof(ISagaTimeout<TAggregate, TIdentity>).PrettyPrint()}'");
+
+            return specificSaga.HandleTimeoutAsync(specificTimeout, sagaContext, cancellationToken);
+        }
     }
 }
