@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
@@ -32,6 +33,7 @@ using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
+using EventFlow.Subscribers;
 
 namespace EventFlow.Sagas.AggregateSagas
 {
@@ -69,11 +71,8 @@ namespace EventFlow.Sagas.AggregateSagas
                 );
         }
 
-        protected void ScheduledPublish<TCommandAggregate, TCommandAggregateIdentity, TExecutionResult>(
-            ICommand<TCommandAggregate, TCommandAggregateIdentity, TExecutionResult> command, TimeSpan delay)
-            where TCommandAggregate : IAggregateRoot<TCommandAggregateIdentity>
-            where TCommandAggregateIdentity : IIdentity
-            where TExecutionResult : IExecutionResult
+        protected void ScheduledPublish(
+            ICommand command, TimeSpan delay)
         {
             _scheduledCommands.Add(
                 new Tuple<ICommand, Func<ICommandScheduler, CancellationToken, Task>>(
@@ -82,17 +81,26 @@ namespace EventFlow.Sagas.AggregateSagas
                 );
         }
 
-        protected void ScheduledPublish<TCommandAggregate, TCommandAggregateIdentity, TExecutionResult>(
-            ICommand<TCommandAggregate, TCommandAggregateIdentity, TExecutionResult> command, DateTimeOffset runAt)
-            where TCommandAggregate : IAggregateRoot<TCommandAggregateIdentity>
-            where TCommandAggregateIdentity : IIdentity
-            where TExecutionResult : IExecutionResult
+        protected void ScheduledPublish(
+            ICommand command, DateTimeOffset runAt)
         {
             _scheduledCommands.Add(
                 new Tuple<ICommand, Func<ICommandScheduler, CancellationToken, Task>>(
                         command,
                         async (b, c) => await b.ScheduleAsync(command, runAt, c).ConfigureAwait(false))
                 );
+        }
+
+        protected void ScheduleTimeout(
+            ISagaTimeout<TSaga, TIdentity> timeout, TimeSpan delay)
+        {
+            ScheduledPublish(timeout, delay);
+        }
+
+        protected void ScheduleTimeout(
+            ISagaTimeout<TSaga, TIdentity> timeout, DateTimeOffset runAt)
+        {
+            ScheduledPublish(timeout, runAt);
         }
 
         public SagaState State => _isCompleted
@@ -147,6 +155,7 @@ namespace EventFlow.Sagas.AggregateSagas
                     exceptions);
             }
         }
+
         public virtual async Task SchedulePublishAsync(ICommandScheduler scheduler, CancellationToken cancellationToken)
         {
             var commandsToPublish = _scheduledCommands.ToList();
@@ -161,7 +170,7 @@ namespace EventFlow.Sagas.AggregateSagas
                 {
                     try
                     {
-                        await commandInvoker(scheduler, cancellationToken).ConfigureAwait(false);                        
+                        await commandInvoker(scheduler, cancellationToken).ConfigureAwait(false);
                     }
                     catch (Exception e)
                     {

@@ -48,20 +48,19 @@ namespace EventFlow.Commands
 
         public Task ScheduleAsync(ICommand command, DateTimeOffset runAt, CancellationToken cancellationToken)
         {
-            var publishCommandJob = PublishCommandJob.Create(
-                command,
-                _commandDefinitionService,
-                _jsonSerializer);
+            var publishCommandJob = CreateCommandJob(command);
             return _jobScheduler.ScheduleAsync(publishCommandJob, runAt, cancellationToken);
         }
 
         public Task ScheduleAsync(ICommand command, TimeSpan delay, CancellationToken cancellationToken)
         {
-            var publishCommandJob = PublishCommandJob.Create(
-                command,
-                _commandDefinitionService,
-                _jsonSerializer);
+            var publishCommandJob = CreateCommandJob(command);
             return _jobScheduler.ScheduleAsync(publishCommandJob, delay, cancellationToken);
+        }
+
+        private IJob CreateCommandJob(ICommand command)
+        {
+            return PublishCommandJob.Create(command, _commandDefinitionService, _jsonSerializer);
         }
     }
 }

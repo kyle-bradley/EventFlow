@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,23 +21,31 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Collections.Generic;
+using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
+using EventFlow.Commands;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Aggregates;
 
 namespace EventFlow.Sagas
 {
-    public interface IDispatchToSagas
-    {
-        Task ProcessAsync(
-            IReadOnlyCollection<IDomainEvent> domainEvents,
-            CancellationToken cancellationToken);
-
-        Task ProcessAsync<TSaga, TIdentity>(
-            ISagaTimeout<TSaga, TIdentity> sagaTimeout,
-            CancellationToken cancellationToken)
+    public abstract class SagaDistinctTimeout<TSaga, TIdentity> : DistinctCommand<TSaga, TIdentity, SuccessExecutionResult>,
+            ISagaTimeout<TSaga, TIdentity>
         where TSaga : IAggregateRoot<TIdentity>
-        where TIdentity : ISagaId;
+        where TIdentity : ISagaId
+    {
+        protected SagaDistinctTimeout(TIdentity aggregateId) : base(aggregateId)
+        {
+        }
+
+        public ISagaId GetSagaId()
+        {
+            return AggregateId;
+        }
+
+        public async Task ProcessAsync(IDispatchToSagas sagaDispatcher, CancellationToken cancellationToken)
+        {
+            await sagaDispatcher.ProcessAsync(this, cancellationToken).ConfigureAwait(false);
+        }
     }
 }

@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Jobs;
+using EventFlow.Sagas;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Provided.Jobs
@@ -37,27 +38,35 @@ namespace EventFlow.Provided.Jobs
         public PublishCommandJob(
             string data,
             string name,
+            bool forSaga,
             int version)
         {
             Data = data;
             Name = name;
+            ForSaga = forSaga;
             Version = version;
         }
 
         public string Data { get; }
         public string Name { get; }
+        public bool ForSaga { get; }
         public int Version { get; }
 
-        public Task ExecuteAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
+        public async Task ExecuteAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken)
         {
-            var commandDefinitionService = serviceProvider.GetRequiredService<ICommandDefinitionService>();
-            var jsonSerializer = serviceProvider.GetRequiredService<IJsonSerializer>();
+            var sagaDispatcher = serviceProvider.GetRequiredService<IDispatchToSagas>();
             var commandBus = serviceProvider.GetRequiredService<ICommandBus>();
+            var command = ParseJobCommand(serviceProvider);
 
-            var commandDefinition = commandDefinitionService.GetDefinition(Name, Version);
-            var command = (ICommand) jsonSerializer.Deserialize(Data, commandDefinition.Type);
-
-            return command.PublishAsync(commandBus, cancellationToken);
+            if (ForSaga)
+            {
+                var timeoutCommand = command as ISagaTimeout;
+                await timeoutCommand.ProcessAsync(sagaDispatcher, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                await command.PublishAsync(commandBus, cancellationToken);
+            }
         }
 
         public static PublishCommandJob Create(
@@ -78,10 +87,23 @@ namespace EventFlow.Provided.Jobs
             var data = jsonSerializer.Serialize(command);
             var commandDefinition = commandDefinitionService.GetDefinition(command.GetType());
 
+            var isTimeoutCommand = typeof(ISagaTimeout).IsAssignableFrom(command.GetType());
+
             return new PublishCommandJob(
                 data,
                 commandDefinition.Name,
+                isTimeoutCommand,
                 commandDefinition.Version);
+        }
+
+        protected ICommand ParseJobCommand(IServiceProvider serviceProvider)
+        {
+            var commandDefinitionService = serviceProvider.GetRequiredService<ICommandDefinitionService>();
+            var jsonSerializer = serviceProvider.GetRequiredService<IJsonSerializer>();
+
+            var commandDefinition = commandDefinitionService.GetDefinition(Name, Version);
+            var command = (ICommand)jsonSerializer.Deserialize(Data, commandDefinition.Type);
+            return command;
         }
     }
 }
