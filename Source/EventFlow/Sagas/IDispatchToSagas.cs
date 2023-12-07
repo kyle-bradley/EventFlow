@@ -33,5 +33,11 @@ namespace EventFlow.Sagas
         Task ProcessAsync(
             IReadOnlyCollection<IDomainEvent> domainEvents,
             CancellationToken cancellationToken);
+
+        Task ProcessAsync<TSaga, TIdentity>(
+            ISagaTimeout<TSaga, TIdentity> sagaTimeout,
+            CancellationToken cancellationToken)
+        where TSaga : IAggregateRoot<TIdentity>
+        where TIdentity : ISagaId;
     }
 }

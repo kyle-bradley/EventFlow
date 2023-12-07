@@ -53,4 +53,26 @@ namespace EventFlow.Sagas
             return specificSaga.HandleAsync(specificDomainEvent, sagaContext, cancellationToken);
         }
     }
+    public class SagaTimeoutUpdater<TAggregate, TIdentity, TTimeout> : ISagaTimeoutUpdater<TAggregate, TIdentity, TTimeout>
+        where TAggregate : IAggregateRoot<TIdentity>, ISaga
+        where TIdentity : ISagaId
+        where TTimeout : ISagaTimeout<TAggregate, TIdentity>
+    {
+        public Task ProcessAsync(
+            ISaga saga,
+            ISagaTimeout sagaTimeout,
+            ISagaContext sagaContext,
+            CancellationToken cancellationToken)
+        {
+            var specificTimeout = (TTimeout) Convert.ChangeType(sagaTimeout, typeof(TTimeout));
+            var specificSaga = saga as ISagaTimeoutHandles<TAggregate, TIdentity, TTimeout>;
+
+            if (specificTimeout == null)
+                throw new ArgumentException($"Timeout is not of type '{typeof(ISagaTimeout<TAggregate, TIdentity>).PrettyPrint()}'");
+            if (specificSaga == null)
+                throw new ArgumentException($"Saga is not of type '{typeof(ISagaTimeout<TAggregate, TIdentity>).PrettyPrint()}'");
+
+            return specificSaga.HandleTimeoutAsync(specificTimeout, sagaContext, cancellationToken);
+        }
+    }
 }

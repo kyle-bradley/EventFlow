@@ -22,6 +22,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.Commands;
+using EventFlow.Subscribers;
 using System.Threading;
 using System.Threading.Tasks;
 

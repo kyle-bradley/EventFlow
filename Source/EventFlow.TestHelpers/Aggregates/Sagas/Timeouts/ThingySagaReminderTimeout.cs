@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,15 +21,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using EventFlow.Sagas;
 using System;
 using System.Collections.Generic;
 
-namespace EventFlow.Sagas
+namespace EventFlow.TestHelpers.Aggregates.Sagas.Timeouts
 {
-    public interface ISagaDefinitionService
+    public class ThingySagaReminderTimeout : SagaDistinctTimeout<ThingySaga, ThingySagaId>
     {
-        void LoadSagas(params Type[] sagaTypes);
-        void LoadSagas(IEnumerable<Type> sagaTypes);
-        IReadOnlyCollection<SagaDetails> GetSagaDetails(Type aggregateHandlerType);
+        public ThingySagaReminderTimeout(ThingySagaId aggregateId) : base(aggregateId)
+        {
+        }
+
+        protected override IEnumerable<byte[]> GetSourceIdComponents()
+        {
+            yield return Guid.NewGuid().ToByteArray();
+        }
     }
 }

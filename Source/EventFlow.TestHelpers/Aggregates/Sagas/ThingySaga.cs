@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
+using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Exceptions;
 using EventFlow.Sagas;
 using EventFlow.Sagas.AggregateSagas;
@@ -33,6 +34,7 @@ using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Sagas.Events;
+using EventFlow.TestHelpers.Aggregates.Sagas.Timeouts;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 
 namespace EventFlow.TestHelpers.Aggregates.Sagas
@@ -42,6 +44,7 @@ namespace EventFlow.TestHelpers.Aggregates.Sagas
         ISagaHandles<ThingyAggregate, ThingyId, ThingyPingEvent>,
         ISagaHandles<ThingyAggregate, ThingyId, ThingySagaExceptionRequestedEvent>,
         ISagaHandles<ThingyAggregate, ThingyId, ThingySagaCompleteRequestedEvent>,
+        ISagaTimeoutHandles<ThingySaga, ThingySagaId, ThingySagaReminderTimeout>,
         IEmit<ThingySagaStartedEvent>,
         IEmit<ThingySagaPingReceivedEvent>,
         IEmit<ThingySagaCompletedEvent>
@@ -100,10 +103,18 @@ namespace EventFlow.TestHelpers.Aggregates.Sagas
             // This check is redundant! We do it to verify EventFlow works correctly
             if (State != SagaState.Running) throw DomainError.With("Saga must be running!");
 
-            Emit(new ThingySagaCompletedEvent());
+            ScheduleTimeout(new ThingySagaReminderTimeout(this.Id), TimeSpan.FromMilliseconds(1));
 
             return Task.FromResult(0);
         }
+
+        public Task HandleTimeoutAsync(ThingySagaReminderTimeout timeout, ISagaContext sagaContext, CancellationToken cancellationToken)
+        {
+            Emit(new ThingySagaCompletedEvent());
+
+            return Task.FromResult(new SuccessExecutionResult());
+        }
+
 
         public void Apply(ThingySagaStartedEvent aggregateEvent)
         {

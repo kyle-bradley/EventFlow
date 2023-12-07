@@ -142,5 +142,6 @@ namespace EventFlow.Subscribers
         {
             await _dispatchToSagas.ProcessAsync(domainEvents, cancellationToken).ConfigureAwait(false);
         }
+
     }
 }

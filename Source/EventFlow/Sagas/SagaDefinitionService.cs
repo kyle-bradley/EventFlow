@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
 using Microsoft.Extensions.Logging;
@@ -66,10 +65,10 @@ namespace EventFlow.Sagas
                 var sagaDetails = SagaDetails.From(sagaType);
                 _sagaDetails[sagaType] = sagaDetails;
 
-                foreach (var aggregateEventType in sagaDetails.AggregateEventTypes)
+                foreach (var aggregateHandlerType in sagaDetails.AggregateHandlerTypes)
                 {
                     var sagaDetailsList = _sagaDetailsByAggregateEvent.GetOrAdd(
-                        aggregateEventType,
+                        aggregateHandlerType,
                         new List<SagaDetails>());
 
                     sagaDetailsList.Add(sagaDetails);
@@ -77,9 +76,9 @@ namespace EventFlow.Sagas
             }
         }
 
-        public IReadOnlyCollection<SagaDetails> GetSagaDetails(Type aggregateEventType)
+        public IReadOnlyCollection<SagaDetails> GetSagaDetails(Type aggregateHandlerType)
         {
-            return _sagaDetailsByAggregateEvent.TryGetValue(aggregateEventType, out var sagaDetails)
+            return _sagaDetailsByAggregateEvent.TryGetValue(aggregateHandlerType, out var sagaDetails)
                 ? sagaDetails
                 : Empty;
         }

@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2021 Rasmus Mikkelsen
 // Copyright (c) 2015-2021 eBay Software Foundation
@@ -21,49 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 
 namespace EventFlow.Sagas
 {
-    public interface ISagaUpdateResilienceStrategy
+    public interface ISagaTimeoutHandles<in TSaga, TIdentity, in TTimeout>: ISaga
+        where TSaga : IAggregateRoot<TIdentity>
+        where TIdentity : ISagaId
+        where TTimeout : ISagaTimeout<TSaga, TIdentity>
     {
-        Task BeforeUpdateAsync(
-            ISaga saga,
-            IDomainEvent domainEvent,
-            SagaDetails details,
-            CancellationToken cancellationToken);
-
-        Task BeforeUpdateAsync(
-            ISaga saga,
-            ISagaTimeout sagaTimeout,
-            SagaDetails details,
-            CancellationToken cancellationToken);
-
-        Task<bool> HandleUpdateFailedAsync(ISaga saga,
-            IDomainEvent domainEvent,
-            SagaDetails details,
-            Exception exception,
-            CancellationToken cancellationToken);
-
-        Task<bool> HandleUpdateFailedAsync(ISaga saga,
-            ISagaTimeout sagaTimeout,
-            SagaDetails details,
-            Exception exception,
-            CancellationToken cancellationToken);
-
-        Task UpdateSucceededAsync(
-            ISaga saga,
-            IDomainEvent domainEvent,
-            SagaDetails details,
-            CancellationToken cancellationToken);
-
-        Task UpdateSucceededAsync(
-            ISaga saga,
-            ISagaTimeout sagaTimeout,
-            SagaDetails details,
-            CancellationToken cancellationToken);
+        Task HandleTimeoutAsync(TTimeout timeout, ISagaContext sagaContext, CancellationToken cancellationToken);
     }
 }

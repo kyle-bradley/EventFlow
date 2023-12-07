@@ -74,6 +74,45 @@ namespace EventFlow.Sagas
             }
         }
 
+        public async Task ProcessAsync<TSaga, TIdentity>(ISagaTimeout<TSaga, TIdentity> sagaTimeout, CancellationToken cancellationToken)
+            where TSaga : IAggregateRoot<TIdentity>
+            where TIdentity : ISagaId
+        {
+            var timeoutType = sagaTimeout.GetType();
+            var sagaTypeDetails = _sagaDefinitionService.GetSagaDetails(timeoutType);
+
+            if (_logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace(
+                    "Saga types to process for timeout {DomainTimeoutType}: {SagaTypes}",
+                    timeoutType.PrettyPrint(),
+                    sagaTypeDetails.Select(d => d.SagaType.PrettyPrint()));
+            }
+
+            var multipleSagaTypesFoundAndNotAllowed = sagaTypeDetails.Count > 1;
+            if (multipleSagaTypesFoundAndNotAllowed)
+            {
+                _logger.LogWarning(
+                    "Multiple sagas were matched to timeout {SagaTimeoutType}. Should only be mapped to one instance.",
+                    sagaTimeout.GetType().PrettyPrint());
+                
+                return;
+            }
+
+            var noSagaFoundButShouldBeMatched = !sagaTypeDetails.Any();
+            if (noSagaFoundButShouldBeMatched)
+            {
+                _logger.LogWarning(
+                    "No saga was matched to timeout {SagaTimeoutType}. There should be one that handles the timeout.",
+                    sagaTimeout.GetType().PrettyPrint());
+
+                return;
+            }
+
+            var associatedSagaDetails = sagaTypeDetails.First();
+            await ProcessSagaAsync(sagaTimeout, sagaTimeout.AggregateId, associatedSagaDetails, cancellationToken).ConfigureAwait(false);
+        }
+
         private async Task ProcessAsync(
             IDomainEvent domainEvent,
             CancellationToken cancellationToken)
@@ -131,7 +170,7 @@ namespace EventFlow.Sagas
                 // Search for a specific SagaErrorHandler<Saga> based on saga type
                 ISagaErrorHandler specificSagaErrorHandler = _sagaErrorHandlerFactory(details.SagaType);
 
-                bool handled = specificSagaErrorHandler != null ? 
+                bool handled = specificSagaErrorHandler != null ?
                     await specificSagaErrorHandler.HandleAsync(sagaId, details, e, cancellationToken).ConfigureAwait(false) :
                     await _sagaErrorHandler.HandleAsync(sagaId, details, e, cancellationToken).ConfigureAwait(false);
 
@@ -143,6 +182,51 @@ namespace EventFlow.Sagas
                 _logger.LogError(
                     "Failed to process domain event {DomainEventType} for saga {SagaType}",
                     domainEvent.EventType,
+                    details.SagaType.PrettyPrint());
+                throw;
+            }
+        }
+
+        private async Task ProcessSagaAsync<TSaga, TIdentity>(
+            ISagaTimeout<TSaga, TIdentity> sagaTimeout,
+            ISagaId sagaId,
+            SagaDetails details,
+            CancellationToken cancellationToken)
+            where TSaga : IAggregateRoot<TIdentity>
+            where TIdentity : ISagaId
+        {
+            try
+            {
+                _logger.LogTrace(
+                    "Loading saga {SagaType} with ID {Id}",
+                    details.SagaType.PrettyPrint(),
+                    sagaId);
+
+                await _sagaStore.UpdateAsync(
+                    sagaId,
+                    details.SagaType,
+                    sagaTimeout.GetSourceId(),
+                    (s, c) => UpdateSagaAsync(s, sagaTimeout, details, c),
+                    cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                // Search for a specific SagaErrorHandler<Saga> based on saga type
+                ISagaErrorHandler specificSagaErrorHandler = _sagaErrorHandlerFactory(details.SagaType);
+
+                bool handled = specificSagaErrorHandler != null ?
+                    await specificSagaErrorHandler.HandleAsync(sagaId, details, e, cancellationToken).ConfigureAwait(false) :
+                    await _sagaErrorHandler.HandleAsync(sagaId, details, e, cancellationToken).ConfigureAwait(false);
+
+                if (handled)
+                {
+                    return;
+                }
+
+                _logger.LogError(
+                    "Failed to process domain event {DomainEventType} for saga {SagaType}",
+                    sagaTimeout.GetType(),
                     details.SagaType.PrettyPrint());
                 throw;
             }
@@ -205,6 +289,83 @@ namespace EventFlow.Sagas
                 if (!await _sagaUpdateLog.HandleUpdateFailedAsync(
                         saga,
                         domainEvent,
+                        details,
+                        e,
+                        cancellationToken)
+                    .ConfigureAwait(false))
+                {
+                    throw;
+                }
+            }
+        }
+
+        private async Task UpdateSagaAsync<TSaga, TIdentity>(
+            ISaga saga,
+            ISagaTimeout<TSaga, TIdentity> sagaTimeout,
+            SagaDetails details,
+            CancellationToken cancellationToken)
+            where TSaga : IAggregateRoot<TIdentity>
+            where TIdentity : ISagaId
+        {
+            var sagaTimeoutType = sagaTimeout.GetType();
+            if (saga.State == SagaState.Completed)
+            {
+                _logger.LogTrace(
+                    "Saga {SagaType} is completed, skipping processing of {DomainEventType}",
+                    details.SagaType.PrettyPrint(),
+                    sagaTimeoutType.PrettyPrint());
+                return;
+            }
+
+            if (saga.State == SagaState.New)
+            {
+                _logger.LogTrace(
+                    "Saga {SagaType} isn't started yet and not started by {DomainEventType}, skipping",
+                    details.SagaType.PrettyPrint(),
+                    sagaTimeoutType.PrettyPrint());
+                return;
+            }
+            /*
+             *  var sagaUpdaterType = typeof(ISagaEventUpdater<,,,>).MakeGenericType(
+                domainEvent.AggregateType,
+                domainEvent.IdentityType,
+                domainEvent.EventType,
+                details.SagaType);
+            var sagaUpdater = (ISagaEventUpdater)_serviceProvider.GetRequiredService(sagaUpdaterType);*/
+
+            var sagaUpdaterType = typeof(ISagaTimeoutUpdater<,,>).MakeGenericType(
+                typeof(TSaga),
+                typeof(TIdentity),
+                sagaTimeoutType);
+            var sagaUpdater = (ISagaTimeoutUpdater)_serviceProvider.GetRequiredService(sagaUpdaterType);
+
+            await _sagaUpdateLog.BeforeUpdateAsync(
+                    saga,
+                    sagaTimeout,
+                    details,
+                    cancellationToken)
+                .ConfigureAwait(false);
+            try
+            {
+                await sagaUpdater.ProcessAsync(
+                        saga,
+                        sagaTimeout,
+                        SagaContext.Empty,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                await _sagaUpdateLog.UpdateSucceededAsync(
+                        saga,
+                        sagaTimeout,
+                        details,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                if (!await _sagaUpdateLog.HandleUpdateFailedAsync(
+                        saga,
+                        sagaTimeout,
                         details,
                         e,
                         cancellationToken)

@@ -22,11 +22,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
 using EventFlow.Jobs;
+using EventFlow.Sagas;
 using EventFlow.Subscribers;
 using Microsoft.Extensions.DependencyInjection;
 

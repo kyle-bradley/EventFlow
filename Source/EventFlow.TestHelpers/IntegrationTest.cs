@@ -70,6 +70,7 @@ namespace EventFlow.TestHelpers
                 .AddQueryHandler<DbContextQueryHandler, DbContextQuery, string>()
                 .AddDefaults(EventFlowTestHelpers.Assembly, 
                     type => type != typeof(DbContextQueryHandler))
+                .AddCommandHandlers()
                 .RegisterServices(c => {
                     c.AddTransient<IScopedContext, ScopedContext>();
                     InjectedServices(c);

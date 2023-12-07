@@ -32,6 +32,7 @@ using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Core.Caching;
 using EventFlow.Extensions;
+using EventFlow.Subscribers;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
