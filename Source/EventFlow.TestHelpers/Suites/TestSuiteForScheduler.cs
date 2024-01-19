@@ -35,7 +35,6 @@ using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using FluentAssertions;
-using FluentAssertions.Common;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
@@ -116,19 +115,25 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             var start = DateTimeOffset.Now;
+            var success = false;
+
             while (DateTimeOffset.Now < start + TimeSpan.FromSeconds(20))
             {
                 var testAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
                 if (!testAggregate.IsNew)
                 {
                     await AssertJobIsSuccessfullyAsync(jobId).ConfigureAwait(false);
-                    Assert.Pass();
+                    success = true;
+                    break;
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(0.2)).ConfigureAwait(false);
             }
-
-            Assert.Fail("Aggregate did not receive the command as expected");
+            var failedToCaptureEvent = !success;
+            if(failedToCaptureEvent)
+            {
+                Assert.Fail("Aggregate did not receive the command as expected");
+            }
         }
 
         protected virtual Task AssertJobIsSuccessfullyAsync(IJobId jobId)
