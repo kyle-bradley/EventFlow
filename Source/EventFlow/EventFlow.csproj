@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
 	<PackageId>ClearFlow</PackageId>
 	<Title>ClearFlow</Title>
     <Description>Forked project based on EventFlow:
@@ -25,20 +25,12 @@ Async/await first CQRS+ES and DDD framework for .NET - https://docs.geteventflow
 	  </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.10" />
-	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.10" />
-	  <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.10" />
-	  <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.10" />
-	  <PackageReference Include="System.Text.Json" Version="6.0.9" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
-	  <PackageReference Include="System.Text.Json" Version="8.0.1" />
+	  <PackageReference Include="System.Text.Json" Version="8.0.3" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
