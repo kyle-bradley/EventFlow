@@ -113,7 +113,7 @@ namespace EventFlow.Hangfire.Tests.Integration
 
             // Assert
             var receivedPingId = await Task.Run(() => _testAsynchronousSubscriber.PingIds.Take(), cts.Token).ConfigureAwait(false);
-            receivedPingId.Should().IsSameOrEqualTo(pingId);
+            receivedPingId.Should().Equals(pingId);
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace EventFlow.Hangfire.Tests.Integration
                 if (!testAggregate.IsNew)
                 {
                     await AssertJobIsSuccessfullyAsync(jobId).ConfigureAwait(false);
-                    Assert.Contains(pingId, testAggregate.PingsReceived.ToList());
+                    Assert.That(testAggregate.PingsReceived.ToList(), Contains.Item(pingId));
                     Assert.Pass();
                 }
                 

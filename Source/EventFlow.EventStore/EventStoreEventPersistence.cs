@@ -215,5 +215,10 @@ namespace EventFlow.EventStores.EventStore
                     })
                 .ToList();
         }
+
+        public Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, int fromEventSequenceNumber, int toEventSequenceNumber, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
