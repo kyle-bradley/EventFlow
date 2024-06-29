@@ -325,13 +325,6 @@ namespace EventFlow.Sagas
                     sagaTimeoutType.PrettyPrint());
                 return;
             }
-            /*
-             *  var sagaUpdaterType = typeof(ISagaEventUpdater<,,,>).MakeGenericType(
-                domainEvent.AggregateType,
-                domainEvent.IdentityType,
-                domainEvent.EventType,
-                details.SagaType);
-            var sagaUpdater = (ISagaEventUpdater)_serviceProvider.GetRequiredService(sagaUpdaterType);*/
 
             var sagaUpdaterType = typeof(ISagaTimeoutUpdater<,,>).MakeGenericType(
                 typeof(TSaga),

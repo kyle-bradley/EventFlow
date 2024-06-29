@@ -50,6 +50,7 @@ namespace EventFlow.ReadStores
         private readonly IEventUpgradeContextFactory _eventUpgradeContextFactory;
         private readonly IMemoryCache _memoryCache;
         private ConcurrentQueue<AllEventsPage> _pipedEvents = new ConcurrentQueue<AllEventsPage>();
+        private bool _finishedEvents = false;
 
         public ReadModelPopulator(
             ILogger<ReadModelPopulator> logger,
@@ -155,6 +156,7 @@ namespace EventFlow.ReadStores
 
                 if (!allEventsPage.DomainEvents.Any())
                 {
+                    _finishedEvents = true;
                     _logger.LogTrace(
                         "No more events in event store with a total of {EventTotal} events",
                         totalEvents);
@@ -171,8 +173,16 @@ namespace EventFlow.ReadStores
             var hasMoreEvents = true;
             do
             {
-                var noEventsToReady = !_pipedEvents.Any();
-                if (noEventsToReady)
+                var waitingOnEvents = !_pipedEvents.Any();
+                var noBufferEvents = !domainEventsToProcess.Any();
+
+                var noMoreEventsToProcess = waitingOnEvents && noBufferEvents && _finishedEvents;
+                if (noMoreEventsToProcess)
+                {
+                    break;
+                }
+
+                if (waitingOnEvents)
                 {
                     await Task.Delay(100);
                     continue;
@@ -188,7 +198,9 @@ namespace EventFlow.ReadStores
 
                 hasMoreEvents = fetchedEvents.DomainEvents.Any();
                 var batchExceedsThreshold = domainEventsToProcess.Count >= _configuration.PopulateReadModelEventPageSize;
-                var processEvents = !hasMoreEvents || batchExceedsThreshold;
+
+                var noMoreEventsSoForceProcessing = !hasMoreEvents || _finishedEvents;
+                var processEvents = noMoreEventsSoForceProcessing || batchExceedsThreshold;
                 if (processEvents)
                 {
                     var readModelUpdateTasks = readModelTypes.Select(readModelType => ProcessEvents(readModelType, domainEventsToProcess, cancellationToken));

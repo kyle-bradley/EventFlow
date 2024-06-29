@@ -68,20 +68,29 @@ namespace EventFlow.EventStores.EventStore
             do
             {
                 var result = _client.ReadAllAsync(Direction.Forwards, nextPosition, pageSize, cancellationToken: cancellationToken);
-                var events = await result.ToListAsync();
-                var nonDeletedEvents = events.Where(e => !(e.OriginalStreamId.StartsWith("$") || e.Event.EventType.StartsWith("$"))).ToList();
-                resolvedEvents.AddRange(nonDeletedEvents);
+                var streamNonDeleted = result.Where(e => !(e.OriginalStreamId.StartsWith("$") || e.Event.EventType.StartsWith("$")));
+                var streamedEvents = await streamNonDeleted.ToListAsync();
+                resolvedEvents.AddRange(streamedEvents);
 
                 var noPositionAvailable = !result.LastPosition.HasValue;
                 if (noPositionAvailable)
                 {
                     break;
                 }
-
-                nextPosition = result.LastPosition.Value;
-
             }
             while (resolvedEvents.Count < pageSize);
+
+            var noMoreResults = !resolvedEvents.Any() || resolvedEvents.Last().OriginalPosition == Position.End;
+            var shouldCarryThroughPosition = !noMoreResults;
+
+            if (shouldCarryThroughPosition)
+            {
+                var lastEventToCarry = resolvedEvents.Last();
+                nextPosition = lastEventToCarry.OriginalPosition.Value;
+
+                resolvedEvents = resolvedEvents.Take(resolvedEvents.Count - 1).ToList();
+            }
+
             var eventStoreEvents = Map(resolvedEvents);
 
             return new AllCommittedEventsPage(
