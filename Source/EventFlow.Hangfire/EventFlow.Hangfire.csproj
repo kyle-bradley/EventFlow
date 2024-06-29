@@ -1,22 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
 	<PackageId>ClearFlow.Hangfire</PackageId>
     <Title>ClearFlow.Hangfire</Title>
     <Authors>Kyle Bradley, Rasmus Mikkelsen</Authors>
     <Company>Kyle Bradley, Rasmus Mikkelsen</Company>
-    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
     <Description>Hangfire job scheduling support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing Hangfire</PackageTags>
-	<PackageReleaseNotes>Initial release including support for .net 7.0 &amp; .net 8.0</PackageReleaseNotes>
+    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
-	<Version>0.1.0</Version>
-	<Product>ClearFlow.Hangfire</Product>
-	<RepositoryUrl>https://github.com/kyle-bradley/EventFlow</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hangfire.Core" Version="1.8.7" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.14" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
 

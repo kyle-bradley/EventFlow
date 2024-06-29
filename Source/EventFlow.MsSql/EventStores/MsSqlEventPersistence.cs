@@ -1,7 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,7 +22,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -191,6 +190,37 @@ namespace EventFlow.MsSql.EventStores
                     AggregateId = id.Value,
                     FromEventSequenceNumber = fromEventSequenceNumber,
                 })
+                .ConfigureAwait(false);
+            return eventDataModels;
+        }
+
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
+            int toEventSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                SELECT
+                    GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
+                FROM EventFlow
+                WHERE
+                    AggregateId = @AggregateId AND
+                    AggregateSequenceNumber >= @FromEventSequenceNumber AND
+                    AggregateSequenceNumber <= @ToEventSequenceNumber
+                ORDER BY
+                    AggregateSequenceNumber ASC";
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
+                    Label.Named("mssql-fetch-events"),
+                    null, 
+                    cancellationToken,
+                    sql,
+                    new
+                    {
+                        AggregateId = id.Value,
+                        FromEventSequenceNumber = fromEventSequenceNumber,
+                        ToEventSequenceNumber = toEventSequenceNumber
+                    })
                 .ConfigureAwait(false);
             return eventDataModels;
         }

@@ -1,7 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,9 +28,6 @@ namespace EventFlow.Hangfire.Integration
     public interface IHangfireJobRunner
     {
         [DisplayName("{0}")]
-        Task ExecuteAsync(string displayName, string jobName, int version, string job);
-
-        [DisplayName("{0}"), UseQueueFromParameter(4)]
-        Task ExecuteAsync(string displayName, string jobName, int version, string job, string queueName);
+        Task ExecuteAsync(string jobName, int version, string job);
     }
 }

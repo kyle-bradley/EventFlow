@@ -1,7 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,8 +23,8 @@
 using System;
 using EventFlow.Hangfire.Integration;
 using EventFlow.Jobs;
-using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.Hangfire.Extensions
 {
@@ -36,10 +35,8 @@ namespace EventFlow.Hangfire.Extensions
         {
             eventFlowOptions.ServiceCollection.AddTransient<IJobScheduler, HangfireJobScheduler>();
             eventFlowOptions.ServiceCollection.AddTransient<IHangfireJobRunner, HangfireJobRunner>();
-            eventFlowOptions.ServiceCollection.AddTransient<IJobDisplayNameBuilder, JobDisplayNameBuilder>();
-            eventFlowOptions.ServiceCollection.AddTransient<IBackgroundJobClient, BackgroundJobClient>();
-            eventFlowOptions.ServiceCollection.AddTransient<IQueueNameProvider>(r => new QueueNameProvider(null));
-
+            eventFlowOptions.ServiceCollection.TryAddTransient<IJobRunner, JobRunner>();
+            eventFlowOptions.ServiceCollection.AddTransient<IQueueNameProvider>(_ => new QueueNameProvider(null));
             return eventFlowOptions;
         }
 

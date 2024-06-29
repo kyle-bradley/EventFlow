@@ -1,7 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -233,6 +232,31 @@ namespace EventFlow.EventStores.Files
                     var committedDomainEvent = await LoadFileEventDataFile(eventPath).ConfigureAwait(false);
                     committedDomainEvents.Add(committedDomainEvent);
                 }
+            }
+        }
+
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
+            int toEventSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            using (await _asyncLock.WaitAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var committedDomainEvents = new List<ICommittedDomainEvent>();
+                for (var i = fromEventSequenceNumber; i <= toEventSequenceNumber ; i++)
+                {
+                    var eventPath = _filesEventLocator.GetEventPath(id, i);
+                    if (!File.Exists(eventPath))
+                    {
+                        return committedDomainEvents;
+                    }
+
+                    var committedDomainEvent = await LoadFileEventDataFile(eventPath).ConfigureAwait(false);
+                    committedDomainEvents.Add(committedDomainEvent);
+                }
+
+                return committedDomainEvents;
             }
         }
 

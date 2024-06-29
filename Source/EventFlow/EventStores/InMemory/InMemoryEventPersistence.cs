@@ -1,7 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -195,12 +194,32 @@ namespace EventFlow.EventStores.InMemory
             int fromEventSequenceNumber,
             CancellationToken cancellationToken)
         {
+            return LoadCommittedEventsAsync(
+                id,
+                fromEventSequenceNumber,
+                e => e.AggregateSequenceNumber >= fromEventSequenceNumber);
+        }
+
+        public Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
+            int toEventSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            return LoadCommittedEventsAsync(
+                id,
+                fromEventSequenceNumber,
+                e => e.AggregateSequenceNumber >= fromEventSequenceNumber && e.AggregateSequenceNumber <= toEventSequenceNumber);
+        }
+        
+        private Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id,int fromEventSequenceNumber, Func<InMemoryCommittedDomainEvent, bool> filter)
+        {
             IReadOnlyCollection<ICommittedDomainEvent> result;
 
             if (_eventStore.TryGetValue(id.Value, out var committedDomainEvent))
                 result = fromEventSequenceNumber <= 1
-                    ? (IReadOnlyCollection<ICommittedDomainEvent>) committedDomainEvent
-                    : committedDomainEvent.Where(e => e.AggregateSequenceNumber >= fromEventSequenceNumber).ToList();
+                    ? (IReadOnlyCollection<ICommittedDomainEvent>)committedDomainEvent
+                    : committedDomainEvent.Where(filter).ToList();
             else
                 result = new List<InMemoryCommittedDomainEvent>();
 

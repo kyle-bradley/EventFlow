@@ -1,7 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -173,6 +172,38 @@ namespace EventFlow.PostgreSql.EventStores
         public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
             IIdentity id,
             int fromEventSequenceNumber,
+            int toEventSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                SELECT
+                    GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
+                FROM EventFlow
+                WHERE
+                    AggregateId = @AggregateId AND
+                    AggregateSequenceNumber >= @FromEventSequenceNumber AND
+                    AggregateSequenceNumber <= @ToSequenceNumber
+                ORDER BY
+                    AggregateSequenceNumber ASC;";
+            
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
+                    Label.Named("postgresql-fetch-events"),
+                    null,
+                    cancellationToken,
+                    sql,
+                    new
+                    {
+                        AggregateId = id.Value,
+                        FromEventSequenceNumber = fromEventSequenceNumber,
+                        ToSequenceNumber = toEventSequenceNumber
+                    })
+                .ConfigureAwait(false);
+            return eventDataModels;
+        }
+
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
             CancellationToken cancellationToken)
         {
             const string sql = @"
@@ -184,6 +215,7 @@ namespace EventFlow.PostgreSql.EventStores
                     AggregateSequenceNumber >= @FromEventSequenceNumber
                 ORDER BY
                     AggregateSequenceNumber ASC;";
+            
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
                 Label.Named("postgresql-fetch-events"),
                 null,

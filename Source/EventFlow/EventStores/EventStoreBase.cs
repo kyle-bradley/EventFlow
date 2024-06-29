@@ -1,7 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -154,6 +153,25 @@ namespace EventFlow.EventStores
                 cancellationToken);
         }
 
+        public async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
+            TIdentity id,
+            int fromEventSequenceNumber,
+            int toEventSequenceNumber,
+            CancellationToken cancellationToken) where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity
+        {
+            if (fromEventSequenceNumber < 1) throw new ArgumentOutOfRangeException(nameof(fromEventSequenceNumber), "Event sequence numbers start at 1");
+            if (toEventSequenceNumber <= fromEventSequenceNumber) throw new ArgumentOutOfRangeException(nameof(toEventSequenceNumber), "Event sequence numbers end at start");
+            
+            var committedDomainEvents = await _eventPersistence.LoadCommittedEventsAsync(
+                    id,
+                    fromEventSequenceNumber,
+                    toEventSequenceNumber,
+                    cancellationToken)
+                .ConfigureAwait(false);
+            
+            return await MapToDomainEvents<TAggregate, TIdentity>(id, cancellationToken, committedDomainEvents);
+        }
+
         public virtual async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> LoadEventsAsync<TAggregate, TIdentity>(
             TIdentity id,
             int fromEventSequenceNumber,
@@ -164,10 +182,17 @@ namespace EventFlow.EventStores
             if (fromEventSequenceNumber < 1) throw new ArgumentOutOfRangeException(nameof(fromEventSequenceNumber), "Event sequence numbers start at 1");
 
             var committedDomainEvents = await _eventPersistence.LoadCommittedEventsAsync(
-                id,
-                fromEventSequenceNumber,
-                cancellationToken)
+                    id,
+                    fromEventSequenceNumber,
+                    cancellationToken)
                 .ConfigureAwait(false);
+            
+            return await MapToDomainEvents<TAggregate, TIdentity>(id, cancellationToken, committedDomainEvents);
+        }
+        
+        private async Task<IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>> MapToDomainEvents<TAggregate, TIdentity>(TIdentity id, CancellationToken cancellationToken,
+            IReadOnlyCollection<ICommittedDomainEvent> committedDomainEvents) where TAggregate : IAggregateRoot<TIdentity> where TIdentity : IIdentity
+        {
             var domainEvents = (IReadOnlyCollection<IDomainEvent<TAggregate, TIdentity>>)committedDomainEvents
                 .Select(e => _eventJsonSerializer.Deserialize<TAggregate, TIdentity>(id, e))
                 .ToList();

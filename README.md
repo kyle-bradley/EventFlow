@@ -1,13 +1,10 @@
 # EventFlow
 
-<img src="./icon-128.png" />
+![EventFlow logo](https://raw.githubusercontent.com/eventflow/EventFlow/develop-v1/icon-128.png)
 
-<a href="https://www.nuget.org/packages/EventFlow/"><img src="https://img.shields.io/nuget/v/EventFlow.svg?style=flat" /></a>
-<a href="https://gitter.im/rasmus/EventFlow?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" /></a>
-<a href="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml"><img src="https://github.com/eventflow/EventFlow/actions/workflows/ci.yml/badge.svg" /></a>
-
-NuGet feeds
-- Official releases: https://www.nuget.org/packages/EventFlow/
+```
+$ dotnet add package EventFlow
+```
 
 EventFlow is a basic CQRS+ES framework designed to be easy to use.
 
@@ -67,7 +64,7 @@ The following list key characteristics of each version as well as its related br
     - 🟠 `EventFlow.Elasticsearch`
     - 🟠 `EventFlow.EntityFramework`
     - 🟠 `EventFlow.EventStores.EventStore`
-    - 🟠 `EventFlow.Hangfire`
+    - 🟢 `EventFlow.Hangfire`
     - 🟢 `EventFlow.MongoDB`
     - 🟢 `EventFlow.MsSql`
     - 💀 `EventFlow.Owin`
@@ -481,11 +478,14 @@ category.
 
 ## License
 
+EventFlow was originally developed <u>in my spare time</u> while I worked at both
+<a href="https://www.ebay.com/">eBay (2015 to 2021)</a> and
+<a href="https://schibsted.com/">Schibsted (2021 and onward)</a>.
+
 ```
 The MIT License (MIT)
 
-Copyright (c) 2015-2021 Rasmus Mikkelsen
-Copyright (c) 2015-2021 eBay Software Foundation
+Copyright (c) 2015-2024 Rasmus Mikkelsen
 https://github.com/eventflow/EventFlow
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
