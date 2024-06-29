@@ -50,7 +50,6 @@ namespace EventFlow.ReadStores
         private readonly IEventUpgradeContextFactory _eventUpgradeContextFactory;
         private readonly IMemoryCache _memoryCache;
         private ConcurrentQueue<AllEventsPage> _pipedEvents = new ConcurrentQueue<AllEventsPage>();
-        private bool _finishedEvents = false;
 
         public ReadModelPopulator(
             ILogger<ReadModelPopulator> logger,
@@ -156,7 +155,6 @@ namespace EventFlow.ReadStores
 
                 if (!allEventsPage.DomainEvents.Any())
                 {
-                    _finishedEvents = true;
                     _logger.LogTrace(
                         "No more events in event store with a total of {EventTotal} events",
                         totalEvents);
@@ -173,16 +171,8 @@ namespace EventFlow.ReadStores
             var hasMoreEvents = true;
             do
             {
-                var waitingOnEvents = !_pipedEvents.Any();
-                var noBufferEvents = !domainEventsToProcess.Any();
-
-                var noMoreEventsToProcess = waitingOnEvents && noBufferEvents && _finishedEvents;
-                if (noMoreEventsToProcess)
-                {
-                    break;
-                }
-
-                if (waitingOnEvents)
+                var noEventsToReady = !_pipedEvents.Any();
+                if (noEventsToReady)
                 {
                     await Task.Delay(100);
                     continue;
@@ -198,14 +188,12 @@ namespace EventFlow.ReadStores
 
                 hasMoreEvents = fetchedEvents.DomainEvents.Any();
                 var batchExceedsThreshold = domainEventsToProcess.Count >= _configuration.PopulateReadModelEventPageSize;
-
-                var noMoreEventsSoForceProcessing = !hasMoreEvents || _finishedEvents;
-                var processEvents = noMoreEventsSoForceProcessing || batchExceedsThreshold;
+                var processEvents = !hasMoreEvents || batchExceedsThreshold;
                 if (processEvents)
                 {
                     var readModelUpdateTasks = readModelTypes.Select(readModelType => ProcessEvents(readModelType, domainEventsToProcess, cancellationToken));
                     await Task.WhenAll(readModelUpdateTasks);
-                    
+
                     domainEventsToProcess.Clear();
                 }
             }
@@ -225,7 +213,7 @@ namespace EventFlow.ReadStores
                     typeof( IAmReadModelFor<,,> )
                 };
 
-                var aggregateEventTypes = _memoryCache.GetOrCreate(CacheKey.With(GetType(), readModelType.ToString(), nameof(ProcessEvents)), 
+                var aggregateEventTypes = _memoryCache.GetOrCreate(CacheKey.With(GetType(), readModelType.ToString(), nameof(ProcessEvents)),
                     e => new HashSet<Type>(readModelType.GetTypeInfo()
                         .GetInterfaces()
                         .Where(i => i.GetTypeInfo().IsGenericType && readModelTypes.Contains(i.GetGenericTypeDefinition()))
@@ -286,7 +274,7 @@ namespace EventFlow.ReadStores
             Type readModelType)
         {
             return _memoryCache.GetOrCreate(CacheKey.With(GetType(), readModelType.ToString(), nameof(ResolveReadStoreManagers)),
-                e => 
+                e =>
                 {
                     var readStoreManagers = _serviceProvider.GetServices<IReadStoreManager>()
                     .Where(m => m.ReadModelType == readModelType)
@@ -297,7 +285,7 @@ namespace EventFlow.ReadStores
                         throw new ArgumentException($"Did not find any read store managers for read model type '{readModelType.PrettyPrint()}'");
                     }
 
-                    return readStoreManagers; 
+                    return readStoreManagers;
                 });
         }
     }
