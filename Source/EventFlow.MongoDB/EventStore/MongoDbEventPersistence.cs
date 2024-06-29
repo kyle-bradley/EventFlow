@@ -1,7 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -109,6 +108,17 @@ namespace EventFlow.MongoDB.EventStore
         {
             return await MongoDbEventStoreCollection
                 .Find(model => model.AggregateId == id.Value && model.AggregateSequenceNumber >= fromEventSequenceNumber)
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, int fromEventSequenceNumber, int toEventSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            return await MongoDbEventStoreCollection
+                .Find(model => model.AggregateId == id.Value &&
+                               model.AggregateSequenceNumber >= fromEventSequenceNumber &&
+                               model.AggregateSequenceNumber <= toEventSequenceNumber)
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(continueOnCapturedContext: false);
         }

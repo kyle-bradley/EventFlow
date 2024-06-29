@@ -1,17 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net6.0;net7.0;net8.0</TargetFrameworks>
-    <PackageId>ClearFlow.MongoDB</PackageId>
-    <Title>ClearFlow.MongoDB</Title>
-    <Authors>Kyle Bradley, Jan Feyen, Warren Pieterse</Authors>
-    <Description>MongoDB ReadStore and Snapshot Persistence for EventFlow</Description>
+	  <TargetFrameworks>netcoreapp3.1;net6.0;net7.0;net8.0</TargetFrameworks>
+
+	  <PackageId>EventFlow.MongoDB</PackageId>
+      <Title>EventFlow.MongoDB</Title>
+	  <Authors>Kyle Bradley, Jan Feyen, Warren Pieterse</Authors>
+
+	  <Description>MongoDB ReadStore and Snapshot Persistence for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing MongoDB</PackageTags>
-	 <PackageReleaseNotes>Initial release including support for .net 7.0 &amp; .net 8.0</PackageReleaseNotes>
+    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
     <IsPackable>true</IsPackable>
-    <Version>0.1.0</Version>
-	 <Company>Kyle Bradley</Company>
-    <Product>ClearFlow.MongoDB</Product>
-    <RepositoryUrl>https://github.com/kyle-bradley/EventFlow</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

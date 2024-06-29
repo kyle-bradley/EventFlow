@@ -1,7 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -375,6 +374,16 @@ namespace EventFlow.Tests.IntegrationTests
                 int fromEventSequenceNumber, CancellationToken cancellationToken)
             {
                 var result = await _inner.LoadCommittedEventsAsync(id, fromEventSequenceNumber, cancellationToken);
+                await LoadCompletionSource.Task;
+                return result;
+            }
+
+            public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id,
+                int fromEventSequenceNumber,
+                int toEventSequenceNumber,
+                CancellationToken cancellationToken)
+            {
+                var result = await _inner.LoadCommittedEventsAsync(id, fromEventSequenceNumber, toEventSequenceNumber, cancellationToken);
                 await LoadCompletionSource.Task;
                 return result;
             }

@@ -1,7 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,12 +23,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using Dapper;
-using Microsoft.SqlServer.Server;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient.Server;
 
 namespace EventFlow.MsSql.Integrations
 {

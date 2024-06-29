@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-    <IsPackable>False</IsPackable>
+	  <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+	  <IsPackable>False</IsPackable>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="Hangfire.SqlServer" Version="1.8.7" />
+    <PackageReference Include="Hangfire.InMemory" Version="0.7" />
+    <PackageReference Include="Hangfire.NetCore" Version="1.8.10" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
   </ItemGroup>
   <ItemGroup>

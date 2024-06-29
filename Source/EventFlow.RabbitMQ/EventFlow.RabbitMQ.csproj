@@ -10,9 +10,6 @@
 	<PackageTags>CQRS ES event sourcing MongoDB</PackageTags>
 	<PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
 	<IsPackable>true</IsPackable>
-	<Version>0.1.0</Version>
-	<Product>ClearFlow</Product>
-	<RepositoryUrl>https://github.com/kyle-bradley/EventFlow</RepositoryUrl>
   </PropertyGroup>
 
 	<ItemGroup>
