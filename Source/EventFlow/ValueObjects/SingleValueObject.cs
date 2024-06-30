@@ -66,6 +66,11 @@ namespace EventFlow.ValueObjects
             yield return Value;
         }
 
+        public T ToDto()
+        {
+            return Value;
+        }
+
         public override string ToString()
         {
             return ReferenceEquals(Value, null)

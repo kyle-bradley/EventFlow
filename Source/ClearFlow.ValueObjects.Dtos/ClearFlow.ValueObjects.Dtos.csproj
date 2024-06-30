@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+	  <PackageId>ClearFlow.ValueObjects.Dto</PackageId>
+	  <Title>ClearFlow.ValueObjects.Dto</Title>
+	  <Authors>Kyle Bradley</Authors>
+	  <Description>Data transfer objects (DTOs) for ClearFlow's Value Objects</Description>
+	  <PackageTags>CQRS ES event sourcing Dtos</PackageTags>
+	  <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+	  <IsPackable>true</IsPackable>
+	  <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
