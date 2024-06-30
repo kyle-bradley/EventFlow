@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+	  <PackageId>ClearFlow.ValueObjects</PackageId>
+	  <Title>ClearFlow.ValueObjects</Title>
+	  <Authors>Kyle Bradley</Authors>
+	  <Description>Common value objects available with ClearFlow</Description>
+	  <PackageTags>CQRS ES event sourcing value objects</PackageTags>
+	  <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+	  <IsPackable>true</IsPackable>
+	  <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EmailValidation" Version="1.2.0" />
+    <PackageReference Include="FluentValidation" Version="11.9.2" />
+    <PackageReference Include="libphonenumber-csharp" Version="8.13.39" />
+    <PackageReference Include="NMoneys" Version="7.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ClearFlow.ValueObjects.Dtos\ClearFlow.ValueObjects.Dtos.csproj" />
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+  </ItemGroup>
+
+</Project>

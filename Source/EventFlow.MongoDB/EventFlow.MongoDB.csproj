@@ -1,15 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 	  <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-
 	  <PackageId>EventFlow.MongoDB</PackageId>
-      <Title>EventFlow.MongoDB</Title>
+	  <Title>EventFlow.MongoDB</Title>
 	  <Authors>Kyle Bradley, Jan Feyen, Warren Pieterse</Authors>
-
 	  <Description>MongoDB ReadStore and Snapshot Persistence for EventFlow</Description>
-    <PackageTags>CQRS ES event sourcing MongoDB</PackageTags>
-    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
-    <IsPackable>true</IsPackable>
+	  <PackageTags>CQRS ES event sourcing MongoDB</PackageTags>
+	  <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+	  <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

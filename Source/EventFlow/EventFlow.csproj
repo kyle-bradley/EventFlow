@@ -6,7 +6,7 @@
     <Description>Forked project based on EventFlow:
 Async/await first CQRS+ES and DDD framework for .NET - https://docs.geteventflow.net/</Description>
     <PackageTags>CQRS ES event sourcing</PackageTags>
-	<PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+    <PackageReleaseNotes>Initial release including support for .net 7.0 &amp; .net 8.0</PackageReleaseNotes>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EventFlow.xml</DocumentationFile>
     <IsPackable>true</IsPackable>
     <Version>0.1.0</Version>
@@ -25,12 +25,20 @@ Async/await first CQRS+ES and DDD framework for .NET - https://docs.geteventflow
 	  </PackageReference>
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.10" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.10" />
+	  <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.10" />
+	  <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.10" />
+	  <PackageReference Include="System.Text.Json" Version="6.0.9" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
-	  <PackageReference Include="System.Text.Json" Version="8.0.3" />
+	  <PackageReference Include="System.Text.Json" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
