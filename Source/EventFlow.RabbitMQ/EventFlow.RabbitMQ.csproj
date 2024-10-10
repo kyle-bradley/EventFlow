@@ -8,7 +8,8 @@
     <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
     <Description>RabbitMQ integration for EventFlow</Description>
 	<PackageTags>CQRS ES event sourcing MongoDB</PackageTags>
-	<PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+	<PackageReleaseNotes>Updated to include latest EventFlow changes.</PackageReleaseNotes>
+    <Version>0.1.1</Version>
 	<IsPackable>true</IsPackable>
   </PropertyGroup>
 

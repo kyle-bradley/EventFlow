@@ -168,7 +168,7 @@ namespace EventFlow.EventStores
                     toEventSequenceNumber,
                     cancellationToken)
                 .ConfigureAwait(false);
-            
+
             return await MapToDomainEvents<TAggregate, TIdentity>(id, cancellationToken, committedDomainEvents);
         }
 

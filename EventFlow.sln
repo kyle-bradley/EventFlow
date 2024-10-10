@@ -61,9 +61,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.Hangfire.Tests", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ValueObjects", "ValueObjects", "{31881D2B-26BB-4EF5-B29A-800731368C21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClearFlow.ValueObjects", "Source\ClearFlow.ValueObjects\ClearFlow.ValueObjects.csproj", "{5D1D7F53-08BB-460B-9853-1A19A75C2CF2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClearFlow.ValueObjects", "Source\ClearFlow.ValueObjects\ClearFlow.ValueObjects.csproj", "{5D1D7F53-08BB-460B-9853-1A19A75C2CF2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClearFlow.ValueObjects.Dtos", "Source\ClearFlow.ValueObjects.Dtos\ClearFlow.ValueObjects.Dtos.csproj", "{F8484014-DA21-4388-B74A-2D90108656E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClearFlow.ValueObjects.Dtos", "Source\ClearFlow.ValueObjects.Dtos\ClearFlow.ValueObjects.Dtos.csproj", "{F8484014-DA21-4388-B74A-2D90108656E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.PostgreSql", "Source\EventFlow.PostgreSql\EventFlow.PostgreSql.csproj", "{E8B07B33-DBF1-4C9F-9C18-8825C3595FA4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFlow.PostgreSql.Tests", "Source\EventFlow.PostgreSql.Tests\EventFlow.PostgreSql.Tests.csproj", "{472095E5-7233-48AE-BBEA-56199F83707E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -147,6 +151,14 @@ Global
 		{F8484014-DA21-4388-B74A-2D90108656E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8484014-DA21-4388-B74A-2D90108656E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8484014-DA21-4388-B74A-2D90108656E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8B07B33-DBF1-4C9F-9C18-8825C3595FA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8B07B33-DBF1-4C9F-9C18-8825C3595FA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8B07B33-DBF1-4C9F-9C18-8825C3595FA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8B07B33-DBF1-4C9F-9C18-8825C3595FA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{472095E5-7233-48AE-BBEA-56199F83707E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{472095E5-7233-48AE-BBEA-56199F83707E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{472095E5-7233-48AE-BBEA-56199F83707E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{472095E5-7233-48AE-BBEA-56199F83707E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -178,6 +190,8 @@ Global
 		{31881D2B-26BB-4EF5-B29A-800731368C21} = {5EE323DE-E69B-451A-8AC3-22DD6A004FBA}
 		{5D1D7F53-08BB-460B-9853-1A19A75C2CF2} = {31881D2B-26BB-4EF5-B29A-800731368C21}
 		{F8484014-DA21-4388-B74A-2D90108656E8} = {31881D2B-26BB-4EF5-B29A-800731368C21}
+		{E8B07B33-DBF1-4C9F-9C18-8825C3595FA4} = {3A68BD5F-FE8D-4CD4-A039-3EFBDEDE8865}
+		{472095E5-7233-48AE-BBEA-56199F83707E} = {3A68BD5F-FE8D-4CD4-A039-3EFBDEDE8865}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {17607E2C-4E8E-45A2-85BD-0A5808E1C0F3}

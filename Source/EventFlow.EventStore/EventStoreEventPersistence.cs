@@ -66,29 +66,26 @@ namespace EventFlow.EventStores.EventStore
 
             do
             {
-                var result = _client.ReadAllAsync(Direction.Forwards, nextPosition, pageSize, cancellationToken: cancellationToken);
-                var streamNonDeleted = result.Where(e => !(e.OriginalStreamId.StartsWith("$") || e.Event.EventType.StartsWith("$")));
-                var streamedEvents = await streamNonDeleted.ToListAsync();
-                resolvedEvents.AddRange(streamedEvents);
+                var pageSizeWithAnchor = pageSize + 1;
+                var result = _client.ReadAllAsync(Direction.Forwards, nextPosition, pageSizeWithAnchor, cancellationToken: cancellationToken);
+                var fullResult = await result.ToListAsync();
 
-                var noPositionAvailable = !result.LastPosition.HasValue;
-                if (noPositionAvailable)
+                if (!fullResult.Any())
                 {
+                    nextPosition = Position.End;
                     break;
                 }
+
+                var onlyAnchorEventRemains = fullResult.Count == 1;
+                var eventsAvailableLessAnchorEvent = !onlyAnchorEventRemains ? fullResult.Count() - 1 : 1;
+
+                var nonDeletedEvents = fullResult.Take(eventsAvailableLessAnchorEvent)
+                    .Where(e => !(e.OriginalStreamId.StartsWith("$") || e.Event.EventType.StartsWith("$"))).ToList();
+
+                resolvedEvents.AddRange(nonDeletedEvents);
+                nextPosition = !onlyAnchorEventRemains ? fullResult.Last().OriginalPosition.Value : Position.End;
             }
-            while (resolvedEvents.Count < pageSize);
-
-            var noMoreResults = !resolvedEvents.Any() || resolvedEvents.Last().OriginalPosition == Position.End;
-            var shouldCarryThroughPosition = !noMoreResults;
-
-            if (shouldCarryThroughPosition)
-            {
-                var lastEventToCarry = resolvedEvents.Last();
-                nextPosition = lastEventToCarry.OriginalPosition.Value;
-
-                resolvedEvents = resolvedEvents.Take(resolvedEvents.Count - 1).ToList();
-            }
+            while (nextPosition != Position.End);
 
             var eventStoreEvents = Map(resolvedEvents);
 
@@ -198,6 +195,28 @@ namespace EventFlow.EventStores.EventStore
             }
         }
 
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, int fromEventSequenceNumber, int toEventSequenceNumber, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var startPosition = fromEventSequenceNumber <= 1
+                    ? StreamPosition.Start
+                    : StreamPosition.FromInt64(fromEventSequenceNumber - 1); // Starts from zero
+
+                var result = _client.ReadStreamAsync(Direction.Forwards, id.Value, startPosition, cancellationToken: cancellationToken);
+                var resolvedEvents = await result.Where(x => x.Event.EventNumber.ToInt64() <= toEventSequenceNumber - 1).ToListAsync();
+                return Map(resolvedEvents);
+            }
+            catch (StreamNotFoundException)
+            {
+                return new List<ICommittedDomainEvent>();
+            }
+            catch (StreamDeletedException)
+            {
+                return new List<ICommittedDomainEvent>();
+            }
+        }
+
         public async Task DeleteEventsAsync(IIdentity id, CancellationToken cancellationToken)
         {
             var result = await _client.TombstoneAsync(id.Value, StreamState.Any);
@@ -214,11 +233,6 @@ namespace EventFlow.EventStores.EventStore
                         Data = Encoding.UTF8.GetString(e.Event.Data.ToArray()),
                     })
                 .ToList();
-        }
-
-        public Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(IIdentity id, int fromEventSequenceNumber, int toEventSequenceNumber, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
         }
     }
 }
