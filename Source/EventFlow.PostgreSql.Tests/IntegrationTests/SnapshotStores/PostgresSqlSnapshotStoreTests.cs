@@ -42,7 +42,7 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.SnapshotStores
 
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
-            _testDatabase = PostgreSqlHelpz.CreateDatabase("eventflow-snapshots");
+            _testDatabase = PostgreSqlHelpz.CreateDatabase("snapshot");
 
             var resolver = eventFlowOptions
                 .ConfigurePostgreSql(PostgreSqlConfiguration.New.SetConnectionString(_testDatabase.ConnectionString.Value))
