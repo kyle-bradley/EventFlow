@@ -25,20 +25,25 @@ using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using System;
 
 namespace EventFlow.EntityFramework.Tests.SQLite
 {
     [Category(Categories.Integration)]
     public class EfSqliteSnapshotTests : TestSuiteForSnapshotStore
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions
+            var resolver = eventFlowOptions
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
-                .AddDbContextProvider<TestDbContext, SqliteDbContextProvider>(Lifetime.Singleton)
-                .ConfigureForSnapshotStoreTest()
-                .CreateResolver();
+                .AddDbContextProvider<TestDbContext, SqliteDbContextProvider>(ServiceLifetime.Singleton)
+                .ConfigureForSnapshotStoreTest();
+
+            var serviceProvider = base.Configure(resolver);
+
+            return serviceProvider;
         }
     }
 }

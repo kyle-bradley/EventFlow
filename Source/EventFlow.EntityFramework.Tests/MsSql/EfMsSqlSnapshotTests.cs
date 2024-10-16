@@ -27,7 +27,9 @@ using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.MsSql;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using System;
 
 namespace EventFlow.EntityFramework.Tests.MsSql
 {
@@ -36,22 +38,25 @@ namespace EventFlow.EntityFramework.Tests.MsSql
     {
         private IMsSqlDatabase _testDatabase;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow-snapshots");
 
-            return eventFlowOptions
-                .RegisterServices(sr => sr.Register(c => _testDatabase.ConnectionString))
+            var resolver = eventFlowOptions
+                .RegisterServices(sr => sr.AddTransient(c => _testDatabase.ConnectionString))
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, MsSqlDbContextProvider>()
-                .ConfigureForSnapshotStoreTest()
-                .CreateResolver();
+                .ConfigureForSnapshotStoreTest();
+
+            var serviceProvider = base.Configure(resolver);
+
+            return serviceProvider;
         }
 
         [TearDown]
         public void TearDown()
         {
-            _testDatabase.DisposeSafe("Failed to delete database");
+            _testDatabase.DisposeSafe(Logger, "Failed to delete database");
         }
     }
 }

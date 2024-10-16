@@ -21,15 +21,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
-using EventFlow.EntityFramework.EventStores;
-using EventFlow.EntityFramework.ReadStores;
-using EventFlow.EntityFramework.ReadStores.Configuration;
-using EventFlow.EntityFramework.ReadStores.Configuration.Includes;
-using EventFlow.EntityFramework.SnapshotStores;
 using EventFlow.Extensions;
-using EventFlow.ReadStores;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.EntityFramework.Extensions
 {
@@ -43,134 +38,15 @@ namespace EventFlow.EntityFramework.Extensions
             return eventFlowOptions.RegisterServices(configuration.Apply);
         }
 
-        public static IEventFlowOptions UseEntityFrameworkEventStore<TDbContext>(
-            this IEventFlowOptions eventFlowOptions)
-            where TDbContext : DbContext
-        {
-            return eventFlowOptions
-                .UseEventStore<EntityFrameworkEventPersistence<TDbContext>>();
-        }
-
-        public static IEventFlowOptions UseEntityFrameworkSnapshotStore<TDbContext>(
-            this IEventFlowOptions eventFlowOptions)
-            where TDbContext : DbContext
-        {
-            return eventFlowOptions
-                .UseSnapshotStore<EntityFrameworkSnapshotPersistence<TDbContext>>();
-        }
-
-        public static IEventFlowOptions UseEntityFrameworkReadModel<TReadModel, TDbContext>(
-            this IEventFlowOptions eventFlowOptions)
-            where TDbContext : DbContext
-            where TReadModel : class, IReadModel, new()
-        {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<IEntityFrameworkReadModelStore<TReadModel>,
-                        EntityFrameworkReadModelStore<TReadModel, TDbContext>>();
-                    f.Register<IApplyQueryableConfiguration<TReadModel>>(_ => 
-                        new EntityFrameworkReadModelConfiguration<TReadModel>(), Lifetime.Singleton);
-                    f.Register<IReadModelStore<TReadModel>>(r =>
-                        r.Resolver.Resolve<IEntityFrameworkReadModelStore<TReadModel>>());
-                })
-                .UseReadStoreFor<IEntityFrameworkReadModelStore<TReadModel>, TReadModel>();
-        }
-
-        /// <summary>
-        /// Configures the read model. Can be used for eager loading of related data by appending .Include(..) / .ThenInclude(..) statements.
-        /// </summary>
-        /// <typeparam name="TReadModel">The read model's entity type</typeparam>
-        /// <typeparam name="TDbContext">The database context type</typeparam>
-        /// <param name="eventFlowOptions"><inheritdoc cref="IEventFlowOptions"/></param>
-        /// <param name="configure">Function to configure eager loading of related data by appending .Include(..) / .ThenInclude(..) statements.</param>
-        /// <remarks>Avoid navigation properties if you create read models for both, the parent entity and the child entity. Otherwise there is a risk of a ordering problem when saving aggregates and updating read modules independently (FOREIGN-KEY constraint)</remarks>
-        public static IEventFlowOptions UseEntityFrameworkReadModel<TReadModel, TDbContext>(
-            this IEventFlowOptions eventFlowOptions,
-            Func<EntityFrameworkReadModelConfiguration<TReadModel>,IApplyQueryableConfiguration<TReadModel>> configure)
-            where TDbContext : DbContext
-            where TReadModel : class, IReadModel, new()
-        {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<IEntityFrameworkReadModelStore<TReadModel>,
-                        EntityFrameworkReadModelStore<TReadModel, TDbContext>>();
-                    f.Register(_ =>
-                    {
-                        var readModelConfig = new EntityFrameworkReadModelConfiguration<TReadModel>();
-                        return configure != null
-                            ? configure(readModelConfig)
-                            : readModelConfig;
-
-                    }, Lifetime.Singleton);
-                    f.Register<IReadModelStore<TReadModel>>(r =>
-                        r.Resolver.Resolve<IEntityFrameworkReadModelStore<TReadModel>>());
-                })
-                .UseReadStoreFor<IEntityFrameworkReadModelStore<TReadModel>, TReadModel>();
-        }
-
-        /// <summary>
-        /// Configures the read model. Can be used for eager loading of related data by appending .Include(..) / .ThenInclude(..) statements.
-        /// </summary>
-        /// <typeparam name="TReadModel">The read model's entity type</typeparam>
-        /// <typeparam name="TDbContext">The database context type</typeparam>
-        /// <typeparam name="TReadModelLocator">The read model locator type</typeparam>
-        /// <param name="eventFlowOptions"><inheritdoc cref="IEventFlowOptions"/></param>
-        /// <param name="configure">Function to configure eager loading of related data by appending .Include(..) / .ThenInclude(..) statements.</param>
-        /// <remarks>Avoid navigation properties if you create read models for both, the parent entity and the child entity. Otherwise there is a risk of a ordering problem when saving aggregates and updating read modules independently (FOREIGN-KEY constraint)</remarks>
-        public static IEventFlowOptions UseEntityFrameworkReadModel<TReadModel, TDbContext, TReadModelLocator>(
-            this IEventFlowOptions eventFlowOptions,
-            Func<EntityFrameworkReadModelConfiguration<TReadModel>,IApplyQueryableConfiguration<TReadModel>> configure)
-            where TDbContext : DbContext
-            where TReadModel : class, IReadModel, new()
-            where TReadModelLocator : IReadModelLocator
-        {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<IEntityFrameworkReadModelStore<TReadModel>,
-                        EntityFrameworkReadModelStore<TReadModel, TDbContext>>();
-                    f.Register(_ =>
-                    {
-                        var readModelConfig = new EntityFrameworkReadModelConfiguration<TReadModel>();
-                        return configure != null
-                            ? configure(readModelConfig)
-                            : readModelConfig;
-                    }, Lifetime.Singleton);
-                    f.Register<IReadModelStore<TReadModel>>(r =>
-                        r.Resolver.Resolve<IEntityFrameworkReadModelStore<TReadModel>>());
-                })
-                .UseReadStoreFor<IEntityFrameworkReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
-        }
-
-        public static IEventFlowOptions UseEntityFrameworkReadModel<TReadModel, TDbContext, TReadModelLocator>(
-            this IEventFlowOptions eventFlowOptions)
-            where TDbContext : DbContext
-            where TReadModel : class, IReadModel, new()
-            where TReadModelLocator : IReadModelLocator
-        {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<IEntityFrameworkReadModelStore<TReadModel>,
-                        EntityFrameworkReadModelStore<TReadModel, TDbContext>>();
-                    f.Register<IApplyQueryableConfiguration<TReadModel>>(_ => 
-                        new EntityFrameworkReadModelConfiguration<TReadModel>(), Lifetime.Singleton);
-                    f.Register<IReadModelStore<TReadModel>>(r =>
-                        r.Resolver.Resolve<IEntityFrameworkReadModelStore<TReadModel>>());
-                })
-                .UseReadStoreFor<IEntityFrameworkReadModelStore<TReadModel>, TReadModel, TReadModelLocator>();
-        }
 
         public static IEventFlowOptions AddDbContextProvider<TDbContext, TContextProvider>(
-            this IEventFlowOptions eventFlowOptions,
-            Lifetime lifetime = Lifetime.AlwaysUnique)
+            this IEventFlowOptions eventFlowOptions, 
+            ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
             where TContextProvider : class, IDbContextProvider<TDbContext>
             where TDbContext : DbContext
         {
             return eventFlowOptions.RegisterServices(s =>
-                s.Register<IDbContextProvider<TDbContext>, TContextProvider>(lifetime));
+            s.Replace(ServiceDescriptor.Describe(typeof(IDbContextProvider<TDbContext>), typeof(TContextProvider), serviceLifetime)));
         }
     }
 }

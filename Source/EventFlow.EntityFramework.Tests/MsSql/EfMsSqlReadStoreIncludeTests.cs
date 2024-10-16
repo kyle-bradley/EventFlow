@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
@@ -32,6 +33,7 @@ using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.MsSql;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.EntityFramework.Tests.MsSql
@@ -41,23 +43,26 @@ namespace EventFlow.EntityFramework.Tests.MsSql
     {
         private IMsSqlDatabase _testDatabase;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
 
-            return eventFlowOptions
-                .RegisterServices(sr => sr.Register(c => _testDatabase.ConnectionString))
+            var resolver = eventFlowOptions
+                .RegisterServices(sr => sr.AddTransient(c => _testDatabase.ConnectionString))
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, MsSqlDbContextProvider>()
                 .ConfigureForReadStoreIncludeTest()
-                .AddDefaults(typeof(EfMsSqlReadStoreIncludeTests).Assembly)
-                .CreateResolver();
+                .AddDefaults(typeof(EfMsSqlReadStoreIncludeTests).Assembly);
+
+            var serviceProvider = base.Configure(resolver);
+
+            return serviceProvider;
         }
 
         [TearDown]
         public void TearDown()
         {
-            _testDatabase.DisposeSafe("Failed to delete database");
+            _testDatabase.DisposeSafe(Logger, "Failed to delete database");
         }
 
         [Test]

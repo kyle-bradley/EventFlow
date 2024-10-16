@@ -20,12 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading.Tasks;
 using EventFlow.Configuration;
 using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.EntityFramework.Tests.SQLite
@@ -33,13 +35,16 @@ namespace EventFlow.EntityFramework.Tests.SQLite
     [Category(Categories.Integration)]
     public class EfSqliteEventStoreTests : TestSuiteForEventStore
     {
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions
+            var resolver = eventFlowOptions
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
-                .AddDbContextProvider<TestDbContext, SqliteDbContextProvider>(Lifetime.Singleton)
-                .ConfigureForEventStoreTest()
-                .CreateResolver();
+                .AddDbContextProvider<TestDbContext, SqliteDbContextProvider>(ServiceLifetime.Singleton)
+                .ConfigureForEventStoreTest();
+
+            var serviceProvider = base.Configure(resolver);
+
+            return serviceProvider;
         }
     }
 }

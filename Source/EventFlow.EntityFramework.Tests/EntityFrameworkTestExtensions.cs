@@ -26,6 +26,7 @@ using EventFlow.EntityFramework.Tests.MsSql.IncludeTests.Queries;
 using EventFlow.EntityFramework.Tests.MsSql.IncludeTests.ReadModels;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers.Aggregates.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.EntityFramework.Tests
 {
@@ -46,7 +47,7 @@ namespace EventFlow.EntityFramework.Tests
         public static IEventFlowOptions ConfigureForReadStoreTest(this IEventFlowOptions options)
         {
             return options
-                .RegisterServices(sr => sr.RegisterType(typeof(ThingyMessageLocator)))
+                .RegisterServices(sr => sr.AddTransient(typeof(ThingyMessageLocator)))
                 .UseEntityFrameworkReadModel<ThingyReadModelEntity, TestDbContext>()
                 .UseEntityFrameworkReadModel<ThingyMessageReadModelEntity, TestDbContext, ThingyMessageLocator>()
                 .AddQueryHandlers(

@@ -1,4 +1,4 @@
-// The MIT License (MIT)
+﻿// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2024 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
@@ -20,29 +20,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
+using EventFlow.EntityFramework.SnapshotStores;
+using EventFlow.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
+namespace EventFlow.EntityFramework.Extensions
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Only for test")]
-    public class IndexingInMemoryTableFactory : InMemoryTableFactory
+    public static class EventFlowOptionsEntityFrameworkSnapshotExtensions
     {
-        public IndexingInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions options) : base(loggingOptions, options)
+        public static IEventFlowOptions UseEntityFrameworkSnapshotStore<TDbContext>(
+                this IEventFlowOptions eventFlowOptions)
+                where TDbContext : DbContext
         {
-        }
-
-        public override IInMemoryTable Create(IEntityType entityType, IInMemoryTable baseTable)
-        {
-            var innerTable = base.Create(entityType, baseTable);
-            var uniqueIndexes = entityType.GetIndexes().Where(i => i.IsUnique).ToArray();
-
-            return uniqueIndexes.Any()
-                ? new IndexingInMemoryTable(innerTable, uniqueIndexes)
-                : innerTable;
+            return eventFlowOptions
+                .UseSnapshotPersistence<EntityFrameworkSnapshotPersistence<TDbContext>>(ServiceLifetime.Transient);
         }
     }
 }

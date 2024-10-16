@@ -65,7 +65,7 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores
                     typeof(MongoDbThingyGetWithLinqQueryHandler)
                 );
 
-            var serviceProvider = base.Configure(eventFlowOptions);
+            var serviceProvider = base.Configure(resolver);
 
             return serviceProvider;
         }
