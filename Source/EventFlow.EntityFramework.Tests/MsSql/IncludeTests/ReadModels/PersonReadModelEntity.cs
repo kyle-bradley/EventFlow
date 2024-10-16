@@ -23,6 +23,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.EntityFramework.Tests.MsSql.IncludeTests.Events;
 using EventFlow.ReadStores;
@@ -43,14 +45,14 @@ namespace EventFlow.EntityFramework.Tests.MsSql.IncludeTests.ReadModels
 
         public virtual ICollection<AddressReadModelEntity> Addresses { get; set; } = new List<AddressReadModelEntity>();
 
-        public void Apply(IReadModelContext context,
-            IDomainEvent<PersonAggregate, PersonId, PersonCreatedEvent> domainEvent)
+        public Task ApplyAsync(IReadModelContext context, IDomainEvent<PersonAggregate, PersonId, PersonCreatedEvent> domainEvent, CancellationToken cancellationToken)
         {
             Name = domainEvent.AggregateEvent.Name;
+
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context,
-            IDomainEvent<PersonAggregate, PersonId, AddressAddedEvent> domainEvent)
+        public Task ApplyAsync(IReadModelContext context, IDomainEvent<PersonAggregate, PersonId, AddressAddedEvent> domainEvent, CancellationToken cancellationToken)
         {
             var address = domainEvent.AggregateEvent.Address;
             Addresses.Add(new AddressReadModelEntity
@@ -64,6 +66,8 @@ namespace EventFlow.EntityFramework.Tests.MsSql.IncludeTests.ReadModels
             });
 
             NumberOfAddresses = Addresses.Count;
+
+            return Task.CompletedTask;
         }
 
         public Person ToPerson() =>

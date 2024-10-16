@@ -33,11 +33,11 @@ using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.ReadStores.Configuration;
 using EventFlow.Exceptions;
 using EventFlow.Extensions;
-using EventFlow.Logs;
 using EventFlow.ReadStores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.EntityFramework.ReadStores
 {
@@ -60,12 +60,12 @@ namespace EventFlow.EntityFramework.ReadStores
 
         public EntityFrameworkReadModelStore(
             IBulkOperationConfiguration bulkOperationConfiguration,
-            ILog log,
+            ILogger<EntityFrameworkReadModelStore<TReadModel, TDbContext>> _logger,
             IReadModelFactory<TReadModel> readModelFactory,
             IApplyQueryableConfiguration<TReadModel> queryableConfiguration,
             IDbContextProvider<TDbContext> contextProvider,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
-            : base(log)
+            : base(_logger)
         {
             _readModelFactory = readModelFactory;
             _queryableConfiguration = queryableConfiguration;
@@ -152,7 +152,7 @@ namespace EventFlow.EntityFramework.ReadStores
                 })
                 .ConfigureAwait(false);
 
-            Log.Verbose(
+            Logger.LogTrace(
                 "Purge {0} read models of type '{1}'",
                 rowsAffected,
                 readModelName);
@@ -170,14 +170,14 @@ namespace EventFlow.EntityFramework.ReadStores
 
             if (entity == null)
             {
-                Log.Verbose(() => $"Could not find any Entity Framework read model '{readModelType.PrettyPrint()}' with ID '{id}'");
+                Logger.LogTrace($"Could not find any Entity Framework read model '{readModelType.PrettyPrint()}' with ID '{id}'");
                 return ReadModelEnvelope<TReadModel>.Empty(id);
             }
 
             var entry = dbContext.Entry(entity);
             var version = descriptor.GetVersion(entry);
 
-            Log.Verbose(() => $"Found Entity Framework read model '{readModelType.PrettyPrint()}' with ID '{id}' and version '{version}'");
+            Logger.LogTrace($"Found Entity Framework read model '{readModelType.PrettyPrint()}' with ID '{id}' and version '{version}'");
 
             return version.HasValue
                 ? ReadModelEnvelope<TReadModel>.With(id, entity, version.Value)
@@ -194,7 +194,7 @@ namespace EventFlow.EntityFramework.ReadStores
 
             if (rowsAffected != 0)
             {
-                Log.Verbose($"Deleted Entity Framework read model '{id}' of type '{ReadModelNameLowerCase}'");
+                Logger.LogTrace($"Deleted Entity Framework read model '{id}' of type '{ReadModelNameLowerCase}'");
             }
         }
 
@@ -255,7 +255,7 @@ namespace EventFlow.EntityFramework.ReadStores
                 throw new OptimisticConcurrencyException(e.Message, e);
             }
 
-            Log.Verbose(() => $"Updated Entity Framework read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelId}' to version '{readModelEnvelope.Version}'");
+            Logger.LogTrace($"Updated Entity Framework read model {typeof(TReadModel).PrettyPrint()} with ID '{readModelId}' to version '{readModelEnvelope.Version}'");
         }
 
         private static EntityDescriptor GetDescriptor(

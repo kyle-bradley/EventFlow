@@ -25,6 +25,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -39,6 +40,12 @@ namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
         private readonly HashSet<IndexEntry>[] _indexes;
         private readonly IInMemoryTable _innerTable;
 
+        public IEnumerable<object[]> Rows => _innerTable.Rows;
+
+        public IInMemoryTable BaseTable => _innerTable;
+
+        public IEntityType EntityType => throw new InvalidOperationException("Property deprecated in newer versions so not used anymore.");
+
         public IndexingInMemoryTable(IInMemoryTable innerTable, IIndex[] indexDefinitions)
         {
             _innerTable = innerTable;
@@ -51,8 +58,9 @@ namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
             return _innerTable.SnapshotRows();
         }
 
-        public void Create(IUpdateEntry entry)
+        public void Create(IUpdateEntry entry, IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
+            //_entityType = entry.EntityType;
             var indexEntries = _indexDefinitions
                 .Select(d => d.Properties.Select(entry.GetCurrentValue).ToArray())
                 .Select(values => new IndexEntry(values))
@@ -61,24 +69,29 @@ namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
             if (indexEntries.Select((item, i) => _indexes[i].Contains(item)).Any(contains => contains))
                 throw new DbUpdateException("Error while updating.", new Exception("Unique constraint violated."));
 
-            _innerTable.Create(entry);
+            _innerTable.Create(entry, updateLogger);
 
             indexEntries.Select((item, i) => _indexes[i].Add(item)).ToArray();
         }
 
-        public void Delete(IUpdateEntry entry)
+        public void Delete(IUpdateEntry entry, IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
-            _innerTable.Delete(entry);
+            _innerTable.Delete(entry, updateLogger);
         }
 
-        public void Update(IUpdateEntry entry)
+        public void Update(IUpdateEntry entry, IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
-            _innerTable.Update(entry);
+            _innerTable.Update(entry, updateLogger);
         }
 
-        public InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>(IProperty property)
+        public InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>(IProperty property, IReadOnlyList<IInMemoryTable> tables)
         {
-            return _innerTable.GetIntegerValueGenerator<TProperty>(property);
+            return _innerTable.GetIntegerValueGenerator<TProperty>(property, tables);
+        }
+
+        public void BumpValueGenerators(object[] row)
+        {
+            _innerTable.BumpValueGenerators(row);
         }
 
         private struct IndexEntry

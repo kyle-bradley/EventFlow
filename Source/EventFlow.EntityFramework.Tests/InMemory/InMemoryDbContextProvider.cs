@@ -27,6 +27,7 @@ using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 
 namespace EventFlow.EntityFramework.Tests.InMemory
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Only for test")]
     public class InMemoryDbContextProvider : IDbContextProvider<TestDbContext>
     {
         private readonly DbContextOptions<TestDbContext> _options;

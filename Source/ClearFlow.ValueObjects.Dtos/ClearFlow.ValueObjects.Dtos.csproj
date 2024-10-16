@@ -8,7 +8,7 @@
 	  <Description>Data transfer objects (DTOs) for ClearFlow's Value Objects</Description>
 	  <PackageTags>CQRS ES event sourcing Dtos</PackageTags>
 	  <PackageReleaseNotes>Initial release for basic value objects.</PackageReleaseNotes>
-	  <Version>0.1.1</Version>
+	  <Version>0.1.3</Version>
 	  <IsPackable>true</IsPackable>
 	  <Nullable>enable</Nullable>
   </PropertyGroup>
