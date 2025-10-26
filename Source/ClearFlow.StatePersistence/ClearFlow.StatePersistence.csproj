@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+    <PackageId>ClearFlow.StatePersistence</PackageId>
+    <Title>ClearFlow.StatePersistence</Title>
+    <Authors>Kyle Bradley, Rasmus Mikkelsen</Authors>
+    <Company>Kyle Bradley</Company>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
+    <Description>Adds stateful perstience support for aggregates,</Description>
+    <PackageTags>CQRS event sourcing EventStore</PackageTags>
+	<PackageReleaseNotes></PackageReleaseNotes>
+    <IsPackable>true</IsPackable>
+    <Version>0.2.4</Version>
+	<Product>ClearFlow.StatePersistence</Product>
+	<RepositoryUrl>https://github.com/kyle-bradley/EventFlow</RepositoryUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EventFlow\EventFlow.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -40,11 +40,11 @@ namespace EventFlow.Strategies
             return Task.CompletedTask;
         }
 
-        public Task<ReadModelEnvelope<TReadModel>> QueryReadStoreModel<TReadModel>(string readModelId, Func<string, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> fetchNew,
+        public async Task<ReadModelEnvelope<TReadModel>> QueryReadStoreModel<TReadModel>(string readModelId, Func<string, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> fetchNew,
             CancellationToken cancellationToken)
             where TReadModel : class, IReadModel
         {
-            return Task.FromResult(ReadModelEnvelope<TReadModel>.Empty(readModelId));
+            return await fetchNew(readModelId, cancellationToken);
         }
 
         public Task UpdateReadStoreModel<TReadModel>(IReadOnlyCollection<ReadModelUpdateResult<TReadModel>> updatedModels,
