@@ -59,19 +59,18 @@ namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
         }
 
         public void Create(IUpdateEntry entry, IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
-        {
-            //_entityType = entry.EntityType;
+        {   
             var indexEntries = _indexDefinitions
                 .Select(d => d.Properties.Select(entry.GetCurrentValue).ToArray())
                 .Select(values => new IndexEntry(values))
                 .ToArray();
-
+            
             if (indexEntries.Select((item, i) => _indexes[i].Contains(item)).Any(contains => contains))
                 throw new DbUpdateException("Error while updating.", new Exception("Unique constraint violated."));
-
+            
             _innerTable.Create(entry, updateLogger);
-
-            indexEntries.Select((item, i) => _indexes[i].Add(item)).ToArray();
+            
+            _ = indexEntries.Select((item, i) => _indexes[i].Add(item)).ToArray();
         }
 
         public void Delete(IUpdateEntry entry, IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)

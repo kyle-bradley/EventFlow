@@ -22,8 +22,8 @@
 
 using EventFlow.Provided.Specifications;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Specifications
 {
@@ -40,7 +40,7 @@ namespace EventFlow.Tests.UnitTests.Specifications
             var str = specification.ToString();
 
             // Assert
-            str.Should().Be("i => (((i > 1) && (i < 10)) || (i == 42))");
+            str.ShouldBe("i => (((i > 1) && (i < 10)) || (i == 42))");
         }
 
         [TestCase(42, true)]
@@ -54,7 +54,7 @@ namespace EventFlow.Tests.UnitTests.Specifications
             var result = is42.IsSatisfiedBy(value);
 
             // Assert
-            result.Should().Be(expectedIsSatisfied);
+            result.ShouldBe(expectedIsSatisfied);
         }
     }
 }

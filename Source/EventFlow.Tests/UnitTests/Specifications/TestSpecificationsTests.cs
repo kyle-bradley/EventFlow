@@ -21,8 +21,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Specifications
 {
@@ -39,7 +39,7 @@ namespace EventFlow.Tests.UnitTests.Specifications
             var isSatisfiedBy = isTrue.IsSatisfiedBy(true);
 
             // Act
-            isSatisfiedBy.Should().BeTrue();
+            isSatisfiedBy.ShouldBeTrue();
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace EventFlow.Tests.UnitTests.Specifications
             var isSatisfiedBy = isTrue.IsSatisfiedBy(false);
 
             // Act
-            isSatisfiedBy.Should().BeFalse();
+            isSatisfiedBy.ShouldBeFalse();
         }
 
         [TestCase(4, 3, false)]
@@ -67,7 +67,7 @@ namespace EventFlow.Tests.UnitTests.Specifications
             var isSatisfiedBy = isAbove.IsSatisfiedBy(obj);
 
             // Assert
-            isSatisfiedBy.Should().Be(expectedIsSatisfiedBy);
+            isSatisfiedBy.ShouldBe(expectedIsSatisfiedBy);
         }
     }
 }

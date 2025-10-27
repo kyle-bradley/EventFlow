@@ -32,9 +32,9 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Extensions;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
@@ -71,8 +71,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            AppliedDomainEvents.Should().HaveCount(emittedEvents.Length);
-            AppliedDomainEvents.Should().BeEquivalentTo(emittedEvents);
+            AppliedDomainEvents.Count.ShouldBe(emittedEvents.Length);
+            AppliedDomainEvents.ShouldBe(emittedEvents);
         }
 
         [Test]
@@ -93,8 +93,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            AppliedDomainEvents.Should().BeEmpty();
-            resultingReadModelUpdates.Single().IsModified.Should().BeFalse();
+            AppliedDomainEvents.ShouldBeEmpty();
+            resultingReadModelUpdates.Single().IsModified.ShouldBeFalse();
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None);
 
             // Assert
-            AppliedDomainEvents.Should().BeEmpty();
+            AppliedDomainEvents.ShouldBeEmpty();
         }
 
         [Test]
@@ -146,8 +146,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             await Sut.UpdateReadStoresAsync(emittedEvents, CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            AppliedDomainEvents.Should().HaveCount(storedEvents.Length);
-            AppliedDomainEvents.Should().BeEquivalentTo(storedEvents);
+            AppliedDomainEvents.Count.ShouldBe(storedEvents.Length);
+            AppliedDomainEvents.ShouldBe(storedEvents);
         }
 
         [Test]
@@ -159,7 +159,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                     ReadModelWithoutEvents>(null, null, null, null, null, null);
             };
 
-            a.Should().Throw<TypeInitializationException>().WithInnerException<Exception>().WithMessage("*does not implement any*");
+            var exception = Should.Throw<TypeInitializationException>(a);
+            exception.InnerException.ShouldNotBeNull();
+            exception.InnerException.Message.ShouldContain("does not implement any");
         }
 
         private class ReadModelWithoutEvents : IReadModel

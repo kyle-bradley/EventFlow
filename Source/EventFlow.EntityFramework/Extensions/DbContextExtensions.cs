@@ -19,7 +19,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,62 +28,67 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace EventFlow.EntityFramework.Extensions
-{
-    public static class Bulk
-    {
-        public static async Task<int> Delete<TContext, TEntity, TProjection>(IDbContextProvider<TContext> contextProvider,
-            int batchSize,
-            CancellationToken cancellationToken,
-            Expression<Func<TEntity, TProjection>> projection,
-            Expression<Func<TEntity, bool>> condition = null,
-            Action<TProjection, EntityEntry<TEntity>> setProperties = null) 
-            where TContext : DbContext 
-            where TEntity : class, new()
-        {
-            int rowsAffected = 0;
+namespace EventFlow.EntityFramework.Extensions;
 
-            while (!cancellationToken.IsCancellationRequested)
-                using (var dbContext = contextProvider.CreateContext())
-                {
-                    IQueryable<TEntity> query = dbContext
+public static class Bulk
+{
+    public static async Task<int> DeleteAsync<TContext, TEntity, TProjection>(IDbContextProvider<TContext> contextProvider,
+                                                                              int batchSize,
+                                                                              CancellationToken cancellationToken,
+                                                                              Expression<Func<TEntity, TProjection>> projection,
+                                                                              Expression<Func<TEntity, string>> orderBy,
+                                                                              Expression<Func<TEntity, bool>>? condition = null,
+                                                                              Action<TProjection, EntityEntry<TEntity>>? setProperties = null)
+        where TContext : DbContext
+        where TEntity : class, new()
+    {
+        var rowsAffected = 0;
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            await using var dbContext = contextProvider.CreateContext();
+            var query = dbContext
                         .Set<TEntity>()
                         .AsNoTracking();
 
-                    if (condition != null)
-                    {
-                        query = query.Where(condition);
-                    }
+            if (condition != null)
+            {
+                query = query.Where(condition);
+            }
 
-                    IEnumerable<TProjection> items = await query
-                        .Take(batchSize)
-                        .Select(projection)
-                        .ToArrayAsync(cancellationToken)
-                        .ConfigureAwait(false);
+            IEnumerable<TProjection> items = await query
+                                                   .OrderBy(orderBy)
+                                                   .Take(batchSize)
+                                                   .Select(projection)
+                                                   .ToArrayAsync(cancellationToken)
+                                                   .ConfigureAwait(false);
 
-                    if (!items.Any())
-                        return rowsAffected;
+            if (!items.Any())
+            {
+                return rowsAffected;
+            }
 
-                    if (setProperties == null)
-                    {
-                        dbContext.RemoveRange((IEnumerable<object>) items);
-                    }
-                    else
-                    {
-                        foreach (var item in items)
-                        {
-                            var entity = new TEntity();
-                            var entry = dbContext.Attach(entity);
-                            setProperties.Invoke(item, entry);
-                            entry.State = EntityState.Deleted;
-                        }
-                    }
+            if (setProperties == null)
+            {
+                dbContext.RemoveRange((IEnumerable<object>)items);
+            }
+            else
+            {
+                foreach (var item in items)
+                {
+                    var entity = new TEntity();
+                    var entityEntry = dbContext.Entry(entity);
+                    setProperties.Invoke(item, entityEntry);
 
-                    rowsAffected += await dbContext.SaveChangesAsync(cancellationToken)
-                        .ConfigureAwait(false);
+                    var entry = dbContext.Attach(entityEntry.Entity);
+                    entry.State = EntityState.Deleted;
                 }
+            }
 
-            return rowsAffected;
+            rowsAffected += await dbContext.SaveChangesAsync(cancellationToken)
+                                           .ConfigureAwait(false);
         }
+
+        return rowsAffected;
     }
 }

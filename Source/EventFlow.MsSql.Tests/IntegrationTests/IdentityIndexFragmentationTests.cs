@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,8 +28,8 @@ using EventFlow.Extensions;
 using EventFlow.MsSql.Tests.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.MsSql;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 // ReSharper disable StringLiteralTypo
 
@@ -56,7 +56,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
 
             // Assert
             var fragmentation = GetIndexFragmentation("IndexFragmentationString");
-            fragmentation.Should().BeLessThan(10);
+            fragmentation.ShouldBeLessThan(10);
         }
 
 
@@ -77,7 +77,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
 
             // Assert
             var fragmentation = GetIndexFragmentation("IndexFragmentationString");
-            fragmentation.Should().BeLessThan(10);
+            fragmentation.ShouldBeLessThan(10);
         }
 
         [Test]
@@ -97,7 +97,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
 
             // Assert
             var fragmentation = GetIndexFragmentation("IndexFragmentationString");
-            fragmentation.Should().BeLessThan(10);
+            fragmentation.ShouldBeLessThan(10);
         }
 
 
@@ -109,7 +109,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
 
             // Assert
             var fragmentation = GetIndexFragmentation("IndexFragmentationGuid");
-            fragmentation.Should().BeLessThan(10);
+            fragmentation.ShouldBeLessThan(10);
         }
 
         [Test]
@@ -120,7 +120,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
 
             // Assert
             var fragmentation = GetIndexFragmentation("IndexFragmentationString");
-            fragmentation.Should().BeGreaterThan(90);
+            fragmentation.ShouldBeGreaterThan(90);
         }
 
         [Test]
@@ -131,7 +131,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
 
             // Assert
             var fragmentation = GetIndexFragmentation("IndexFragmentationString");
-            fragmentation.Should().BeGreaterThan(30); // closer to 100 in reality
+            fragmentation.ShouldBeGreaterThan(30); // closer to 100 in reality
         }
 
         [Test]
@@ -142,7 +142,7 @@ namespace EventFlow.MsSql.Tests.IntegrationTests
 
             // Assert
             var fragmentation = GetIndexFragmentation("IndexFragmentationGuid");
-            fragmentation.Should().BeGreaterThan(30); // closer to 100 in reality
+            fragmentation.ShouldBeGreaterThan(30); // closer to 100 in reality
         }
 
         public void InsertRows<T>(Func<T> generator, int count, string table)

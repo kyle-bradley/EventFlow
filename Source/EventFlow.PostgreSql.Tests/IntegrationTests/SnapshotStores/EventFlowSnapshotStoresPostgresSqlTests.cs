@@ -23,8 +23,8 @@
 using System.Linq;
 using EventFlow.PostgreSql.SnapshotStores;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.PostgreSql.Tests.IntegrationTests.SnapshotStores
 {
@@ -38,8 +38,8 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.SnapshotStores
             var sqlScripts = EventFlowSnapshotStoresPostgreSql.GetSqlScripts().ToDictionary(s => s.Name, s => s);
 
             // Assert
-            sqlScripts.Should().HaveCount(1);
-            sqlScripts.Should().ContainKey("SnapshotStores.Scripts.0001 - Create EventFlowSnapshots.sql");
+            sqlScripts.Count.ShouldBe(1);
+            sqlScripts.ShouldContainKey("SnapshotStores.Scripts.0001 - Create EventFlowSnapshots.sql");
         }
     }
 }

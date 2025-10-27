@@ -20,25 +20,32 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using EventFlow.EntityFramework.EventStores;
 using EventFlow.EntityFramework.SnapshotStores;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace EventFlow.EntityFramework.Extensions
 {
     public static class ModelBuilderExtensions
     {
-        public static ModelBuilder AddEventFlowEvents(this ModelBuilder modelBuilder)
+        public static ModelBuilder AddEventFlowEvents(this ModelBuilder modelBuilder, Action<EntityTypeBuilder<EventEntity>>? dob = null)
         {
             var eventEntity = modelBuilder.Entity<EventEntity>();
+            dob?.Invoke(eventEntity);
+            
             eventEntity.HasKey(e => e.GlobalSequenceNumber);
             eventEntity.HasIndex(e => new {e.AggregateId, e.AggregateSequenceNumber}).IsUnique();
+
             return modelBuilder;
         }
 
-        public static ModelBuilder AddEventFlowSnapshots(this ModelBuilder modelBuilder)
+        public static ModelBuilder AddEventFlowSnapshots(this ModelBuilder modelBuilder, Action<EntityTypeBuilder<SnapshotEntity>>? dob = null)
         {
             var eventEntity = modelBuilder.Entity<SnapshotEntity>();
+            dob?.Invoke(eventEntity);
+            
             eventEntity.HasKey(e => e.Id);
             eventEntity.HasIndex(e => new {e.AggregateName, e.AggregateId, e.AggregateSequenceNumber}).IsUnique();
             return modelBuilder;

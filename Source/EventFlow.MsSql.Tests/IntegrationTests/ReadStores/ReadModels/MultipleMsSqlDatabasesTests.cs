@@ -1,6 +1,6 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -35,9 +35,9 @@ using EventFlow.Sql.ReadModels.Attributes;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Extensions;
 using EventFlow.TestHelpers.MsSql;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
 {
@@ -120,10 +120,10 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.ReadStores.ReadModels
             var fetchedMagicReadModels = _readModelDatabase.Query<MagicReadModel>(
                 "SELECT * FROM [ReadModel-Magic] WHERE [MagicId] = @Id",
                 new { Id = magicId.Value });
-            fetchedMagicReadModels.Should().HaveCount(1);
+            fetchedMagicReadModels.Count.ShouldBe(1);
             var fetchedMagicReadModel = fetchedMagicReadModels.Single();
-            fetchedMagicReadModel.Message.Should().Be(expectedMessage);
-            fetchedMagicReadModel.Version.Should().Be(2);
+            fetchedMagicReadModel.Message.ShouldBe(expectedMessage);
+            fetchedMagicReadModel.Version.ShouldBe(2);
         }
 
         public class MagicId : Identity<MagicId>

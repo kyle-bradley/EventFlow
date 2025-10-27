@@ -20,6 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Jobs;
@@ -34,6 +35,21 @@ namespace EventFlow.Hangfire.Integration
             IJobRunner jobRunner)
         {
             _jobRunner = jobRunner;
+        }
+
+        [Obsolete("For backwards compatibility with jobs enqueued before EventFlow 1.x. Use ExecuteAsync(string jobName, int version, string job).")]
+        public Task ExecuteAsync(string displayName, string jobName, int version, string job)
+        {
+            _ = displayName;
+            return ExecuteAsync(jobName, version, job);
+        }
+
+        [Obsolete("For backwards compatibility with jobs enqueued before EventFlow 1.x. Use ExecuteAsync(string jobName, int version, string job).")]
+        public Task ExecuteAsync(string displayName, string jobName, int version, string job, string queueName)
+        {
+            _ = displayName;
+	        _ = queueName;
+            return ExecuteAsync(jobName, version, job);
         }
 
         public Task ExecuteAsync(string jobName, int version, string job)

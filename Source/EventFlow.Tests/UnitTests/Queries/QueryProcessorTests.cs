@@ -25,9 +25,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Queries;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Queries
 {
@@ -62,7 +62,7 @@ namespace EventFlow.Tests.UnitTests.Queries
             var result = await Sut.ProcessAsync(new TestQuery(), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            result.Should().Be(42);
+            result.ShouldBe(42);
             _queryHandlerMock.Verify(q => q.ExecuteQueryAsync(It.IsAny<IQuery<int>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }

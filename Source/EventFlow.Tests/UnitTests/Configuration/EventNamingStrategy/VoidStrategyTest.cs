@@ -1,7 +1,6 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,13 +20,29 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Aggregates;
-using EventFlow.EventStores;
+using EventFlow.Configuration.EventNamingStrategy;
+using EventFlow.TestHelpers;
+using NUnit.Framework;
+using Shouldly;
 
-namespace EventFlow.TestHelpers.Aggregates.Events
+namespace EventFlow.Tests.UnitTests.Configuration.EventNamingStrategy
 {
-    [EventVersion("ThingyInitiatedEvent", 1)]
-    public class ThingyInitiatedEvent : AggregateEvent<ThingyAggregate, ThingyId>
+    [Category(Categories.Unit)]
+    public class DefaultStrategyTest
     {
+        private class Any {}
+        
+        [Test]
+        public void EventNameShouldBeUnchanged()
+        {
+            // Arrange
+            var strategy = new DefaultStrategy();
+            
+            // Act
+            var name = strategy.CreateEventName(1, typeof(Any), "OriginalName");
+            
+            // Assert
+            name.ShouldBe("OriginalName");
+        }
     }
 }

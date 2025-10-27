@@ -27,8 +27,8 @@ using EventFlow.Commands;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Commands
 {
@@ -66,7 +66,7 @@ namespace EventFlow.Tests.UnitTests.Commands
             var sourceId = command.SourceId;
 
             // Assert
-            sourceId.Value.Should().Be(expectedSouceId);
+            sourceId.Value.ShouldBe(expectedSouceId);
         }
     }
 }

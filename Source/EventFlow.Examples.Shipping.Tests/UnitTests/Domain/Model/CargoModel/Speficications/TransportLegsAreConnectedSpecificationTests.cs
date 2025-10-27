@@ -20,14 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System.Linq;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Entities;
 using EventFlow.Examples.Shipping.Domain.Model.CargoModel.Specifications;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Entities;
 using EventFlow.TestHelpers;
-using FluentAssertions;
-using FluentAssertions.Extensions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Examples.Shipping.Tests.UnitTests.Domain.Model.CargoModel.Speficications
 {
@@ -50,8 +50,8 @@ namespace EventFlow.Examples.Shipping.Tests.UnitTests.Domain.Model.CargoModel.Sp
             var why = sut.WhyIsNotSatisfiedBy(transportLegs);
 
             // Assert
-            isSatisfiedBy.Should().BeTrue();
-            why.Should().HaveCount(0);
+            isSatisfiedBy.ShouldBeTrue();
+            why.Count().ShouldBe(0);
         }
 
         [Test]
@@ -70,8 +70,8 @@ namespace EventFlow.Examples.Shipping.Tests.UnitTests.Domain.Model.CargoModel.Sp
             var why = sut.WhyIsNotSatisfiedBy(transportLegs);
 
             // Assert
-            isSatisfiedBy.Should().BeFalse();
-            why.Should().HaveCount(1);
+            isSatisfiedBy.ShouldBeFalse();
+            why.Count().ShouldBe(1);
         }
 
         [Test]
@@ -90,8 +90,8 @@ namespace EventFlow.Examples.Shipping.Tests.UnitTests.Domain.Model.CargoModel.Sp
             var why = sut.WhyIsNotSatisfiedBy(transportLegs);
 
             // Assert
-            isSatisfiedBy.Should().BeFalse();
-            why.Should().HaveCount(1);
+            isSatisfiedBy.ShouldBeFalse();
+            why.Count().ShouldBe(1);
         }
     }
 }

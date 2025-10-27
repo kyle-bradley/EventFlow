@@ -22,10 +22,10 @@
 
 using EventFlow.TestHelpers;
 using EventFlow.ValueObjects;
-using FluentAssertions;
 using NUnit.Framework;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.ValueObjects
 {
@@ -53,7 +53,17 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var json = JsonSerializer.Serialize(stringSvo);
 
             // Assert
-            json.Should().Be(expectedJson);
+            json.ShouldBe(expectedJson);
+        }
+
+        [Test]
+        public void StringDeserializationEmptyShouldResultInNull()
+        {
+            // Act
+            var stringSvo = JsonConvert.DeserializeObject<StringSVO>(string.Empty);
+
+            // Assert
+            stringSvo.ShouldBeNull();
         }
 
         [TestCase("\"\"", "")]
@@ -64,7 +74,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var stringSvo = JsonSerializer.Deserialize<StringSVO>(json);
 
             // Assert
-            stringSvo.Value.Should().Be(expectedValue);
+            stringSvo.Value.ShouldBe(expectedValue);
         }
 
         [TestCase(0, "0")]
@@ -79,7 +89,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var json = JsonSerializer.Serialize(intSvo);
 
             // Assert
-            json.Should().Be(expectedJson);
+            json.ShouldBe(expectedJson);
         }
 
         [TestCase("0", 0)]
@@ -91,7 +101,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var intSvo = JsonSerializer.Deserialize<IntSVO>(json);
 
             // Assert
-            intSvo.Value.Should().Be(expectedValue);
+            intSvo.Value.ShouldBe(expectedValue);
         }
 
         [TestCase("1", MagicEnum.One)]
@@ -102,7 +112,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var intSvo = JsonSerializer.Deserialize<EnumSVO>(json);
 
             // Assert
-            intSvo.Value.Should().Be(expectedValue);
+            intSvo.Value.ShouldBe(expectedValue);
         }
 
         [TestCase(MagicEnum.Zero, "0")]
@@ -118,7 +128,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var json = JsonSerializer.Serialize(intSvo);
 
             // Assert
-            json.Should().Be(expectedJson);
+            json.ShouldBe(expectedJson);
         }
 
         [JsonConverter(typeof(SingleValueObjectConverter<StringSVO, string>))]

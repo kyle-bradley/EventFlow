@@ -27,8 +27,8 @@ using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.ReadStores
 {
@@ -109,7 +109,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             await Sut.UpdateReadModelAsync(readModel, events, A<IReadModelContext>(), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            readModel.PingEventsReceived.Should().BeFalse();
+            readModel.PingEventsReceived.ShouldBeFalse();
         }
 
         [Test]
@@ -138,8 +138,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 .ConfigureAwait(false);
 
             // Assert
-            pingReadModel.PingEventsReceived.Should().BeTrue();
-            theOtherPingReadModel.PingEventsReceived.Should().BeTrue();
+            pingReadModel.PingEventsReceived.ShouldBeTrue();
+            theOtherPingReadModel.PingEventsReceived.ShouldBeTrue();
         }
 
         [Test]
@@ -169,8 +169,8 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 .ConfigureAwait(false);
 
             // Assert
-            pingReadModel.PingEventsReceived.Should().BeTrue();
-            domainErrorAfterFirstReadModel.DomainErrorAfterFirstEventsReceived.Should().BeTrue();
+            pingReadModel.PingEventsReceived.ShouldBeTrue();
+            domainErrorAfterFirstReadModel.DomainErrorAfterFirstEventsReceived.ShouldBeTrue();
         }
 
         [Test]
@@ -190,7 +190,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 CancellationToken.None);
 
             // Assert
-            appliedAny.Should().BeFalse();
+            appliedAny.ShouldBeFalse();
         }
 
         [Test]
@@ -210,7 +210,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 CancellationToken.None);
 
             // Assert
-            appliedAny.Should().BeTrue();
+            appliedAny.ShouldBeTrue();
         }
 
         [Test]
@@ -232,7 +232,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 .ConfigureAwait(false);
 
             // Assert
-            readModel.PingEventsReceived.Should().BeTrue();
+            readModel.PingEventsReceived.ShouldBeTrue();
         }
 
         [Test]
@@ -254,7 +254,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 .ConfigureAwait(false);
 
             // Assert
-            readModel.PingEventsReceived.Should().BeTrue();
+            readModel.PingEventsReceived.ShouldBeTrue();
         }
     }
 }

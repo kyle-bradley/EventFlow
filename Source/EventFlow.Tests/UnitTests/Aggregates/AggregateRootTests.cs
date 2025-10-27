@@ -27,8 +27,8 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
@@ -40,9 +40,9 @@ namespace EventFlow.Tests.UnitTests.Aggregates
         public void InitialVersionIsZero()
         {
             // Assert
-            Sut.Version.Should().Be(0);
-            Sut.IsNew.Should().BeTrue();
-            Sut.UncommittedEvents.Count().Should().Be(0);
+            Sut.Version.ShouldBe(0);
+            Sut.IsNew.ShouldBeTrue();
+            Sut.UncommittedEvents.Count().ShouldBe(0);
         }
 
         [Test]
@@ -52,10 +52,10 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             Sut.Ping(PingId.New);
 
             // Assert
-            Sut.Version.Should().Be(1);
-            Sut.IsNew.Should().BeFalse();
-            Sut.UncommittedEvents.Count().Should().Be(1);
-            Sut.PingsReceived.Count.Should().Be(1);
+            Sut.Version.ShouldBe(1);
+            Sut.IsNew.ShouldBeFalse();
+            Sut.UncommittedEvents.Count().ShouldBe(1);
+            Sut.PingsReceived.Count.ShouldBe(1);
         }
 
         [Test]
@@ -73,10 +73,10 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             Sut.ApplyEvents(domainEvents);
 
             // Assert
-            Sut.IsNew.Should().BeFalse();
-            Sut.Version.Should().Be(2);
-            Sut.PingsReceived.Count.Should().Be(2);
-            Sut.UncommittedEvents.Count().Should().Be(0);
+            Sut.IsNew.ShouldBeFalse();
+            Sut.Version.ShouldBe(2);
+            Sut.PingsReceived.Count.ShouldBe(2);
+            Sut.UncommittedEvents.Count().ShouldBe(0);
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             Sut.ApplyEvents(new IDomainEvent[]{});
 
             // Assert
-            Sut.Version.Should().Be(0);
+            Sut.Version.ShouldBe(0);
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             Sut.DomainErrorAfterFirst();
 
             // Assert
-            Sut.DomainErrorAfterFirstReceived.Should().BeTrue();
+            Sut.DomainErrorAfterFirstReceived.ShouldBeTrue();
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             Sut.Delete();
 
             // Assert
-            Sut.IsDeleted.Should().BeTrue();
+            Sut.IsDeleted.ShouldBeTrue();
         }
 
         [Test]
@@ -119,7 +119,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             // Assert
             Sut.UncommittedEvents
                 .Select(e => e.Metadata.EventId).Distinct()
-                .Should().HaveCount(2);
+                .Count()
+                .ShouldBe(2);
         }
 
         [Test]
@@ -139,12 +140,10 @@ namespace EventFlow.Tests.UnitTests.Aggregates
 
             // GuidFactories.Deterministic.Namespaces.Events, $"{thingyId.Value}-v1"
             eventIdGuids[0]
-                .Should()
-                .Be("event-3dde5ccb-b594-59b4-ad0a-4d432ffce026");
+                .ShouldBe("event-3dde5ccb-b594-59b4-ad0a-4d432ffce026");
             // GuidFactories.Deterministic.Namespaces.Events, $"{thingyId.Value}-v2"
             eventIdGuids[1]
-                .Should()
-                .Be("event-2e79868f-6ef7-5c88-a941-12ae7ae801c7");
+                .ShouldBe("event-2e79868f-6ef7-5c88-a941-12ae7ae801c7");
         }
 
         [Test]
@@ -158,7 +157,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             Action applyingEvents = () => Sut.ApplyEvents(new []{ domainEvent });
 
             // Assert
-            applyingEvents.Should().Throw<InvalidOperationException>();
+            applyingEvents.ShouldThrow<InvalidOperationException>();
         }
     }
 }

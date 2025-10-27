@@ -33,8 +33,8 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.TestHelpers.Suites
 {
@@ -51,7 +51,7 @@ namespace EventFlow.TestHelpers.Suites
                 .ConfigureAwait(false);
 
             // Assert
-            committedSnapshot.Should().BeNull();
+            committedSnapshot.ShouldBeNull();
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace EventFlow.TestHelpers.Suites
             var thingySnapshot = await LoadSnapshotAsync(thingyId).ConfigureAwait(false);
 
             // Assert
-            thingySnapshot.Should().BeNull();
+            thingySnapshot.ShouldBeNull();
         }
 
         [Test]
@@ -104,8 +104,8 @@ namespace EventFlow.TestHelpers.Suites
             var thingySnapshot = await LoadSnapshotAsync(thingyId).ConfigureAwait(false);
 
             // Assert
-            thingySnapshot.Should().NotBeNull();
-            thingySnapshot.PingsReceived.Count.Should().Be(ThingyAggregate.SnapshotEveryVersion);
+            thingySnapshot.ShouldNotBeNull();
+            thingySnapshot.PingsReceived.Count.ShouldBe(ThingyAggregate.SnapshotEveryVersion);
         }
 
         [TestCase(1)]
@@ -121,7 +121,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Validate
             var thingySnapshot = await LoadSnapshotAsync(thingyId).ConfigureAwait(false);
-            thingySnapshot.PingsReceived.Should().HaveCount(ThingyAggregate.SnapshotEveryVersion);
+            thingySnapshot.PingsReceived.Count.ShouldBe(ThingyAggregate.SnapshotEveryVersion);
 
             // Act
             var command = new ThingyPingCommand(thingyId, sourceIds[index], PingId.New);
@@ -140,8 +140,8 @@ namespace EventFlow.TestHelpers.Suites
             var thingyAggregate = await LoadAggregateAsync(thingyId).ConfigureAwait(false);
 
             // Assert
-            thingyAggregate.Version.Should().Be(pingsSent);
-            thingyAggregate.SnapshotVersion.GetValueOrDefault().Should().Be(ThingyAggregate.SnapshotEveryVersion);
+            thingyAggregate.Version.ShouldBe(pingsSent);
+            thingyAggregate.SnapshotVersion.GetValueOrDefault().ShouldBe(ThingyAggregate.SnapshotEveryVersion);
         }
 
         [Test]
@@ -151,9 +151,9 @@ namespace EventFlow.TestHelpers.Suites
             var thingyAggregate = await LoadAggregateAsync(A<ThingyId>()).ConfigureAwait(false);
 
             // Assert
-            thingyAggregate.Should().NotBeNull();
-            thingyAggregate.Version.Should().Be(0);
-            thingyAggregate.SnapshotVersion.Should().NotHaveValue();
+            thingyAggregate.ShouldNotBeNull();
+            thingyAggregate.Version.ShouldBe(0);
+            thingyAggregate.SnapshotVersion.ShouldBeNull();
         }
 
         [Test]
@@ -173,12 +173,12 @@ namespace EventFlow.TestHelpers.Suites
                 .ConfigureAwait(false);
 
             // Assert
-            snapshotContainer.Snapshot.Should().BeOfType<ThingySnapshot>();
-            snapshotContainer.Metadata.AggregateId.Should().Be(thingyId.Value);
-            snapshotContainer.Metadata.AggregateName.Should().Be("ThingyAggregate");
-            snapshotContainer.Metadata.AggregateSequenceNumber.Should().Be(expectedVersion);
-            snapshotContainer.Metadata.SnapshotName.Should().Be("thingy");
-            snapshotContainer.Metadata.SnapshotVersion.Should().Be(1);
+            snapshotContainer.Snapshot.ShouldBeOfType<ThingySnapshot>();
+            snapshotContainer.Metadata.AggregateId.ShouldBe(thingyId.Value);
+            snapshotContainer.Metadata.AggregateName.ShouldBe("ThingyAggregate");
+            snapshotContainer.Metadata.AggregateSequenceNumber.ShouldBe(expectedVersion);
+            snapshotContainer.Metadata.SnapshotName.ShouldBe("thingy");
+            snapshotContainer.Metadata.SnapshotVersion.ShouldBe(1);
         }
 
         [Test]
@@ -221,9 +221,10 @@ namespace EventFlow.TestHelpers.Suites
             var thingyAggregate = await LoadAggregateAsync(thingyId).ConfigureAwait(false);
 
             // Assert
-            thingyAggregate.Version.Should().Be(expectedVersion);
-            thingyAggregate.PingsReceived.Should().BeEquivalentTo(pingIds);
-            thingyAggregate.SnapshotVersions.Should().Contain(new[] {ThingySnapshotVersion.Version1, ThingySnapshotVersion.Version2});
+            thingyAggregate.Version.ShouldBe(expectedVersion);
+            thingyAggregate.PingsReceived.ShouldBe(pingIds, ignoreOrder: true);
+            thingyAggregate.SnapshotVersions.ShouldContain(ThingySnapshotVersion.Version1);
+            thingyAggregate.SnapshotVersions.ShouldContain(ThingySnapshotVersion.Version2);
         }
 
         protected override IEventFlowOptions Options(IEventFlowOptions eventFlowOptions)

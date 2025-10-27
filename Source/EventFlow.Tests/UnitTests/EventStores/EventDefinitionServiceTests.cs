@@ -24,18 +24,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Aggregates;
+using EventFlow.Configuration.EventNamingStrategy;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.TestHelpers;
 using EventFlow.Tests.UnitTests.Core.VersionedTypes;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
     [Category(Categories.Unit)]
     public class EventDefinitionServiceTests : VersionedTypeDefinitionServiceTestSuite<EventDefinitionService, IAggregateEvent, EventVersionAttribute, EventDefinition>
     {
+        [SetUp]
+        public void SetUp()
+        {
+            Inject<IEventNamingStrategy>(new DefaultStrategy());
+        }
+        
         [Test]
         public void GetDefinition_OnEventWithMultipleDefinitions_ThrowsException()
         {
@@ -57,10 +64,44 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var eventDefinitions = Sut.GetDefinitions(typeof(MultiNamesEvent));
 
             // Assert
-            eventDefinitions.Should().HaveCount(3);
+            eventDefinitions.Count.ShouldBe(3);
+    
+            var actualStrings = eventDefinitions
+                .Select(d => $"{d.Name}-V{d.Version}")
+                .OrderBy(s => s)
+                .ToList();
+    
+            var expectedStrings = new[] 
+                {
+                    "multi-names-event-V1",
+                    "MultiNamesEvent-V1",
+                    "MultiNamesEvent-V2"
+                }.OrderBy(s => s)
+                .ToList();
+    
+            actualStrings.ShouldBe(expectedStrings);
+        }
+        
+        [Test]
+        public void GetDefinitions_OnEventWithMultipleDefinitionsAndNonDefaultNamingStrategy_ReturnsThemAll()
+        {
+            // Arrange
+            Inject<IEventNamingStrategy>(new NamespaceAndClassNameStrategy());
+            Sut.Load(typeof(MultiNamesEvent));
+
+            // Act
+            var eventDefinitions = Sut.GetDefinitions(typeof(MultiNamesEvent));
+
+            // Assert
+            eventDefinitions.Count.ShouldBe(3);
             eventDefinitions
                 .Select(d => $"{d.Name}-V{d.Version}")
-                .Should().BeEquivalentTo(new []{"multi-names-event-V1", "MultiNamesEvent-V1", "MultiNamesEvent-V2"});
+                .ShouldBe(new[]
+                {
+                    "EventFlow.Tests.UnitTests.EventStores.MultiNamesEvent-V1",
+                    "EventFlow.Tests.UnitTests.EventStores.MultiNamesEvent-V1",
+                    "EventFlow.Tests.UnitTests.EventStores.MultiNamesEvent-V2"
+                }, ignoreOrder: true);
         }
 
         [EventVersion("Fancy", 42)]

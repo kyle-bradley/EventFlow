@@ -71,7 +71,7 @@ namespace EventFlow.Hangfire.Integration
                 cancellationToken,
                 (jobDefinition, json) =>
                     _queueName == null
-                        ? _backgroundJobClient.Enqueue(ExecuteMethodCallExpression(jobDefinition, json))
+                        ? _backgroundJobClient.Schedule(ExecuteMethodCallExpression(jobDefinition, json), runAt)
                         : _backgroundJobClient.Schedule(_queueName, ExecuteMethodCallExpression(jobDefinition, json), runAt));
         }
 
@@ -82,7 +82,7 @@ namespace EventFlow.Hangfire.Integration
                 cancellationToken,
                 (jobDefinition, json) =>
                     _queueName == null
-                        ? _backgroundJobClient.Enqueue(ExecuteMethodCallExpression(jobDefinition, json))
+                        ? _backgroundJobClient.Schedule(ExecuteMethodCallExpression(jobDefinition, json), delay)
                         : _backgroundJobClient.Schedule(_queueName, ExecuteMethodCallExpression(jobDefinition, json), delay));
         }
 
@@ -98,7 +98,7 @@ namespace EventFlow.Hangfire.Integration
 
                 var id = schedule(jobDefinition, json);
 
-                _logger.LogInformation($"Scheduled job '{id}' with name '{jobDefinition.Name}'  in Hangfire");
+                _logger.LogInformation("Scheduled job {JobId} with name {JobDefinitionName} in Hangfire", id, jobDefinition.Name);
 
                 return Task.FromResult<IJobId>(new HangfireJobId(id));
             }

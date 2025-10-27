@@ -31,7 +31,7 @@ namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Only for test")]
     public class IndexingInMemoryTableFactory : InMemoryTableFactory
     {
-        public IndexingInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions options) : base(loggingOptions, options)
+        public IndexingInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions option) : base(loggingOptions, option)
         {
         }
 

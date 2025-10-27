@@ -29,9 +29,9 @@ using EventFlow.Exceptions;
 using EventFlow.Extensions;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests
 {
@@ -69,7 +69,7 @@ namespace EventFlow.Tests
                         new ReadModelByIdQuery<ExampleReadModel>(exampleId), CancellationToken.None);
 
                 // Verify that the read model has the expected magic number
-                exampleReadModel.MagicNumber.Should().Be(42);
+                exampleReadModel.MagicNumber.ShouldBe(42);
             }
         }
 

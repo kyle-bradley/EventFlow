@@ -22,8 +22,8 @@
 
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
@@ -40,7 +40,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var testId = ThingyId.With(value);
 
             // Test
-            testId.Value.Should().Be(value);
+            testId.Value.ShouldBe(value);
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var id2 = ThingyId.New;
 
             // Assert
-            id1.Value.Should().NotBe(id2.Value);
+            id1.Value.ShouldNotBe(id2.Value);
         }
 
         [Test]
@@ -63,8 +63,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var id2 = ThingyId.With(value);
 
             // Assert
-            id1.Equals(id2).Should().BeTrue();
-            (id1 == id2).Should().BeTrue();
+            id1.Equals(id2).ShouldBeTrue();
+            (id1 == id2).ShouldBeTrue();
         }
 
         [Test]
@@ -75,8 +75,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var id2 = ThingyId.With("thingy-d15b1562-11f2-4645-8b1a-f8b946b566d3");
 
             // Assert
-            id1.Equals(id2).Should().BeFalse();
-            (id1 == id2).Should().BeFalse();
+            id1.Equals(id2).ShouldBeFalse();
+            (id1 == id2).ShouldBeFalse();
         }
     }
 }

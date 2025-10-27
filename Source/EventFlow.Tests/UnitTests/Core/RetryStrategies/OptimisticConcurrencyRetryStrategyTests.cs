@@ -25,9 +25,9 @@ using EventFlow.Configuration;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.Exceptions;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Core.RetryStrategies
 {
@@ -63,7 +63,7 @@ namespace EventFlow.Tests.UnitTests.Core.RetryStrategies
             var shouldThisBeRetried = Sut.ShouldThisBeRetried(optimisticConcurrencyException, A<TimeSpan>(), currentRetryCount);
 
             // Assert
-            shouldThisBeRetried.ShouldBeRetried.Should().Be(expectedShouldThisBeRetried);
+            shouldThisBeRetried.ShouldBeRetried.ShouldBe(expectedShouldThisBeRetried);
         }
 
         [TestCase(0)]
@@ -80,7 +80,7 @@ namespace EventFlow.Tests.UnitTests.Core.RetryStrategies
             var shouldThisBeRetried = Sut.ShouldThisBeRetried(exception, A<TimeSpan>(), currentRetryCount);
 
             // Assert
-            shouldThisBeRetried.ShouldBeRetried.Should().BeFalse();
+            shouldThisBeRetried.ShouldBeRetried.ShouldBeFalse();
         }
 
     }

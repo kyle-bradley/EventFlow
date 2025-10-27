@@ -35,9 +35,9 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Snapshots
 {
@@ -84,9 +84,9 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             await Sut.LoadAsync(_eventStoreMock.Object, _snapshotStore.Object, CancellationToken.None);
 
             // Assert
-            Sut.Version.Should().Be(eventsInStore);
-            Sut.SnapshotVersion.GetValueOrDefault().Should().Be(ThingyAggregate.SnapshotEveryVersion);
-            Sut.PreviousSourceIds.Should().NotBeEmpty();
+            Sut.Version.ShouldBe(eventsInStore);
+            Sut.SnapshotVersion.GetValueOrDefault().ShouldBe(ThingyAggregate.SnapshotEveryVersion);
+            Sut.PreviousSourceIds.ShouldNotBeEmpty();
         }
 
         [SetUp]
@@ -112,7 +112,28 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 CancellationToken.None);
 
             // Assert
-            domainEvents.Should().HaveCount(expectedNumberOfEvents);
+            domainEvents.Count.ShouldBe(expectedNumberOfEvents);
+        }
+        
+        [Description("Mock test")]
+        [TestCase(5, 3, 5, 3)]
+        [TestCase(5, 0, 5, 5)]
+        [TestCase(5, 1, 2, 2)]
+        [TestCase(0, 1, 2, 0)]
+        public async Task Test_Arrange_EventStore_SequenceRange(int eventInStore, int fromEventSequenceNumber, int toEventSequenceNumber, int expectedNumberOfEvents)
+        {
+            // Arrange
+            Arrange_EventStore(ManyDomainEvents<ThingyPingEvent>(eventInStore));
+
+            // Act
+            var domainEvents = await _eventStoreMock.Object.LoadEventsAsync<ThingyAggregate, ThingyId>(
+                A<ThingyId>(),
+                fromEventSequenceNumber,
+                toEventSequenceNumber,
+                CancellationToken.None);
+
+            // Assert
+            domainEvents.Count.ShouldBe(expectedNumberOfEvents);
         }
         
         [Description("Mock test")]

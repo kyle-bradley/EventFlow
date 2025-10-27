@@ -38,9 +38,9 @@ using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.IntegrationTests
 {
@@ -126,10 +126,10 @@ namespace EventFlow.Tests.IntegrationTests
                     .ConfigureAwait(false);
 
                 // Assert
-                pingReadModels.Should().HaveCount(2);
-                testAggregate.DomainErrorAfterFirstReceived.Should().BeTrue();
-                testReadModelFromQuery1.DomainErrorAfterFirstReceived.Should().BeTrue();
-                testReadModelFromQuery2.Should().NotBeNull();
+                pingReadModels.Count.ShouldBe(2);
+                testAggregate.DomainErrorAfterFirstReceived.ShouldBeTrue();
+                testReadModelFromQuery1.DomainErrorAfterFirstReceived.ShouldBeTrue();
+                testReadModelFromQuery2.ShouldNotBeNull();
             }
         }
 

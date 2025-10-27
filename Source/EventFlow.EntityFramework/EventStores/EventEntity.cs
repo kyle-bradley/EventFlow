@@ -19,20 +19,19 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using EventFlow.EventStores;
 
-namespace EventFlow.EntityFramework.EventStores
+namespace EventFlow.EntityFramework.EventStores;
+
+public class EventEntity : ICommittedDomainEvent
 {
-    public class EventEntity : ICommittedDomainEvent
-    {
-        public long GlobalSequenceNumber { get; set; }
-        public Guid BatchId { get; set; }
-        public string AggregateName { get; set; }
-        public string AggregateId { get; set; }
-        public string Data { get; set; }
-        public string Metadata { get; set; }
-        public int AggregateSequenceNumber { get; set; }
-    }
+    public string AggregateId { get; init; } = default!;
+    public string AggregateName { get; init; } = default!;
+    public int AggregateSequenceNumber { get; init; }
+    public Guid BatchId { get; init; }
+    public string Data { get; init; } = default!;
+    public long GlobalSequenceNumber { get; init; }
+    public string Metadata { get; init; } = default!;
 }

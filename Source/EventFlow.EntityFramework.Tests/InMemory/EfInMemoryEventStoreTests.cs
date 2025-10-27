@@ -35,12 +35,12 @@ namespace EventFlow.EntityFramework.Tests.InMemory
     {
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, InMemoryDbContextProvider>(ServiceLifetime.Singleton)
                 .ConfigureForEventStoreTest();
 
-            var serviceProvider = base.Configure(resolver);
+            var serviceProvider = base.Configure(eventFlowOptions);
 
             return serviceProvider;
         }

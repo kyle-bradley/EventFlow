@@ -201,10 +201,6 @@ FakesAssemblies/
 # Git commit history
 /-la
 
-# Visual Studio Code
-/.ionide
-/.vscode
-
 #####################################################
 
 # Project specific files
@@ -213,3 +209,6 @@ FakesAssemblies/
 
 # mkdocs output
 /docs
+
+# Mac Files
+*.DS_Store

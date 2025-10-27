@@ -1,109 +1,99 @@
 ---
 layout: default
-title: Integration
-parent: Basics
+title: Event stores
+parent: Integration
 nav_order: 2
 ---
 
-
-.. _eventstores:
-
 # Event stores
 
-By default EventFlow uses an in-memory event store. But EventFlow provides
-support for alternatives.
+By default, EventFlow uses an in-memory event store. However, EventFlow provides support for several alternatives.
 
-- :ref:`In-memory <eventstore-inmemory>` (for test)
-- :ref:`Microsoft SQL Server <eventstore-mssql>`
-- :ref:`Mongo DB <eventstore-mongodb>`
-- :ref:`Redis <eventstore-redis>`
-- :ref:`Files <eventstore-files>` (for test)
-
-
-.. _eventstore-inmemory:
+- [In-memory](#in-memory) (for testing)
+- [Microsoft SQL Server](#mssql-event-store)
+- [MongoDB](#mongo-db)
+- [Redis](#redis)
+- [Files](#files) (for testing)
 
 ## In-memory
 
 !!! attention
-    In-memory event store shouldn't be used for production environments, only for tests.
+    The in-memory event store should not be used for production environments, only for testing purposes.
 
-
-Using the in-memory event store is easy as it's enabled by default, no need
-to do anything.
-
-
-.. _eventstore-mssql:
+Using the in-memory event store is easy as it's enabled by default, so there is no need to do anything.
 
 ## MSSQL event store
 
-See :ref:`MSSQL setup <setup-mssql>` for details on how to get started
-using Microsoft SQL Server in EventFlow.
+See [MSSQL setup](mssql.md) for details on how to get started using Microsoft SQL Server in EventFlow.
 
-To configure EventFlow to use MSSQL as the event store, simply add the
-``UseMssqlEventStore()`` as shown here.
+To configure EventFlow to use MSSQL as the event store, simply add the `UseMssqlEventStore()` method as shown here.
 
 ```csharp
-IRootResolver rootResolver = EventFlowOptions.New
-  ...
-  .UseMssqlEventStore()
-  ...
-  .CreateResolver();
+var serviceCollection = new ServiceCollection();
+serviceCollection.AddEventFlow(eventFlowOptions =>
+{
+  // Other details are omitted for clarity
+  
+  eventFlowOptions.UseMssqlEventStore();
+});
 ```
 
 ### Create and migrate required MSSQL databases
 
-Before you can use the MSSQL event store, the required database and
-tables must be created. The database specified in your MSSQL connection
-will *not* be automatically created, you have to do this yourself.
+Before you can use the MSSQL event store, the required database and tables must be created. The database specified in your MSSQL connection will *not* be automatically created; you have to do this yourself.
 
-To make EventFlow create the required tables, execute the following
-code.
+To make EventFlow create the required tables, execute the following code.
 
 ```csharp
-var msSqlDatabaseMigrator = rootResolver.Resolve<IMsSqlDatabaseMigrator>();
-EventFlowEventStoresMsSql.MigrateDatabase(msSqlDatabaseMigrator);
+var serviceProvider = serviceCollection.BuildServiceProvider();
+var msSqlDatabaseMigrator = serviceProvider.GetRequiredService<IMsSqlDatabaseMigrator>();
+await EventFlowEventStoresMsSql.MigrateDatabaseAsync(
+  msSqlDatabaseMigrator, CancellationToken.None);
 ```
 
-You should do this either on application start or preferably upon
-application install or update, e.g., when the web site is installed.
+You should do this either on application start or preferably upon application install or update, e.g., when the website is installed.
 
 !!! attention
-    If you utilize user permission in your application, then you
-    need to grant the event writer access to the user defined table type
-    ``eventdatamodel_list_type``. EventFlow uses this type to pass entire
-    batches of events to the database.
+    If you utilize user permissions in your application, you need to grant the event writer access to the user-defined table type `eventdatamodel_list_type`. EventFlow uses this type to pass entire batches of events to the database.
 
-.. _eventstore-postgresql:
+## PostgreSQL event store
 
-## PostgreSql event store
+See [PostgreSQL setup](postgresql.md) for details on how to get started using PostgreSQL in EventFlow.
 
-Basically all above on MS SQL server store applicable to PostgreSql. See :ref:`MSSQL setup <setup-postgresql>` 
-for setup documentation.
-
-.. _eventstore-mongodb:
-
-## Mongo DB
-
-See :ref:`Mongo DB setup <setup-mongodb>` for details on how to get started using Mongo DB in EventFlow.
-
-To configure EventFlow to use Mongo DB as the event store, simply add the ``UseMongoDbEventStore()`` as shown here.
+To configure EventFlow to use PostgreSQL as the event store, simply add the `UsePostgreSqlEventStore()` method as shown here.
 
 ```csharp
-IRootResolver rootResolver = EventFlowOptions.New
-  ...
-  .UseMongoDbEventStore()
-  ...
-  .CreateResolver();
+var serviceCollection = new ServiceCollection();
+serviceCollection.AddEventFlow(eventFlowOptions =>
+{
+  // Other details are omitted for clarity
+
+  eventFlowOptions.UsePostgreSqlEventStore();
+});
 ```
 
-.. _eventstore-redis:
+## MongoDB
+
+See [MongoDB setup](mongodb.md) for details on how to get started using MongoDB in EventFlow.
+
+To configure EventFlow to use MongoDB as the event store, simply add the `UseMongoDbEventStore()` method as shown here.
+
+```csharp
+var serviceCollection = new ServiceCollection();
+serviceCollection.AddEventFlow(eventFlowOptions =>
+{
+  // Other details are omitted for clarity
+
+  eventFlowOptions.UseMongoDbEventStore();
+});
+
+```
 
 ## Redis
 
-See :ref:`Redis setup <setup-redis>` for details on how to get started using Redis and EventFlow and make sure your database is persistent.
+See [Redis setup](redis.md) for details on how to get started using Redis and EventFlow. Ensure that your database is persistent.
 
-To configure EventFlow to use Redis as the event store, simply add the ``UseRedisEventStore()`` as shown in the example below.
-
+To configure EventFlow to use Redis as the event store, simply add the `UseRedisEventStore()` method as shown in the example below.
 
 ```csharp
 IRootResolver rootResolver = EventFlowOptions.New
@@ -113,26 +103,25 @@ IRootResolver rootResolver = EventFlowOptions.New
   .CreateResolver();
 ```
 
-.. _eventstore-files:
-
 ## Files
 
 !!! attention
-    The Files event store shouldn't be used for production environments, only for tests.
+    The Files event store should not be used for production environments, only for testing purposes.
 
+The file-based event store is useful if you have a set of events that represent a certain scenario and would like to create a test that verifies that the domain handles it correctly.
 
-The file based event store is useful if you have a set of events that represents
-a certain scenario and would like to create a test that verifies that the domain
-handles it correctly.
-
-To use the file based event store, simply invoke ``.UseFilesEventStore`("...")``
-with the path containing the files.
+To use the file-based event store, simply provide an implementation of `IFilesEventStoreConfiguration` to the `.UseFilesEventPersistence(...)` method.
 
 ```csharp
-var storePath = @"c:\eventstore"
-var rootResolver = EventFlowOptions.New
-    ...
-    .UseFilesEventStore(FilesEventStoreConfiguration.Create(storePath))
-    ...
-    .CreateResolver();
+var storePath = @"c:\eventstore";
+
+var serviceCollection = new ServiceCollection();
+serviceCollection.AddEventFlow(eventFlowOptions =>
+{
+  // Other details are omitted for clarity
+
+  eventFlowOptions.UseFilesEventPersistence(
+    FilesEventStoreConfiguration.Create(storePath));
+});
+
 ```

@@ -24,7 +24,7 @@ using System;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
-using FluentAssertions;
+using Shouldly;
 using NUnit.Framework;
 
 namespace EventFlow.Tests.UnitTests.Core
@@ -43,8 +43,8 @@ namespace EventFlow.Tests.UnitTests.Core
             var testId = ThingyId.NewDeterministic(namespaceId, name);
 
             // Assert
-            testId.Value.Should().Be("thingy-da7ab6b1-c513-581f-a1a0-7cdf17109deb");
-            ThingyId.IsValid(testId.Value).Should().BeTrue();
+            testId.Value.ShouldBe("thingy-da7ab6b1-c513-581f-a1a0-7cdf17109deb");
+            ThingyId.IsValid(testId.Value).ShouldBeTrue();
         }
 
         [TestCase("thingy-da7ab6b1-c513-581f-a1a0-7cdf17109deb", "da7ab6b1-c513-581f-a1a0-7cdf17109deb")]
@@ -59,9 +59,9 @@ namespace EventFlow.Tests.UnitTests.Core
             Assert.DoesNotThrow(() => thingyId = ThingyId.With(value));
 
             // Assert
-            thingyId.Should().NotBeNull();
-            thingyId.Value.Should().Be(value);
-            thingyId.GetGuid().Should().Be(expectedGuid);
+            thingyId.ShouldNotBeNull();
+            thingyId.Value.ShouldBe(value);
+            thingyId.GetGuid().ShouldBe(expectedGuid);
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace EventFlow.Tests.UnitTests.Core
             var thingyId = ThingyId.With(guid);
 
             // Assert
-            thingyId.GetGuid().Should().Be(guid);
+            thingyId.GetGuid().ShouldBe(guid);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace EventFlow.Tests.UnitTests.Core
             var testId = ThingyId.New;
 
             // Assert
-            testId.Value.Should().Be(testId.Value.ToLowerInvariant());
+            testId.Value.ShouldBe(testId.Value.ToLowerInvariant());
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace EventFlow.Tests.UnitTests.Core
             var testId = ThingyId.New;
 
             // Assert
-            ThingyId.IsValid(testId.Value).Should().BeTrue(testId.Value);
+            ThingyId.IsValid(testId.Value).ShouldBeTrue(testId.Value);
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace EventFlow.Tests.UnitTests.Core
             var testId = ThingyId.NewComb();
 
             // Assert
-            ThingyId.IsValid(testId.Value).Should().BeTrue(testId.Value);
+            ThingyId.IsValid(testId.Value).ShouldBeTrue(testId.Value);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace EventFlow.Tests.UnitTests.Core
             var testId = ThingyId.NewDeterministic(Guid.NewGuid(), Guid.NewGuid().ToString());
 
             // Assert
-            ThingyId.IsValid(testId.Value).Should().BeTrue(testId.Value);
+            ThingyId.IsValid(testId.Value).ShouldBeTrue(testId.Value);
         }
 
         [TestCase("da7ab6b1-c513-581f-a1a0-7cdf17109deb")]
@@ -127,7 +127,8 @@ namespace EventFlow.Tests.UnitTests.Core
         public void CannotCreateBadIds(string badIdValue)
         {
             // Act
-            Assert.Throws<ArgumentException>(() => ThingyId.With(badIdValue)).Message.Should().Contain("Identity is invalid:");
+            var exception = Assert.Throws<ArgumentException>(() => ThingyId.With(badIdValue));
+            exception.Message.ShouldContain("Identity is invalid:");
         }
 
         public class Id : Identity<Id>
@@ -148,7 +149,7 @@ namespace EventFlow.Tests.UnitTests.Core
             var id = Id.With(guid);
 
             // Assert
-            id.Value.Should().Be(expected);
+            id.Value.ShouldBe(expected);
         }
     }
 }

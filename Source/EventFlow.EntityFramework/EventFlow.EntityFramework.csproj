@@ -1,6 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+	<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageId>ClearFlow.EntityFramework</PackageId>
     <Title>ClearFlow.EntityFramework</Title>
     <Authors>Kyle Bradley, Frank Ebersoll</Authors>
@@ -8,11 +9,16 @@
     <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2021</Copyright>
     <Description>Entity Framework Core support for EventFlow</Description>
     <PackageTags>CQRS ES event sourcing EF Entity Framework Core</PackageTags>
-    <PackageReleaseNotes>Updated to include latest EventFlow</PackageReleaseNotes>
-    <IsPackable>true</IsPackable>
+	<RepositoryType>git</RepositoryType>
+	<RepositoryUrl>https://github.com/kyle-bradley/EventFlow</RepositoryUrl>
+	<PackageProjectUrl>https://docs.geteventflow.net/</PackageProjectUrl>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<NeutralLanguage>en-US</NeutralLanguage>
+	<PackageReleaseNotes>Updated to include latest EventFlow</PackageReleaseNotes>  
     <Version>0.2.4</Version>
 	<Product>ClearFlow.EntityFramework</Product>
-	<RepositoryUrl>https://github.com/kyle-bradley/EventFlow</RepositoryUrl>
+	<Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 	
   <ItemGroup>

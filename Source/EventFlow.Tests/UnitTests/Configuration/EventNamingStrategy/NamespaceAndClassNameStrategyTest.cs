@@ -1,7 +1,6 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2021 Rasmus Mikkelsen
-// Copyright (c) 2015-2021 eBay Software Foundation
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,21 +20,29 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Sagas;
-using System;
-using System.Collections.Generic;
+using EventFlow.Configuration.EventNamingStrategy;
+using EventFlow.TestHelpers;
+using NUnit.Framework;
+using Shouldly;
 
-namespace EventFlow.TestHelpers.Aggregates.Sagas.Timeouts
+namespace EventFlow.Tests.UnitTests.Configuration.EventNamingStrategy
 {
-    public class ThingySagaReminderTimeout : SagaDistinctTimeout<ThingySaga, ThingySagaId>
+    [Category(Categories.Unit)]
+    public class NamespaceAndClassNameStrategyTest
     {
-        public ThingySagaReminderTimeout(ThingySagaId aggregateId) : base(aggregateId)
+        private class Any {}
+        
+        [Test]
+        public void EventNameShouldBeNamespaceAndClassName()
         {
-        }
-
-        protected override IEnumerable<byte[]> GetSourceIdComponents()
-        {
-            yield return Guid.NewGuid().ToByteArray();
+            // Arrange
+            var strategy = new NamespaceAndClassNameStrategy();
+            
+            // Act
+            var name = strategy.CreateEventName(1, typeof(Any), "OriginalName");
+            
+            // Assert
+            name.ShouldBe(GetType().Namespace + ".Any");
         }
     }
 }

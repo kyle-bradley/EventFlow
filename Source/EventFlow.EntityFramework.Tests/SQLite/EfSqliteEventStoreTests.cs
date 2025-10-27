@@ -21,8 +21,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.TestHelpers;
@@ -37,12 +35,12 @@ namespace EventFlow.EntityFramework.Tests.SQLite
     {
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, SqliteDbContextProvider>(ServiceLifetime.Singleton)
                 .ConfigureForEventStoreTest();
 
-            var serviceProvider = base.Configure(resolver);
+            var serviceProvider = base.Configure(eventFlowOptions);
 
             return serviceProvider;
         }

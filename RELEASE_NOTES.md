@@ -1,9 +1,48 @@
-### New in 1.0-alpha (not released yet)
+### New in 1.2.3 (not released yet)
+
+- *Nothing yet...*
+
+### New in 1.2.2 (released 2025-10-11)
+
+* Fix: Use the ASP.NET Core shared framework reference for non-`netstandard` targets in `EventFlow.AspNetCore` to avoid redundant package references (thanks @thompson-tomo)
+* Fix: Replace FluentAssertions with Shouldly across the solution to simplify assertion usage (thanks @Focus1337)
+* Fix: Lean on framework-provided `Microsoft.CSharp` where available to trim redundant package references (fixes #1107, thanks @thompson-tomo)
+* Fix: Cleaned up major parts of the documentation hosted on https://geteventflow.net/
+* Fix: Resolved Hangfire delayed job scheduling bug by switching to the correct `Schedule` API (fixes #1104)
+* Fix: Restore Hangfire job runner backward compatibility with EventFlow 0.x by reintroducing legacy overloads (fixes #1109)
+
+### New in 1.2.1 (released 2025-05-29)
+
+* Fix: Prevent multiple calls of the same async subscribers when dispatching events (by @alexeyfv)
+* Fix: Better exception handling and propagation in `ReadModelPopulator`
+
+### New in 1.2.0 (released 2025-03-09)
+
+* New: New NuGet package `EventFlow.SourceGenerators` created by @alexeyfv. See
+  [documentation](https://geteventflow.net/additional/source-generation/) for details
+* New: NuGet `EventFlow.SQLite` is now released as part of v1 and enables support for SQLite
+* New: NuGet `EventFlow.EntityFramework` now ported to v1 (thanks @MMonrad)
+* Fix: Upgrade `EventFlow.MongoDB` reference of `MongoDB.Driver` from `2.19.0` to `[3.0.0,4.0)` (thanks @tniessner)
+* Fix: Invoking `UseEventPersistence` now removes any previously registered event persistence. This
+  fixes a service ordering issue in the following event store configurations
+  - MongoDB
+  - MSSQL
+  - PostgreSQL
+
+*Sorry for the delay.*
+
+### New in 1.1.0 (released 2024-12-16)
+
+* New: More control of event naming by introducing the interface `IEventNamingStrategy`, see the
+  updated documentation at https://geteventflow.net/additional/event-naming-strategies/ for more
+  information (thanks @SeWaS)
+
+### New in 1.0.5007 (released 2024-11-16)
 
 Read the complete migration guide to get the full list of changes as well as recommendations
 on how to do the migration.
 
-https://github.com/eventflow/EventFlow/blob/develop-v1/MIGRATION_GUIDE.md
+https://geteventflow.net/migrations/v0-to-v1/
 
 (If you see any changes you feel ownership of and you want you name there, create an issue
 and it will get fixed asap. EventFlow would be where it is today without the grate community

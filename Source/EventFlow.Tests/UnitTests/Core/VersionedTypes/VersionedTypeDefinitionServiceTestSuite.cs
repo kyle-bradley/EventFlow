@@ -26,8 +26,8 @@ using System.Linq;
 using EventFlow.Core.VersionedTypes;
 using EventFlow.TestHelpers;
 using AutoFixture;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
 {
@@ -62,9 +62,9 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
             var eventDefinition = Sut.GetDefinition(testCase.Name, testCase.Version);
 
             // Assert
-            eventDefinition.Name.Should().Be(testCase.Name);
-            eventDefinition.Version.Should().Be(testCase.Version);
-            eventDefinition.Type.Should().Be(testCase.Type);
+            eventDefinition.Name.ShouldBe(testCase.Name);
+            eventDefinition.Version.ShouldBe(testCase.Version);
+            eventDefinition.Type.ShouldBe(testCase.Type);
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
                 e.Name == testCase.Name &&
                 e.Version == testCase.Version &&
                 e.Type == testCase.Type);
-            hasIt.Should().NotBeNull();
+            hasIt.ShouldNotBeNull();
         }
 
         [Test]
@@ -108,8 +108,8 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
             var result = Sut.GetDefinitions(nameWithMultipleDefinitions).ToList();
 
             // Assert
-            result.Should().HaveCount(i => i > 1);
-            result.Should().OnlyContain(d => d.Name == nameWithMultipleDefinitions);
+            result.Count.ShouldBeGreaterThan(1);
+            result.ShouldAllBe(d => d.Name == nameWithMultipleDefinitions);
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
             var found = Sut.TryGetDefinition(Fixture.Create<string>(), 0, out definition);
 
             // Assert
-            found.Should().BeFalse();
+            found.ShouldBeFalse();
         }
 
         [Test]
@@ -156,7 +156,7 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
             var found = Sut.TryGetDefinition(typeof(object), out definition);
 
             // Assert
-            found.Should().BeFalse();
+            found.ShouldBeFalse();
         }
 
         [Test]
@@ -180,7 +180,7 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
             var result = Sut.GetDefinitions(Fixture.Create<string>());
 
             // Assert
-            result.Should().BeEmpty();
+            result.ShouldBeEmpty();
         }
 
         [Test]
@@ -190,7 +190,7 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
             var result = Sut.GetAllDefinitions();
 
             // Assert
-            result.Should().BeEmpty();
+            result.ShouldBeEmpty();
         }
 
         [Test]
@@ -200,12 +200,18 @@ namespace EventFlow.Tests.UnitTests.Core.VersionedTypes
             var expectedTypes = Arrange_LoadAllTestTypes();
 
             // Act
-            var result = Sut.GetAllDefinitions().Select(d => d.Type)
+            var result = Sut.GetAllDefinitions()
+                .Select(d => d.Type)
                 .Distinct()
+                .OrderBy(t => t.FullName)
                 .ToList();
 
             // Assert
-            result.Should().BeEquivalentTo(expectedTypes);
+            var expected = expectedTypes
+                .OrderBy(t => t.FullName) 
+                .ToList();
+    
+            result.ShouldBe(expected);
         }
 
         [Test]

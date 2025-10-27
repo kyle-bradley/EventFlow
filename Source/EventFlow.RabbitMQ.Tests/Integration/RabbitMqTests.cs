@@ -39,11 +39,11 @@ using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.RabbitMQ.Tests.Integration
 {
@@ -86,14 +86,14 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), _timeout.Token).ConfigureAwait(false);
 
                 var rabbitMqMessage = consumer.GetMessages(TimeSpan.FromMinutes(1)).Single();
-                rabbitMqMessage.Exchange.Value.Should().Be(exchange.Value);
-                rabbitMqMessage.RoutingKey.Value.Should().Be("eventflow.domainevent.thingy.thingy-ping.1");
+                rabbitMqMessage.Exchange.Value.ShouldBe(exchange.Value);
+                rabbitMqMessage.RoutingKey.Value.ShouldBe("eventflow.domainevent.thingy.thingy-ping.1");
 
                 var pingEvent = (IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>)eventJsonSerializer.Deserialize(
                     rabbitMqMessage.Message,
                     new Metadata(rabbitMqMessage.Headers));
 
-                pingEvent.AggregateEvent.PingId.Should().Be(pingId);
+                pingEvent.AggregateEvent.PingId.ShouldBe(pingId);
             }
         }
 
@@ -146,8 +146,8 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 await Task.WhenAll(tasks).ConfigureAwait(false);
 
                 var rabbitMqMessages = consumer.GetMessages(TimeSpan.FromMinutes(1), totalMessageCount);
-                rabbitMqMessages.Should().HaveCount(totalMessageCount);
-                exceptions.Should().BeEmpty();
+                rabbitMqMessages.Count.ShouldBe(totalMessageCount);
+                exceptions.ShouldBeEmpty();
             }
         }
 

@@ -33,7 +33,6 @@ using EventFlow.Examples.Shipping.Domain.Model.VoyageModel;
 using EventFlow.Examples.Shipping.Domain.Model.VoyageModel.Commands;
 using EventFlow.Examples.Shipping.Queries.InMemory;
 using EventFlow.TestHelpers;
-using FluentAssertions.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 

@@ -25,9 +25,9 @@ using System.Threading.Tasks;
 using EventFlow.Snapshots;
 using EventFlow.Snapshots.Strategies;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Snapshots.Strategies
 {
@@ -47,7 +47,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots.Strategies
         public async Task ShouldCreateSnapshotAsync_ReturnsCorrect(int aggregateRootVersion, int? snapshotVersion, bool expectedShouldCreateSnapshot)
         {
             // Assumptions
-            SnapshotEveryFewVersionsStrategy.DefautSnapshotAfterVersions.Should().Be(100);
+            SnapshotEveryFewVersionsStrategy.DefautSnapshotAfterVersions.ShouldBe(100);
 
             // Arrange
             var sut = SnapshotEveryFewVersionsStrategy.Default;
@@ -62,7 +62,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots.Strategies
                 .ConfigureAwait(false);
 
             // Assert
-            shouldCreateSnapshot.Should().Be(expectedShouldCreateSnapshot);
+            shouldCreateSnapshot.ShouldBe(expectedShouldCreateSnapshot);
         }
     }
 }

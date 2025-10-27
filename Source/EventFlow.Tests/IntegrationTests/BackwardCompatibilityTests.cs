@@ -33,9 +33,9 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.IntegrationTests
 {
@@ -71,9 +71,9 @@ namespace EventFlow.Tests.IntegrationTests
             var testAggregate = await _aggregateStore.LoadAsync<ThingyAggregate, ThingyId>(_thingyId, CancellationToken.None);
 
             // Assert
-            testAggregate.Version.Should().Be(2);
-            testAggregate.PingsReceived.Should().Contain(PingId.With("95433aa0-11f7-4128-bd5f-18e0ecc4d7c1"));
-            testAggregate.PingsReceived.Should().Contain(PingId.With("2352d09b-4712-48cc-bb4f-5560d7c52558"));
+            testAggregate.Version.ShouldBe(2);
+            testAggregate.PingsReceived.ShouldContain(PingId.With("95433aa0-11f7-4128-bd5f-18e0ecc4d7c1"));
+            testAggregate.PingsReceived.ShouldContain(PingId.With("2352d09b-4712-48cc-bb4f-5560d7c52558"));
         }
 
         [Test, Explicit]

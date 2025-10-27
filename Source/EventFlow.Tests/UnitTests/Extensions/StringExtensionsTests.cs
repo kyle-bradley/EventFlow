@@ -22,8 +22,8 @@
 
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
@@ -35,14 +35,14 @@ namespace EventFlow.Tests.UnitTests.Extensions
         [TestCase("Event", "event")]
         public void ToSlug(string input, string expected)
         {
-            input.ToSlug().Should().Be(expected);
+            input.ToSlug().ShouldBe(expected);
         }
 
         [TestCase("magic number", "53033b46d5c023c6e99d734db2215d580020fa9c4091cd7edf07fa48abaf058e")]
         [TestCase("a big secret", "3d530bd404d0496c073b8aa927ca8911911c81b4939510af25533abaa6d323b7")]
         public void ToSha256(string input, string expected)
         {
-            input.ToSha256().Should().Be(expected);
+            input.ToSha256().ShouldBe(expected);
         }
     }
 }

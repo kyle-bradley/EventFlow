@@ -21,7 +21,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
 using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.Extensions;
@@ -44,13 +43,13 @@ namespace EventFlow.EntityFramework.Tests.PostgreSql
         {
             _testDatabase = PostgreSqlHelpz.CreateDatabase("eventflow");
 
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .RegisterServices(sr => sr.AddTransient(c => _testDatabase.ConnectionString))
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, PostgreSqlDbContextProvider>()
                 .ConfigureForReadStoreTest();
 
-            var serviceProvider = base.Configure(resolver);
+            var serviceProvider = base.Configure(eventFlowOptions);
 
             return serviceProvider;
         }

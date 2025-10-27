@@ -25,8 +25,8 @@ using System.Collections.Generic;
 using System.Text.Json;
 using EventFlow.Aggregates;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
@@ -46,7 +46,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                 };
 
             // Assert
-            sut.Timestamp.Should().Be(timestamp);
+            sut.Timestamp.ShouldBe(timestamp);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                 };
 
             // Assert
-            sut.EventName.Should().Be(eventName);
+            sut.EventName.ShouldBe(eventName);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                 };
 
             // Assert
-            sut.EventVersion.Should().Be(eventVersion);
+            sut.EventVersion.ShouldBe(eventVersion);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
                 };
 
             // Assert
-            sut.AggregateSequenceNumber.Should().Be(aggregateSequenceNumber);
+            sut.AggregateSequenceNumber.ShouldBe(aggregateSequenceNumber);
         }
 
         [Test]
@@ -111,12 +111,12 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var metadata2 = metadata1.CloneWith(new KeyValuePair<string, string>(key2, value2));
 
             // Assert
-            metadata1.ContainsKey(key2).Should().BeFalse();
+            metadata1.ContainsKey(key2).ShouldBeFalse();
 
-            metadata2.ContainsKey(key1).Should().BeTrue();
-            metadata2.ContainsKey(key2).Should().BeTrue();
-            metadata2[key1].Should().Be(value1);
-            metadata2[key2].Should().Be(value2);
+            metadata2.ContainsKey(key1).ShouldBeTrue();
+            metadata2.ContainsKey(key2).ShouldBeTrue();
+            metadata2[key1].ShouldBe(value1);
+            metadata2[key2].ShouldBe(value2);
         }
 
         [Test]
@@ -138,10 +138,10 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var metadata = JsonSerializer.Deserialize<Metadata>(json);
 
             // Assert
-            metadata.Count.Should().Be(3);
-            metadata.AggregateName.Should().Be(aggregateName);
-            metadata.AggregateSequenceNumber.Should().Be(aggregateSequenceNumber);
-            metadata.Timestamp.Should().Be(timestamp);
+            metadata.Count.ShouldBe(3);
+            metadata.AggregateName.ShouldBe(aggregateName);
+            metadata.AggregateSequenceNumber.ShouldBe(aggregateSequenceNumber);
+            metadata.Timestamp.ShouldBe(timestamp);
         }
 
         [Test]
@@ -155,8 +155,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var metadata = JsonSerializer.Deserialize<Metadata>(json);
 
             // Assert
-            json.Should().Be("{}");
-            metadata.Count.Should().Be(0);
+            json.ShouldBe("{}");
+            metadata.Count.ShouldBe(0);
         }
     }
 }

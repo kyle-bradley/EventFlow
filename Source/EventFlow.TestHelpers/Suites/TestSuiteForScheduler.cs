@@ -33,9 +33,9 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.TestHelpers.Suites
 {
@@ -80,7 +80,7 @@ namespace EventFlow.TestHelpers.Suites
 
                 // Assert
                 var receivedPingId = await Task.Run(() => _testAsynchronousSubscriber.PingIds.Take(), cts.Token).ConfigureAwait(false);
-                receivedPingId.Should().Be(pingId);
+                receivedPingId.ShouldBe(pingId);
             }
         }
 

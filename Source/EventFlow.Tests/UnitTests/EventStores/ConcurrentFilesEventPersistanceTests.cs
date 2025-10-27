@@ -30,6 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Configuration.EventNamingStrategy;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.EventStores.Files;
@@ -38,9 +39,9 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
@@ -64,7 +65,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var factory = new DomainEventFactory();
             var definitionService = new EventDefinitionService(
                 Mock<ILogger<EventDefinitionService>>(),
-                Mock<ILoadedVersionedTypes>());
+                Mock<ILoadedVersionedTypes>(),
+                new NamespaceAndNameStrategy());
             definitionService.Load(typeof(ThingyPingEvent));
 
             _serializer = new EventJsonSerializer(new DefaultJsonSerializer(), definitionService, factory);
@@ -102,7 +104,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             Action action = () => Task.WaitAll(tasks.ToArray());
 
             // Assert
-            action.Should().Throw<IOException>("because of concurrent access to the same files.");
+            action.ShouldThrow<IOException>("because of concurrent access to the same files.");
         }
 
         [Test]
@@ -119,7 +121,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             Action action = () => Task.WaitAll(tasks.ToArray());
 
             // Assert
-            action.Should().NotThrow();
+            action.ShouldNotThrow();
         }
 
         [Test]
@@ -136,7 +138,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             Action action = () => Task.WaitAll(tasks.ToArray());
 
             // Assert
-            action.Should().NotThrow();
+            action.ShouldNotThrow();
         }
 
         private IFilesEventStoreConfiguration ConfigurePath(string storePath)

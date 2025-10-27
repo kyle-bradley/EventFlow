@@ -23,8 +23,8 @@
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
@@ -41,7 +41,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             myAggregate.Count(42);
             
             // Assert
-            myAggregate.State.Count.Should().Be(42);
+            myAggregate.State.Count.ShouldBe(42);
         }
 
 

@@ -31,9 +31,9 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
@@ -64,7 +64,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var upgradedEvents = await Sut.UpgradeAsync(events.ToAsyncEnumerable(), CancellationToken.None).ToArrayAsync();
 
             // Assert
-            upgradedEvents.Should().BeEmpty();
+            upgradedEvents.ShouldBeEmpty();
         }
 
         [Test]
@@ -81,8 +81,8 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var upgradedEvents = await Sut.UpgradeAsync(events.ToAsyncEnumerable(), CancellationToken.None).ToArrayAsync();
 
             // Assert
-            upgradedEvents.Length.Should().Be(2);
-            upgradedEvents.Should().Contain(events);
+            upgradedEvents.Length.ShouldBe(2);
+            upgradedEvents.ShouldBe(events, ignoreOrder: true);
         }
 
         [Test]
@@ -101,10 +101,10 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var upgradedEvents = await Sut.UpgradeAsync(events.ToAsyncEnumerable(), CancellationToken.None).ToArrayAsync();
 
             // Assert
-            upgradedEvents.Length.Should().Be(3);
+            upgradedEvents.Length.ShouldBe(3);
             foreach (var upgradedEvent in upgradedEvents)
             {
-                upgradedEvent.Should().BeAssignableTo<IDomainEvent<ThingyAggregate, ThingyId, TestEventV3>>();
+                upgradedEvent.ShouldBeAssignableTo<IDomainEvent<ThingyAggregate, ThingyId, TestEventV3>>();
             }
         }
 

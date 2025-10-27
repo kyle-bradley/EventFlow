@@ -20,30 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
-using EventFlow.EntityFramework.Extensions;
-using EventFlow.EntityFramework.Tests.Model;
-using EventFlow.TestHelpers;
-using EventFlow.TestHelpers.Suites;
-using Microsoft.Extensions.DependencyInjection;
-using NUnit.Framework;
 using System;
 
-namespace EventFlow.EntityFramework.Tests.SQLite
+namespace EventFlow.Configuration.EventNamingStrategy
 {
-    [Category(Categories.Integration)]
-    public class EfSqliteSnapshotTests : TestSuiteForSnapshotStore
+    public class NamespaceAndClassNameStrategy : IEventNamingStrategy
     {
-        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
-        {
-            var resolver = eventFlowOptions
-                .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
-                .AddDbContextProvider<TestDbContext, SqliteDbContextProvider>(ServiceLifetime.Singleton)
-                .ConfigureForSnapshotStoreTest();
-
-            var serviceProvider = base.Configure(resolver);
-
-            return serviceProvider;
-        }
+        public string CreateEventName(int version, Type eventType, string name) =>
+            $"{eventType.Namespace}.{eventType.Name}";
     }
 }

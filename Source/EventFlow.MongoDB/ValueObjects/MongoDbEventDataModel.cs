@@ -23,6 +23,7 @@
 using System;
 using EventFlow.EventStores;
 using EventFlow.ValueObjects;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace EventFlow.MongoDB.ValueObjects
@@ -32,7 +33,8 @@ namespace EventFlow.MongoDB.ValueObjects
         [BsonElement("_id")]
         public long _id { get; set; }
 
-        [BsonElement("batchId")]
+        [JsonProperty("batchId")]
+        [BsonGuidRepresentation(GuidRepresentation.Standard)]
         public Guid BatchId { get; set; }
 
         long? _version { get; set; }

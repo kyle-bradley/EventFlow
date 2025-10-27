@@ -22,7 +22,6 @@
 
 using System;
 using System.Threading;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.PostgreSql.Connections;
 using EventFlow.PostgreSql.EventStores;

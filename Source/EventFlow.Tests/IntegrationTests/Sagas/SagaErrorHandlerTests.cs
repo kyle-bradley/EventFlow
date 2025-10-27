@@ -20,19 +20,18 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
 using EventFlow.Sagas;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Sagas;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 
 namespace EventFlow.Tests.IntegrationTests.Sagas
 {
@@ -57,8 +56,8 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             };
             
             // Assert
-            await commandPublishAction.Should().ThrowAsync<Exception>()
-                .WithMessage("Exception thrown (as requested by ThingySagaExceptionRequestedEvent)");
+            var exception = await Should.ThrowAsync<Exception>(commandPublishAction);
+            exception.Message.ShouldContain("Exception thrown (as requested by ThingySagaExceptionRequestedEvent)");
         }
 
         [Test]
@@ -83,7 +82,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             };
 
             // Assert
-            await commandPublishAction.Should().NotThrowAsync<Exception>();
+            await Should.NotThrowAsync(commandPublishAction);
         }
 
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)

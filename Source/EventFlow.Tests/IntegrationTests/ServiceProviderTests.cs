@@ -29,9 +29,9 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Queries;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.IntegrationTests
 {
@@ -64,10 +64,8 @@ namespace EventFlow.Tests.IntegrationTests
                 var serviceDependentAggregate = await aggregateFactory.CreateNewAggregateAsync<ServiceDependentAggregate, ThingyId>(ThingyId.New).ConfigureAwait(false);
 
                 // Assert
-                serviceDependentAggregate.Service.Should()
-                    .NotBeNull()
-                    .And
-                    .BeOfType<Service>();
+                serviceDependentAggregate.Service.ShouldNotBeNull();
+                serviceDependentAggregate.Service.ShouldBeOfType<Service>();
             }
         }
 

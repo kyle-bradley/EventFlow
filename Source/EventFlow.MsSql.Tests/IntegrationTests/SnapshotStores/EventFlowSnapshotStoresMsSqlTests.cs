@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,8 +23,8 @@
 using System.Linq;
 using EventFlow.MsSql.SnapshotStores;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.MsSql.Tests.IntegrationTests.SnapshotStores
 {
@@ -38,8 +38,8 @@ namespace EventFlow.MsSql.Tests.IntegrationTests.SnapshotStores
             var sqlScripts = EventFlowSnapshotStoresMsSql.GetSqlScripts().ToDictionary(s => s.Name, s => s);
 
             // Assert
-            sqlScripts.Should().HaveCount(1);
-            sqlScripts.Should().ContainKey("SnapshotStores.Scripts.0001 - Create EventFlowSnapshots.sql");
+            sqlScripts.Count.ShouldBe(1);
+            sqlScripts.ShouldContainKey("SnapshotStores.Scripts.0001 - Create EventFlowSnapshots.sql");
         }
     }
 }

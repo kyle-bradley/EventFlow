@@ -26,8 +26,8 @@ using EventFlow.Sagas;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Sagas;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Sagas
 {
@@ -45,8 +45,8 @@ namespace EventFlow.Tests.UnitTests.Sagas
             var sagaTypeDetails = Sut.GetSagaDetails(aggregateEventType).ToList();
 
             // Assert
-            sagaTypeDetails.Should().HaveCount(1);
-            sagaTypeDetails.Single().SagaType.Should().Be(typeof(ThingySaga));
+            sagaTypeDetails.Count.ShouldBe(1);
+            sagaTypeDetails.Single().SagaType.ShouldBe(typeof(ThingySaga));
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace EventFlow.Tests.UnitTests.Sagas
 
             // Assert
             var sagaDetails = Sut.GetSagaDetails(typeof(ThingySagaStartRequestedEvent)).ToList();
-            sagaDetails.Should().HaveCount(1);
+            sagaDetails.Count.ShouldBe(1);
         }
 
         [TestCase(typeof(ThingyDomainErrorAfterFirstEvent))]
@@ -72,7 +72,7 @@ namespace EventFlow.Tests.UnitTests.Sagas
             var sagaTypeDetails = Sut.GetSagaDetails(aggregateEventType).ToList();
 
             // Assert
-            sagaTypeDetails.Should().BeEmpty();
+            sagaTypeDetails.ShouldBeEmpty();
         }
     }
 }

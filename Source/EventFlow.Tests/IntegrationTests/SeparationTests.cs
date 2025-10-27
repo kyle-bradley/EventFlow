@@ -31,9 +31,9 @@ using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.IntegrationTests
 {
@@ -60,7 +60,7 @@ namespace EventFlow.Tests.IntegrationTests
                     thingyId,
                     CancellationToken.None)
                     .ConfigureAwait(false);
-                aggregate.IsNew.Should().BeTrue();
+                aggregate.IsNew.ShouldBeTrue();
             }
         }
 

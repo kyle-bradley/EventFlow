@@ -5,8 +5,6 @@ parent: Basics
 nav_order: 2
 ---
 
-.. _commands:
-
 # Commands
 
 Commands are the basic value objects, or models, that represent the 
@@ -17,15 +15,27 @@ handler **does** the "thing".
 As an example, one might implement this command for updating user
 passwords.  
 
-.. literalinclude:: ../Source/EventFlow.Documentation/Topics/Commands/UserUpdatePasswordCommand.cs
-  :linenos:
-  :dedent: 4
-  :language: c#
-  :lines: 28-42
+```csharp
+public class UserUpdatePasswordCommand : Command<UserAggregate, UserId>
+{
+  public Password NewPassword { get; }
+  public Password OldPassword { get; }
+
+  public UserUpdatePasswordCommand(
+    UserId id,
+    Password newPassword,
+    Password oldPassword)
+    : base(id)
+  {
+    NewPassword = newPassword;
+    OldPassword = oldPassword;
+  }
+}
+```
 
 Note that the `Password` class is merely a value object created to
 hold the password and do basic validation. Read the article regarding
-:ref:`value objects <value-objects>` for more information. Also, you
+[value objects](../additional/value-objects.md) for more information. Also, you
 don't have to use the default EventFlow `Command<,>` implementation,
 you can create your own, it merely has to implement the `ICommand<,>`
 interface.
@@ -34,11 +44,21 @@ A command by itself doesn't do anything and will throw an exception if
 published. To make a command work, you need to implement one (and only
 one) command handler which is responsible for invoking the aggregate.
 
-.. literalinclude:: ../Source/EventFlow.Documentation/Topics/Commands/UserUpdatePasswordCommandHandler.cs
-  :linenos:
-  :dedent: 4
-  :language: c#
-  :lines: 31-45
+```csharp
+public class UserUpdatePasswordCommandHandler : CommandHandler<UserAggregate, UserId, UserUpdatePasswordCommand>
+{
+  public override Task ExecuteAsync(
+    UserAggregate aggregate,
+    UserUpdatePasswordCommand command,
+    CancellationToken cancellationToken)
+  {
+    return aggregate.UpdatePasswordAsync(
+      command.NewPassword,
+      command.OldPassword,
+      cancellationToken);
+  }
+}
+```
 
 ## Execution results
 
@@ -58,7 +78,7 @@ aggregates to e.g. provide detailed validation results. Merely
 implement the `IExecutionResult` interface and use the type as
 generic arguments on the command and command handler.
 
-!!! note
+!!! tip
     While possible, do not use the execution results as a method of reading
     values from the aggregate, that's what the `IQueryProcessor` and
     read models are for.
@@ -119,7 +139,7 @@ The default `ISourceId` history size of the aggregate root, is ten.
 But it can be configured using the `SetSourceIdHistory(...)` method 
 in the aggregate root constructor.
 
-### Easier ISourceId calculation
+### Easier `ISourceId` calculation
 
 Ensuring the correct calculation of the command `ISourceId` can be
 somewhat cumbersome, which is why EventFlow provides another base
@@ -158,6 +178,5 @@ public class UserUpdatePasswordCommand :
 The `GetBytes()` merely returns the `Encoding.UTF8.GetBytes(...)` of
 the password.
 
-!!! caution
-    Don't use the `GetHashCode()`, as the implementation
-    can be different on 32 bit and 64 bit .NET (e.g. `string`).
+!!! danger
+    Don't use the `GetHashCode()`, as the implementation can be different on 32 bit and 64 bit .NET (e.g. `string`) and can change between .NET versions.

@@ -24,6 +24,7 @@ using System;
 using EventFlow.EventStores;
 using EventFlow.EventStores.Files;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.Extensions
 {
@@ -34,8 +35,7 @@ namespace EventFlow.Extensions
             Func<IServiceProvider, IEventPersistence> eventPersistenceResolver,
             ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
         {
-            eventFlowOptions.ServiceCollection
-                .Add(new ServiceDescriptor(typeof(IEventStore), eventPersistenceResolver, serviceLifetime));
+            eventFlowOptions.ServiceCollection.Add(new ServiceDescriptor(typeof(IEventStore), eventPersistenceResolver, serviceLifetime));
             return eventFlowOptions;
         }
 
@@ -44,8 +44,8 @@ namespace EventFlow.Extensions
             ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
             where TEventPersistence : class, IEventPersistence
         {
-            eventFlowOptions.ServiceCollection
-                .Add(new ServiceDescriptor(typeof(IEventPersistence), typeof(TEventPersistence), serviceLifetime));
+            eventFlowOptions.ServiceCollection.RemoveAll<IEventPersistence>();
+            eventFlowOptions.ServiceCollection.Add(new ServiceDescriptor(typeof(IEventPersistence), typeof(TEventPersistence), serviceLifetime));
             return eventFlowOptions;
         }
 

@@ -5,14 +5,12 @@ parent: Basics
 nav_order: 2
 ---
 
-.. _queries:
-
 # Queries
 
 Creating queries in EventFlow is simple.
 
-First create a value object that contains the data required for the
-query. In this example we want to search for users based on their
+First, create a value object that contains the data required for the
+query. In this example, we want to search for users based on their
 username.
 
 ```csharp
@@ -27,13 +25,13 @@ public class GetUserByUsernameQuery : IQuery<User>
 }
 ```
 
-Next create a query handler that implements how the query is processed.
+Next, create a query handler that implements how the query is processed.
 
 ```csharp
 public class GetUserByUsernameQueryHandler :
   IQueryHandler<GetUserByUsernameQuery, User>
 {
-  private IUserReadModelRepository _userReadModelRepository;
+  private readonly IUserReadModelRepository _userReadModelRepository;
 
   public GetUserByUsernameQueryHandler(
     IUserReadModelRepository userReadModelRepository)
@@ -41,42 +39,42 @@ public class GetUserByUsernameQueryHandler :
     _userReadModelRepository = userReadModelRepository;
   }
 
-  Task<User> ExecuteQueryAsync(
+  public Task<User> ExecuteQueryAsync(
     GetUserByUsernameQuery query,
     CancellationToken cancellationToken)
   {
     return _userReadModelRepository.GetByUsernameAsync(
       query.Username,
-      cancellationToken)
+      cancellationToken);
   }
 }
 ```
 
-Last step is to register the query handler in EventFlow. Here we show
-the simple, but cumbersome version, you should use one of the overloads
+The last step is to register the query handler in EventFlow. Here we show
+the simple, but cumbersome version. You should use one of the overloads
 that scans an entire assembly.
 
 ```csharp
-EventFlowOptions.New
-  .AddQueryHandler<GetUserByUsernameQueryHandler, GetUserByUsernameQuery, User>()
+//...
+.AddQueryHandler<GetUserByUsernameQueryHandler, GetUserByUsernameQuery, User>();
+//...
 ```
 
-Then in order to use the query in your application, you need a reference
+Then, to use the query in your application, you need a reference
 to the `IQueryProcessor`, which in our case is stored in the
 `_queryProcessor` field.
 
 ```csharp
 var user = await _queryProcessor.ProcessAsync(
-  new GetUserByUsernameQuery("root")
-  cancellationToken)
-  .ConfigureAwait(false);
+  new GetUserByUsernameQuery("root"),
+  cancellationToken);
 ```
 
 ## Queries shipped with EventFlow
 
 -  `ReadModelByIdQuery<TReadModel>`: Supported by both the in-memory
    and MSSQL read model stores automatically as soon as you define the
-   read model use using the EventFlow options for that store
+   read model use using the EventFlow options for that store.
 -  `InMemoryQuery<TReadModel>`: Takes a `Predicate<TReadModel>` and
    returns `IEnumerable<TReadModel>`, making it possible to search all
-   of your in-memory read models based on any predicate
+   of your in-memory read models based on any predicate.

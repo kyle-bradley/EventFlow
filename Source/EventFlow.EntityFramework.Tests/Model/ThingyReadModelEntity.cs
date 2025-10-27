@@ -44,24 +44,24 @@ namespace EventFlow.EntityFramework.Tests.Model
         [ConcurrencyCheck]
         public long Version { get; set; }
 
-        public Task ApplyAsync(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent, CancellationToken cancellationToken)
-        {
-            DomainErrorAfterFirstReceived = true;
-
-            return Task.CompletedTask;
-        }
-
-        public Task ApplyAsync(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent, CancellationToken cancellationToken)
-        {
-            PingsReceived++;
-
-            return Task.CompletedTask;
-        }
-
-        public Task ApplyAsync(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent, CancellationToken cancellationToken)
+        public Task ApplyAsync(IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyDeletedEvent> domainEvent, CancellationToken cancellationToken)
         {
             context.MarkForDeletion();
+            return Task.CompletedTask;
+        }
 
+        public Task ApplyAsync(IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyDomainErrorAfterFirstEvent> domainEvent, CancellationToken cancellationToken)
+        {
+            DomainErrorAfterFirstReceived = true;
+            return Task.CompletedTask;
+        }
+
+        public Task ApplyAsync(IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent> domainEvent, CancellationToken cancellationToken)
+        {
+            PingsReceived++;
             return Task.CompletedTask;
         }
 

@@ -24,8 +24,8 @@ using System;
 using EventFlow.Aggregates;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
@@ -57,7 +57,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var aggregate = (IAggregateRoot) Activator.CreateInstance(aggregateType, ThingyId.New);
 
             // Assert
-            aggregate.Name.Value.Should().Be(expectedName);
+            aggregate.Name.Value.ShouldBe(expectedName);
         }
     }
 }

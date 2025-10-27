@@ -1,12 +1,46 @@
 site_name: EventFlow
-site_url: https://example.com/
+site_url: https://geteventflow.net/
 theme: material
 docs_dir: Documentation
+repo_name: EventFlow
+repo_url: https://github.com/eventflow/EventFlow
+edit_uri: edit/develop-v1/Documentation
+
+theme:
+  name: material
+  logo: assets/logo.png
+  palette:
+    scheme: slate
+    primary: blue grey
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - content.action.edit
+    - navigation.footer
+    - header.autohide
+
+plugins:
+- search
+- git-committers:
+    repository: eventflow/EventFlow
+    branch: develop-v1
 
 markdown_extensions:
-  - admonition
-  - pymdownx.details
-  - pymdownx.superfences
-  - pymdownx.highlight:
-      linenums: true
+- admonition
+- attr_list
+- pymdownx.details
+- pymdownx.superfences
+- pymdownx.highlight:
+    linenums: true
+- pymdownx.emoji:
+    emoji_index: !!python/name:material.extensions.emoji.twemoji
+    emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
+extra:
+  social:
+  - icon: fontawesome/brands/github
+    link: https://github.com/eventflow/EventFlow/
+  - icon: fontawesome/brands/linkedin
+    link: https://www.linkedin.com/in/rasmusmikkelsen/
+  - icon: fontawesome/brands/discord
+    link: https://discord.gg/QfgNPs5WxR

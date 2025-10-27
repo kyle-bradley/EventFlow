@@ -24,8 +24,8 @@ using System.Collections.Generic;
 using System.Linq;
 using EventFlow.TestHelpers;
 using EventFlow.ValueObjects;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.ValueObjects
 {
@@ -61,9 +61,9 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var stringObject2 = new StringObject { StringValue = str };
 
             // Assert
-            stringObject1.GetHashCode().Should().Be(stringObject2.GetHashCode());
-            stringObject1.Equals(stringObject2).Should().BeTrue();
-            (stringObject1 == stringObject2).Should().BeTrue();
+            stringObject1.GetHashCode().ShouldBe(stringObject2.GetHashCode());
+            stringObject1.Equals(stringObject2).ShouldBeTrue();
+            (stringObject1 == stringObject2).ShouldBeTrue();
         }
 
         [Test]
@@ -74,9 +74,9 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var stringObject2 = new StringObject { StringValue = A<string>() };
 
             // Assert
-            stringObject1.GetHashCode().Should().NotBe(stringObject2.GetHashCode());
-            stringObject1.Equals(stringObject2).Should().BeFalse();
-            (stringObject1 == stringObject2).Should().BeFalse();
+            stringObject1.GetHashCode().ShouldNotBe(stringObject2.GetHashCode());
+            stringObject1.Equals(stringObject2).ShouldBeFalse();
+            (stringObject1 == stringObject2).ShouldBeFalse();
         }
 
         [Test]
@@ -88,9 +88,9 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var listObject2 = new ListObject(values);
 
             // Assert
-            listObject1.GetHashCode().Should().Be(listObject2.GetHashCode(), "hash code");
-            listObject1.Equals(listObject2).Should().BeTrue("Equals");
-            (listObject1 == listObject2).Should().BeTrue("==");
+            listObject1.GetHashCode().ShouldBe(listObject2.GetHashCode(), "hash code");
+            listObject1.Equals(listObject2).ShouldBeTrue("Equals");
+            (listObject1 == listObject2).ShouldBeTrue("==");
         }
 
         [Test]
@@ -101,9 +101,9 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var listObject2 = new ListObject(Many<string>().ToArray());
 
             // Assert
-            listObject1.GetHashCode().Should().NotBe(listObject2.GetHashCode(), "hash code");
-            listObject1.Equals(listObject2).Should().BeFalse("Equals");
-            (listObject1 == listObject2).Should().BeFalse("==");
+            listObject1.GetHashCode().ShouldNotBe(listObject2.GetHashCode(), "hash code");
+            listObject1.Equals(listObject2).ShouldBeFalse("Equals");
+            (listObject1 == listObject2).ShouldBeFalse("==");
         }
     }
 }

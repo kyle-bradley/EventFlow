@@ -36,10 +36,10 @@ using EventFlow.TestHelpers.Extensions;
 using AutoFixture;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers.Aggregates.Events;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using Shouldly;
 using EventId = EventFlow.Aggregates.EventId;
 
 namespace EventFlow.TestHelpers.Suites
@@ -56,7 +56,7 @@ namespace EventFlow.TestHelpers.Suites
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
-            readModel.Should().BeNull();
+            readModel.ShouldBeNull();
         }
 
         [Test]
@@ -70,8 +70,8 @@ namespace EventFlow.TestHelpers.Suites
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
-            readModel.Should().NotBeNull();
-            readModel.PingsReceived.Should().Be(5);
+            readModel.ShouldNotBeNull();
+            readModel.PingsReceived.ShouldBe(5);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace EventFlow.TestHelpers.Suites
             var version = await QueryProcessor.ProcessAsync(new ThingyGetVersionQuery(thingyId)).ConfigureAwait(false);
 
             // Assert
-            version.Should().NotHaveValue();
+            version.ShouldBeNull();
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace EventFlow.TestHelpers.Suites
             var version = await QueryProcessor.ProcessAsync(new ThingyGetVersionQuery(thingyId)).ConfigureAwait(false);
 
             // Assert
-            version.Should().Be((long)version);
+            version.ShouldBe((long)version);
         }
 
         [Test]
@@ -115,8 +115,8 @@ namespace EventFlow.TestHelpers.Suites
             var returnedThingyMessages = await QueryProcessor.ProcessAsync(new ThingyGetMessagesQuery(thingyId)).ConfigureAwait(false);
 
             // Assert
-            returnedThingyMessages.Should().HaveCount(thingyMessages.Count);
-            returnedThingyMessages.Should().BeEquivalentTo(thingyMessages);
+            returnedThingyMessages.Count.ShouldBe(thingyMessages.Count);
+            returnedThingyMessages.ShouldBe(thingyMessages, ignoreOrder: true);
         }
 
         [Test]
@@ -137,8 +137,8 @@ namespace EventFlow.TestHelpers.Suites
             var thingy = await QueryProcessor.ProcessAsync(new ThingyGetQuery(thingyId)).ConfigureAwait(false);
 
             // Assert
-            thingy.PingsReceived.Should().Be(pingIds.Count);
-            returnedThingyMessages.Should().BeEquivalentTo(thingyMessages);
+            thingy.PingsReceived.ShouldBe(pingIds.Count);
+            returnedThingyMessages.ShouldBe(thingyMessages, ignoreOrder: true);
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace EventFlow.TestHelpers.Suites
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
-            readModel.Should().BeNull();
+            readModel.ShouldBeNull();
         }
 
         [Test]
@@ -166,8 +166,8 @@ namespace EventFlow.TestHelpers.Suites
             await PublishPingCommandAsync(id2).ConfigureAwait(false);
             var readModel1 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id1)).ConfigureAwait(false);
             var readModel2 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
-            readModel1.Should().NotBeNull();
-            readModel2.Should().NotBeNull();
+            readModel1.ShouldNotBeNull();
+            readModel2.ShouldNotBeNull();
 
             // Act
             await ReadModelPopulator.DeleteAsync(
@@ -179,8 +179,8 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             readModel1 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id1)).ConfigureAwait(false);
             readModel2 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
-            readModel1.Should().BeNull();
-            readModel2.Should().NotBeNull();
+            readModel1.ShouldBeNull();
+            readModel2.ShouldNotBeNull();
         }
 
         [Test]
@@ -200,8 +200,8 @@ namespace EventFlow.TestHelpers.Suites
             var readModel1 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id1)).ConfigureAwait(false);
             var readModel2 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
 
-            readModel1.PingsReceived.Should().Be(3);
-            readModel2.PingsReceived.Should().Be(5);
+            readModel1.PingsReceived.ShouldBe(3);
+            readModel2.PingsReceived.ShouldBe(5);
         }
         
         [Test]
@@ -220,7 +220,7 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
             
-            readModel.PingsReceived.Should().Be(5);
+            readModel.PingsReceived.ShouldBe(5);
         }
 
         [Test]
@@ -236,8 +236,8 @@ namespace EventFlow.TestHelpers.Suites
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
 
             // Assert
-            readModel.Should().NotBeNull();
-            readModel.PingsReceived.Should().Be(2);
+            readModel.ShouldNotBeNull();
+            readModel.PingsReceived.ShouldBe(2);
         }
 
         [Test]
@@ -257,7 +257,7 @@ namespace EventFlow.TestHelpers.Suites
 
                 // Assert
                 var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id)).ConfigureAwait(false);
-                readModel.PingsReceived.Should().Be(pingIds.Count);
+                readModel.PingsReceived.ShouldBe(pingIds.Count);
             }
         }
 
@@ -290,7 +290,7 @@ namespace EventFlow.TestHelpers.Suites
 
                 // Assert
                 var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id), cts.Token).ConfigureAwait(false);
-                readModel.PingsReceived.Should().Be(3);
+                readModel.PingsReceived.ShouldBe(3);
             }
         }
 
@@ -304,8 +304,8 @@ namespace EventFlow.TestHelpers.Suites
             await PublishPingCommandAsync(id2).ConfigureAwait(false);
             var readModel1 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id1)).ConfigureAwait(false);
             var readModel2 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
-            readModel1.Should().NotBeNull();
-            readModel2.Should().NotBeNull();
+            readModel1.ShouldNotBeNull();
+            readModel2.ShouldNotBeNull();
 
             // Act
             await CommandBus.PublishAsync(new ThingyDeleteCommand(id1), CancellationToken.None);
@@ -313,8 +313,8 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             readModel1 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id1)).ConfigureAwait(false);
             readModel2 = await QueryProcessor.ProcessAsync(new ThingyGetQuery(id2)).ConfigureAwait(false);
-            readModel1.Should().BeNull();
-            readModel2.Should().NotBeNull();
+            readModel1.ShouldBeNull();
+            readModel2.ShouldNotBeNull();
         }
 
         [Test]
@@ -330,8 +330,8 @@ namespace EventFlow.TestHelpers.Suites
             var returnedThingyMessages = await QueryProcessor.ProcessAsync(new ThingyGetMessagesQuery(thingyId)).ConfigureAwait(false);
 
             // Assert
-            returnedThingyMessages.Should().HaveCount(thingyMessages.Count);
-            returnedThingyMessages.Should().BeEquivalentTo(thingyMessages);
+            returnedThingyMessages.Count.ShouldBe(thingyMessages.Count);
+            returnedThingyMessages.ShouldBe(thingyMessages, ignoreOrder: true);
         }
 
         [TestCase(true, true)]
@@ -372,9 +372,9 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             var returnedThingyMessages = await QueryProcessor.ProcessAsync(new ThingyGetMessagesQuery(thingyId)).ConfigureAwait(false);
-            returnedThingyMessages.Should().HaveCount(1);
+            returnedThingyMessages.Count.ShouldBe(1);
             var readModel = await QueryProcessor.ProcessAsync(new ThingyGetQuery(thingyId)).ConfigureAwait(false);
-            readModel.PingsReceived.Should().Be(1);
+            readModel.PingsReceived.ShouldBe(1);
         }
 
         private class WaitState

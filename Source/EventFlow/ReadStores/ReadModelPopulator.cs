@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -49,7 +48,7 @@ namespace EventFlow.ReadStores
         private readonly IEventUpgradeContextFactory _eventUpgradeContextFactory;
         private readonly IReadModelPopulatorTracker _readModelPopulatorTracker;
         private readonly IMemoryCache _memoryCache;
-        private ConcurrentQueue<AllEventsPage> _pipedEvents = new ConcurrentQueue<AllEventsPage>();
+        private readonly ConcurrentQueue<AllEventsPage> _pipedEvents = new ConcurrentQueue<AllEventsPage>();
 
         public ReadModelPopulator(
             ILogger<ReadModelPopulator> logger,
@@ -130,8 +129,8 @@ namespace EventFlow.ReadStores
 
             try
             {
-                var loadEventsTasks = LoadEvents(cancellationToken);
-                var processEventQueueTask = ProcessEventQueue(readModelTypes, cancellationToken);
+                var loadEventsTasks = LoadEventsAsync(cancellationToken);
+                var processEventQueueTask = ProcessEventQueueAsync(readModelTypes, cancellationToken);
                 await Task.WhenAll(loadEventsTasks, processEventQueueTask);
             }
             catch (Exception ex)
@@ -143,10 +142,10 @@ namespace EventFlow.ReadStores
                 await _readModelPopulatorTracker.PopulationEnded(cancellationToken);
             }
 
-            _logger.LogInformation("Population of readmodels completed");
+            _logger.LogInformation("Population of read models completed");
         }
 
-        private async Task LoadEvents(CancellationToken cancellationToken)
+        private async Task LoadEventsAsync(CancellationToken cancellationToken)
         {
             var currentPosition = GlobalPosition.Start;
             var eventUpgradeContext = await _eventUpgradeContextFactory.CreateAsync(cancellationToken);
@@ -184,12 +183,13 @@ namespace EventFlow.ReadStores
             }
         }
 
-        private async Task ProcessEventQueue(IReadOnlyCollection<Type> readModelTypes, CancellationToken cancellationToken)
+        private async Task ProcessEventQueueAsync(
+            IReadOnlyCollection<Type> readModelTypes,
+            CancellationToken cancellationToken)
         {
             var orderedReadModels = readModelTypes.ToLookup(readModel => readModel.GetCustomAttribute<ReadModelOrderAtrribute>()?.ApplyOrder ?? 0, y => y);
 
             var domainEventsToProcess = new List<IDomainEvent>();
-            AllEventsPage fetchedEvents;
 
             var hasMoreEvents = true;
             do
@@ -197,11 +197,11 @@ namespace EventFlow.ReadStores
                 var noEventsToReady = !_pipedEvents.Any();
                 if (noEventsToReady)
                 {
-                    await Task.Delay(100);
+                    await Task.Delay(100, cancellationToken);
                     continue;
                 }
 
-                _pipedEvents.TryDequeue(out fetchedEvents);
+                _pipedEvents.TryDequeue(out var fetchedEvents);
                 if (fetchedEvents == null)
                 {
                     continue;
@@ -218,7 +218,7 @@ namespace EventFlow.ReadStores
                     {
                         var orderedReadModelTypes = readModelTypeBatch.ToList();
 
-                        var readModelUpdateTasks = orderedReadModelTypes.Select(readModelType => ProcessEvents(readModelType, domainEventsToProcess, cancellationToken));
+                        var readModelUpdateTasks = orderedReadModelTypes.Select(readModelType => ProcessEventsAsync(readModelType, domainEventsToProcess, cancellationToken));
                         await Task.WhenAll(readModelUpdateTasks);
                     }
 
@@ -229,7 +229,10 @@ namespace EventFlow.ReadStores
             while (hasMoreEvents);
         }
 
-        private async Task ProcessEvents(Type readModelType, IReadOnlyCollection<IDomainEvent> processEvents, CancellationToken cancellationToken)
+        private async Task ProcessEventsAsync(
+            Type readModelType,
+            IReadOnlyCollection<IDomainEvent> processEvents,
+            CancellationToken cancellationToken)
         {
             try
             {
@@ -239,10 +242,10 @@ namespace EventFlow.ReadStores
 
                 var readModelTypes = new[]
                 {
-                    typeof( IAmReadModelFor<,,> )
+                    typeof(IAmReadModelFor<,,> )
                 };
 
-                var aggregateEventTypes = _memoryCache.GetOrCreate(CacheKey.With(GetType(), readModelType.ToString(), nameof(ProcessEvents)),
+                var aggregateEventTypes = _memoryCache.GetOrCreate(CacheKey.With(GetType(), readModelType.ToString(), nameof(ProcessEventsAsync)),
                     e => new HashSet<Type>(readModelType.GetTypeInfo()
                         .GetInterfaces()
                         .Where(i => i.GetTypeInfo().IsGenericType && readModelTypes.Contains(i.GetGenericTypeDefinition()))
@@ -279,7 +282,7 @@ namespace EventFlow.ReadStores
             }
             catch (Exception e)
             {
-                _logger.LogWarning($"Exception when populating: {readModelType}. Details: {e}");
+                _logger.LogError(e, $"Exception when populating: {readModelType}");
             }
         }
 

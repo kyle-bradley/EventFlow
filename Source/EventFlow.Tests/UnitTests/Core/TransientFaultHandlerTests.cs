@@ -25,10 +25,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
@@ -73,14 +73,14 @@ namespace EventFlow.Tests.UnitTests.Core
             var result = await Sut.TryAsync(c => action.Object(), A<Label>(), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            result.Should().Be(expectedResult);
+            result.ShouldBe(expectedResult);
             action.Verify(f => f(), Times.Exactly(3));
         }
 
         [TestCase(0, "ArgumentException")]
         [TestCase(1, "InvalidOperationException")]
         [TestCase(2, "DivideByZeroException")]
-        public async Task ThrownExceptionIsAsExcpedted(int numberOfRetries, string expectedExceptionName)
+        public async Task ThrownExceptionIsAsExpected(int numberOfRetries, string expectedExceptionName)
         {
             // Arrange
             ArrangeRetryStrategy(numberOfRetries);
@@ -101,8 +101,8 @@ namespace EventFlow.Tests.UnitTests.Core
             }
 
             // Assert
-            thrownException.Should().NotBeNull();
-            thrownException.GetType().Name.Should().Be(expectedExceptionName);
+            thrownException.ShouldNotBeNull();
+            thrownException.GetType().Name.ShouldBe(expectedExceptionName);
             action.Verify(f => f(), Times.Exactly(numberOfRetries + 1));
         }
 

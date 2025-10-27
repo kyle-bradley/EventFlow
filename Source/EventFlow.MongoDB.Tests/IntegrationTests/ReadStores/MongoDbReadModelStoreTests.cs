@@ -23,7 +23,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Extensions;
 using EventFlow.MongoDB.Extensions;
 using EventFlow.MongoDB.Tests.IntegrationTests.ReadStores.Queries;
@@ -34,10 +33,10 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Extensions;
 using EventFlow.TestHelpers.Suites;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Mongo2Go;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores
 {
@@ -80,7 +79,7 @@ namespace EventFlow.MongoDB.Tests.IntegrationTests.ReadStores
 
             var result = await QueryProcessor.ProcessAsync(new MongoDbThingyGetWithLinqQuery()).ConfigureAwait(false);
 
-            result.ToList().Should().NotBeEmpty();
+            result.ToList().ShouldNotBeEmpty();
         }
 
         [TearDown]

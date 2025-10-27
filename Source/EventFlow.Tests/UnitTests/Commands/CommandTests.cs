@@ -26,11 +26,10 @@ using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
-using EventFlow.ValueObjects;
-using FluentAssertions;
 using NUnit.Framework;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Commands
 {
@@ -59,9 +58,9 @@ namespace EventFlow.Tests.UnitTests.Commands
             var deserialized = jsonSerializer.Deserialize<CriticalCommand>(json);
 
             // Assert
-            deserialized.CriticalData.Should().Be(criticalCommand.CriticalData);
-            deserialized.SourceId.Value.Should().Be(criticalCommand.SourceId.Value);
-            deserialized.AggregateId.Should().Be(criticalCommand.AggregateId);
+            deserialized.CriticalData.ShouldBe(criticalCommand.CriticalData);
+            deserialized.SourceId.ShouldBe(criticalCommand.SourceId);
+            deserialized.AggregateId.ShouldBe(criticalCommand.AggregateId);
         }
     }
 }

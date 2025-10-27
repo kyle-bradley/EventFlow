@@ -30,10 +30,10 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
 using EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Snapshots
 {
@@ -64,10 +64,10 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             var snapshot = await Sut.UpgradeAsync(new ThingySnapshotV1(pingIds), CancellationToken.None);
 
             // Assert
-            snapshot.Should().BeOfType<ThingySnapshot>();
+            snapshot.ShouldBeOfType<ThingySnapshot>();
             var thingySnapshot = (ThingySnapshot) snapshot;
-            thingySnapshot.PingsReceived.Should().BeEquivalentTo(pingIds);
-            thingySnapshot.PreviousVersions.Should().BeEquivalentTo(new[] {ThingySnapshotVersion.Version1, ThingySnapshotVersion.Version2});
+            thingySnapshot.PingsReceived.ShouldBe(pingIds, ignoreOrder: true);
+            thingySnapshot.PreviousVersions.ShouldBe(new[] { ThingySnapshotVersion.Version1, ThingySnapshotVersion.Version2 }, ignoreOrder: true);
         }
 
         private void Arrange_All_Upgraders()

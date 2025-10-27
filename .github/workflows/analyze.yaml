@@ -1,0 +1,19 @@
+name: Perform an issue analysis
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  checks: read
+  contents: read
+
+jobs:
+  pipeline:
+    uses: rasmus/workflow-review/.github/workflows/analyze.yaml@v2
+    with:
+      issue_number: ${{ github.event.issue.number }}
+      allowlist: "rasmus"
+    secrets:
+      openai_api_key: ${{ secrets.OPENAI_API_KEY }}

@@ -23,8 +23,8 @@
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.Tests.UnitTests.Specifications;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Provided.Specifications
 {
@@ -54,7 +54,7 @@ namespace EventFlow.Tests.UnitTests.Provided.Specifications
             var isSatisfiedBy = atLeast.IsSatisfiedBy(obj);
 
             // Assert
-            isSatisfiedBy.Should().Be(expectedIsSatisfiedBy, string.Join(", ", atLeast.WhyIsNotSatisfiedBy(obj)));
+            isSatisfiedBy.ShouldBe(expectedIsSatisfiedBy, string.Join(", ", atLeast.WhyIsNotSatisfiedBy(obj)));
         }
     }
 }

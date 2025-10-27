@@ -19,7 +19,6 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 using System;
 using System.Linq;
 using System.Threading;
@@ -31,122 +30,119 @@ using EventFlow.Snapshots;
 using EventFlow.Snapshots.Stores;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventFlow.EntityFramework.SnapshotStores
+namespace EventFlow.EntityFramework.SnapshotStores;
+
+public class EntityFrameworkSnapshotPersistence<TDbContext> : ISnapshotPersistence
+    where TDbContext : DbContext
 {
-    public class EntityFrameworkSnapshotPersistence<TDbContext> : ISnapshotPersistence
-        where TDbContext : DbContext
+    private readonly IDbContextProvider<TDbContext> _contextProvider;
+    private readonly int _deletionBatchSize;
+    private readonly IUniqueConstraintDetectionStrategy _strategy;
+
+    public EntityFrameworkSnapshotPersistence(IBulkOperationConfiguration bulkOperationConfiguration,
+                                              IDbContextProvider<TDbContext> contextProvider,
+                                              IUniqueConstraintDetectionStrategy strategy)
     {
-        private readonly IDbContextProvider<TDbContext> _contextProvider;
-        private readonly IUniqueConstraintDetectionStrategy _strategy;
-        private readonly int _deletionBatchSize;
+        _contextProvider = contextProvider;
+        _strategy = strategy;
+        _deletionBatchSize = bulkOperationConfiguration.DeletionBatchSize;
+    }
 
-        public EntityFrameworkSnapshotPersistence(
-            IBulkOperationConfiguration bulkOperationConfiguration,
-            IDbContextProvider<TDbContext> contextProvider,
-            IUniqueConstraintDetectionStrategy strategy
-        )
+    public Task DeleteSnapshotAsync(Type aggregateType,
+                                    IIdentity identity,
+                                    CancellationToken cancellationToken)
+    {
+        var aggregateName = aggregateType.GetAggregateName()
+                                         .Value;
+        var aggregateId = identity.Value;
+        return Bulk.DeleteAsync<TDbContext, SnapshotEntity, SnapshotEntity>(
+                                                                            _contextProvider,
+                                                                            _deletionBatchSize,
+                                                                            cancellationToken,
+                                                                            e => new SnapshotEntity { Id = e.Id },
+                                                                            e => e.AggregateId,
+                                                                            e => e.AggregateName == aggregateName
+                                                                                 && e.AggregateId == aggregateId);
+    }
+
+    public async Task<CommittedSnapshot?> GetSnapshotAsync(Type aggregateType,
+                                                           IIdentity identity,
+                                                           CancellationToken cancellationToken)
+    {
+        var aggregateName = aggregateType.GetAggregateName()
+                                         .Value;
+
+        await using var dbContext = _contextProvider.CreateContext();
+        var snapshot = await dbContext.Set<SnapshotEntity>()
+                                      .AsNoTracking()
+                                      .Where(s => s.AggregateName == aggregateName
+                                                  && s.AggregateId == identity.Value)
+                                      .OrderByDescending(s => s.AggregateSequenceNumber)
+                                      .Select(s => new SnapshotEntity
+                                                   {
+                                                       Metadata = s.Metadata,
+                                                       Data = s.Data
+                                                   })
+                                      .FirstOrDefaultAsync(cancellationToken)
+                                      .ConfigureAwait(false);
+
+        return snapshot == null
+                   ? null
+                   : new CommittedSnapshot(snapshot.Metadata, snapshot.Data);
+    }
+
+    public Task PurgeSnapshotsAsync(Type aggregateType,
+                                    CancellationToken cancellationToken)
+    {
+        var aggregateName = aggregateType.GetAggregateName()
+                                         .Value;
+        return Bulk.DeleteAsync<TDbContext, SnapshotEntity, SnapshotEntity>(
+                                                                            _contextProvider,
+                                                                            _deletionBatchSize,
+                                                                            cancellationToken,
+                                                                            e => new SnapshotEntity { Id = e.Id },
+                                                                            e => e.AggregateId,
+                                                                            e => e.AggregateName == aggregateName);
+    }
+
+    public Task PurgeSnapshotsAsync(CancellationToken cancellationToken)
+    {
+        return Bulk.DeleteAsync<TDbContext, SnapshotEntity, SnapshotEntity>(
+                                                                            _contextProvider,
+                                                                            _deletionBatchSize,
+                                                                            cancellationToken,
+                                                                            e => new SnapshotEntity { Id = e.Id },
+                                                                            e => e.AggregateId);
+    }
+
+    public async Task SetSnapshotAsync(Type aggregateType,
+                                       IIdentity identity,
+                                       SerializedSnapshot serializedSnapshot,
+                                       CancellationToken cancellationToken)
+    {
+        var entity = new SnapshotEntity
+                     {
+                         AggregateId = identity.Value,
+                         AggregateName = aggregateType.GetAggregateName()
+                                                      .Value,
+                         AggregateSequenceNumber = serializedSnapshot.Metadata.AggregateSequenceNumber,
+                         Metadata = serializedSnapshot.SerializedMetadata,
+                         Data = serializedSnapshot.SerializedData
+                     };
+
+        using (var dbContext = _contextProvider.CreateContext())
         {
-            _contextProvider = contextProvider;
-            _strategy = strategy;
-            _deletionBatchSize = bulkOperationConfiguration.DeletionBatchSize;
-        }
+            dbContext.Add(entity);
 
-        public async Task<CommittedSnapshot> GetSnapshotAsync(
-            Type aggregateType,
-            IIdentity identity,
-            CancellationToken cancellationToken)
-        {
-            var aggregateName = aggregateType.GetAggregateName().Value;
-
-            using (var dbContext = _contextProvider.CreateContext())
+            try
             {
-                var snapshot = await dbContext.Set<SnapshotEntity>()
-                    .AsNoTracking()
-                    .Where(s => s.AggregateName == aggregateName
-                                && s.AggregateId == identity.Value)
-                    .OrderByDescending(s => s.AggregateSequenceNumber)
-                    .Select(s => new SnapshotEntity
-                    {
-                        Metadata = s.Metadata,
-                        Data = s.Data
-                    })
-                    .FirstOrDefaultAsync(cancellationToken)
-                    .ConfigureAwait(false);
-
-                return snapshot == null 
-                    ? null 
-                    : new CommittedSnapshot(snapshot.Metadata, snapshot.Data);
+                await dbContext.SaveChangesAsync(cancellationToken)
+                               .ConfigureAwait(false);
             }
-        }
-
-        public async Task SetSnapshotAsync(
-            Type aggregateType,
-            IIdentity identity,
-            SerializedSnapshot serializedSnapshot,
-            CancellationToken cancellationToken)
-        {
-            var entity = new SnapshotEntity
+            catch (DbUpdateException ex) when (ex.IsUniqueConstraintViolation(_strategy))
             {
-                AggregateId = identity.Value,
-                AggregateName = aggregateType.GetAggregateName().Value,
-                AggregateSequenceNumber = serializedSnapshot.Metadata.AggregateSequenceNumber,
-                Metadata = serializedSnapshot.SerializedMetadata,
-                Data = serializedSnapshot.SerializedData
-            };
-
-            using (var dbContext = _contextProvider.CreateContext())
-            {
-                dbContext.Add(entity);
-
-                try
-                {
-                    await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                }
-                catch (DbUpdateException ex) when (ex.IsUniqueConstraintViolation(_strategy))
-                {
-                    // If we have a duplicate key exception, then the snapshot has already been created
-                }
+                // If we have a duplicate key exception, then the snapshot has already been created
             }
-        }
-
-        public Task DeleteSnapshotAsync(
-            Type aggregateType,
-            IIdentity identity,
-            CancellationToken cancellationToken)
-        {
-            var aggregateName = aggregateType.GetAggregateName().Value;
-            var aggregateId = identity.Value;
-            return Bulk.Delete<TDbContext, SnapshotEntity, SnapshotEntity>(
-                _contextProvider,
-                _deletionBatchSize,
-                cancellationToken,
-                e => new SnapshotEntity {Id = e.Id},
-                e => e.AggregateName == aggregateName
-                     && e.AggregateId == aggregateId);
-        }
-
-        public Task PurgeSnapshotsAsync(
-            Type aggregateType,
-            CancellationToken cancellationToken)
-        {
-            var aggregateName = aggregateType.GetAggregateName().Value;
-            return Bulk.Delete<TDbContext, SnapshotEntity, SnapshotEntity>(
-                _contextProvider,
-                _deletionBatchSize,
-                cancellationToken,
-                e => new SnapshotEntity {Id = e.Id},
-                e => e.AggregateName == aggregateName);
-        }
-
-        public Task PurgeSnapshotsAsync(
-            CancellationToken cancellationToken)
-        {
-            return Bulk.Delete<TDbContext, SnapshotEntity, SnapshotEntity>(
-                _contextProvider,
-                _deletionBatchSize,
-                cancellationToken, 
-                e => new SnapshotEntity { Id = e.Id });
         }
     }
 }
-

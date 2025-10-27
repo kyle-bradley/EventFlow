@@ -37,12 +37,12 @@ namespace EventFlow.EntityFramework.Tests.SQLite
 
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, SqliteDbContextProvider>(ServiceLifetime.Singleton)
                 .ConfigureForReadStoreTest();
 
-            var serviceProvider = base.Configure(resolver);
+            var serviceProvider = base.Configure(eventFlowOptions);
 
             return serviceProvider;
         }

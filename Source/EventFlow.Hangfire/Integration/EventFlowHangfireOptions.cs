@@ -20,7 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventFlow.Hangfire.Integration
 {
@@ -35,7 +35,8 @@ namespace EventFlow.Hangfire.Integration
 
         public IEventFlowHangfireOptions UseQueueName(string queueName)
         {
-            _eventFlowOptions.ServiceCollection.TryAddTransient<IQueueNameProvider>(r => new QueueNameProvider(queueName));
+            _eventFlowOptions.ServiceCollection
+                .AddTransient<IQueueNameProvider>(_ => new QueueNameProvider(queueName));
             return this;
         }
     }

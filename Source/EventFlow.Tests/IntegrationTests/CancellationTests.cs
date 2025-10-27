@@ -45,9 +45,9 @@ using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
 using EventFlow.Tests.IntegrationTests.ReadStores.ReadModels;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.IntegrationTests
 {
@@ -138,29 +138,29 @@ namespace EventFlow.Tests.IntegrationTests
                     CancellationBoundary.BeforeCommittingEvents,
                     _commandHandler.ExecuteCompletionSource,
                     () => Task.FromResult(_commandHandler.HasBeenCalled),
-                    v => v.Should().BeTrue(),
-                    v => v.Should().BeFalse()),
+                    v => v.ShouldBeTrue(),
+                    v => v.ShouldBeFalse()),
 
                 new Step<IReadOnlyCollection<ICommittedDomainEvent>>(
                     CancellationBoundary.BeforeUpdatingReadStores,
                     _eventPersistence.CommitCompletionSource,
                     () => _eventPersistence.LoadCommittedEventsAsync(id, 0, CancellationToken.None),
-                    v => v.Should().NotBeEmpty(),
-                    v => v.Should().BeEmpty()),
+                    v => v.ShouldNotBeEmpty(),
+                    v => v.ShouldBeEmpty()),
 
                 new Step<ReadModelEnvelope<InMemoryThingyReadModel>>(
                     CancellationBoundary.BeforeNotifyingSubscribers,
                     _readStore.UpdateCompletionSource,
                     () => _readStore.GetAsync(id.ToString(), CancellationToken.None),
-                    v => v.ReadModel.Should().NotBeNull(),
-                    v => v.ReadModel.Should().BeNull()),
+                    v => v.ReadModel.ShouldNotBeNull(),
+                    v => v.ReadModel.ShouldBeNull()),
 
                 new Step<bool>(
                     CancellationBoundary.CancelAlways,
                     _subscriber.HandleCompletionSource,
                     () => Task.FromResult(_subscriber.HasHandled),
-                    v => v.Should().BeTrue(),
-                    v => v.Should().BeFalse())
+                    v => v.ShouldBeTrue(),
+                    v => v.ShouldBeFalse())
             };
 
             return steps;

@@ -29,9 +29,9 @@ using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.Exploration
 {
@@ -77,7 +77,7 @@ namespace EventFlow.Tests.Exploration
             var aggregate = await aggregateStore.LoadAsync<UpgradeAggregate, UpgradeId>(
                 id,
                 CancellationToken.None);
-            aggregate.V2Applied.Should().BeTrue();
+            aggregate.V2Applied.ShouldBeTrue();
         }
 
         public class SourceId : ISourceId

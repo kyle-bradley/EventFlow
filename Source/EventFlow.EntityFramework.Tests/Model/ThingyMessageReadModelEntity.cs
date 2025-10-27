@@ -47,7 +47,6 @@ namespace EventFlow.EntityFramework.Tests.Model
         {
             ThingyId = domainEvent.AggregateIdentity.Value;
             Message = domainEvent.AggregateEvent.ThingyMessage.Message;
-
             return Task.CompletedTask;
         }
 
@@ -58,7 +57,6 @@ namespace EventFlow.EntityFramework.Tests.Model
             var messageId = new ThingyMessageId(context.ReadModelId);
             var thingyMessage = domainEvent.AggregateEvent.ThingyMessages.Single(m => m.Id == messageId);
             Message = thingyMessage.Message;
-
             return Task.CompletedTask;
         }
 

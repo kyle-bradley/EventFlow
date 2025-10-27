@@ -26,8 +26,8 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.IntegrationTests.Aggregates
 {
@@ -47,14 +47,14 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
                     new ThingyMaybePingCommand(thingyId, pingId, isSuccess),
                     CancellationToken.None)
                 .ConfigureAwait(false);
-            executionResult.IsSuccess.Should().Be(isSuccess);
+            executionResult.IsSuccess.ShouldBe(isSuccess);
 
             // Assert
             var thingyAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(
                     thingyId,
                     CancellationToken.None)
                 .ConfigureAwait(false);
-            thingyAggregate.Version.Should().Be(expectedAggregateVersion);
+            thingyAggregate.Version.ShouldBe(expectedAggregateVersion);
         }
     }
 }

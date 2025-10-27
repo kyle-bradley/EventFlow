@@ -37,10 +37,10 @@ using EventFlow.TestHelpers.Aggregates.Entities;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
 using EventFlow.TestHelpers.Extensions;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.TestHelpers.Suites
 {
@@ -56,8 +56,8 @@ namespace EventFlow.TestHelpers.Suites
             var testAggregate = await LoadAggregateAsync(ThingyId.New);
 
             // Assert
-            testAggregate.Should().NotBeNull();
-            testAggregate.IsNew.Should().BeTrue();
+            testAggregate.ShouldNotBeNull();
+            testAggregate.IsNew.ShouldBeTrue();
         }
 
         [Test]
@@ -72,16 +72,16 @@ namespace EventFlow.TestHelpers.Suites
             var domainEvents = await testAggregate.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None);
 
             // Assert
-            domainEvents.Count.Should().Be(1);
+            domainEvents.Count.ShouldBe(1);
             var pingEvent = domainEvents.Single() as IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>;
-            pingEvent.Should().NotBeNull();
-            pingEvent.AggregateIdentity.Should().Be(id);
-            pingEvent.AggregateSequenceNumber.Should().Be(1);
-            pingEvent.AggregateType.Should().Be(typeof(ThingyAggregate));
-            pingEvent.EventType.Should().Be(typeof(ThingyPingEvent));
-            pingEvent.Timestamp.Should().NotBe(default);
-            pingEvent.Metadata.Count.Should().BeGreaterThan(0);
-            pingEvent.Metadata.SourceId.IsNone().Should().BeFalse();
+            pingEvent.ShouldNotBeNull();
+            pingEvent.AggregateIdentity.ShouldBe(id);
+            pingEvent.AggregateSequenceNumber.ShouldBe(1);
+            pingEvent.AggregateType.ShouldBe(typeof(ThingyAggregate));
+            pingEvent.EventType.ShouldBe(typeof(ThingyPingEvent));
+            pingEvent.Timestamp.ShouldNotBe(default);
+            pingEvent.Metadata.Count.ShouldBeGreaterThan(0);
+            pingEvent.Metadata.SourceId.IsNone().ShouldBeFalse();
         }
 
         [Test]
@@ -97,10 +97,10 @@ namespace EventFlow.TestHelpers.Suites
             var loadedTestAggregate = await LoadAggregateAsync(id);
 
             // Assert
-            loadedTestAggregate.Should().NotBeNull();
-            loadedTestAggregate.IsNew.Should().BeFalse();
-            loadedTestAggregate.Version.Should().Be(1);
-            loadedTestAggregate.PingsReceived.Count.Should().Be(1);
+            loadedTestAggregate.ShouldNotBeNull();
+            loadedTestAggregate.IsNew.ShouldBeFalse();
+            loadedTestAggregate.Version.ShouldBe(1);
+            loadedTestAggregate.PingsReceived.Count.ShouldBe(1);
         }
 
         [Test]
@@ -118,7 +118,7 @@ namespace EventFlow.TestHelpers.Suites
             var loadedTestAggregate = await LoadAggregateAsync(id);
 
             // Assert
-            loadedTestAggregate.Messages.Single().Message.Should().Be("😉");
+            loadedTestAggregate.Messages.Single().Message.ShouldBe("😉");
         }
 
         [Test]
@@ -140,8 +140,8 @@ namespace EventFlow.TestHelpers.Suites
             aggregate2 = await LoadAggregateAsync(id2);
 
             // Assert
-            aggregate1.Version.Should().Be(1);
-            aggregate2.Version.Should().Be(2);
+            aggregate1.Version.ShouldBe(1);
+            aggregate2.Version.ShouldBe(2);
         }
 
         [Test]
@@ -167,7 +167,7 @@ namespace EventFlow.TestHelpers.Suites
                 CancellationToken.None);
 
             // Assert
-            domainEvents.DomainEvents.Count.Should().BeGreaterOrEqualTo(2);
+            domainEvents.DomainEvents.Count.ShouldBeGreaterThanOrEqualTo(2);
         }
 
         [Test]
@@ -181,10 +181,26 @@ namespace EventFlow.TestHelpers.Suites
             var domainEvents = await EventStore.LoadEventsAsync<ThingyAggregate, ThingyId>(id, 3, CancellationToken.None);
 
             // Assert
-            domainEvents.Should().HaveCount(3);
-            domainEvents.ElementAt(0).AggregateSequenceNumber.Should().Be(3);
-            domainEvents.ElementAt(1).AggregateSequenceNumber.Should().Be(4);
-            domainEvents.ElementAt(2).AggregateSequenceNumber.Should().Be(5);
+            domainEvents.Count.ShouldBe(3);
+            domainEvents.ElementAt(0).AggregateSequenceNumber.ShouldBe(3);
+            domainEvents.ElementAt(1).AggregateSequenceNumber.ShouldBe(4);
+            domainEvents.ElementAt(2).AggregateSequenceNumber.ShouldBe(5);
+        }
+        
+        [Test]
+        public async Task LoadingOfEventsCanStartLaterAndStopEarlier()
+        {
+            // Arrange
+            var id = ThingyId.New;
+            await PublishPingCommandsAsync(id, 5);
+
+            // Act
+            var domainEvents = await EventStore.LoadEventsAsync<ThingyAggregate, ThingyId>(id, 3, 4, CancellationToken.None);
+
+            // Assert
+            domainEvents.Count.ShouldBe(2);
+            domainEvents.ElementAt(0).AggregateSequenceNumber.ShouldBe(3);
+            domainEvents.ElementAt(1).AggregateSequenceNumber.ShouldBe(4);
         }
         
         [Test]
@@ -219,7 +235,7 @@ namespace EventFlow.TestHelpers.Suites
             aggregate = await LoadAggregateAsync(id);
 
             // Assert
-            aggregate.PingsReceived.Count.Should().Be(2);
+            aggregate.PingsReceived.Count.ShouldBe(2);
         }
 
         [Test]
@@ -237,9 +253,9 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             var aggregate = await LoadAggregateAsync(id);
-            aggregate.UpgradableEventV1Received.Should().Be(0);
-            aggregate.UpgradableEventV2Received.Should().Be(0);
-            aggregate.UpgradableEventV3Received.Should().Be(version1 + version2 + version3);
+            aggregate.UpgradableEventV1Received.ShouldBe(0);
+            aggregate.UpgradableEventV2Received.ShouldBe(0);
+            aggregate.UpgradableEventV3Received.ShouldBe(version1 + version2 + version3);
         }
 
         [Test]
@@ -262,8 +278,8 @@ namespace EventFlow.TestHelpers.Suites
             // Assert
             aggregate1 = await LoadAggregateAsync(id1);
             aggregate2 = await LoadAggregateAsync(id2);
-            aggregate1.Version.Should().Be(1);
-            aggregate2.Version.Should().Be(0);
+            aggregate1.Version.ShouldBe(1);
+            aggregate2.Version.ShouldBe(0);
         }
 
         [Test]
@@ -294,7 +310,7 @@ namespace EventFlow.TestHelpers.Suites
                 CancellationToken.None);
 
             // Assert
-            domainEvents.NextGlobalPosition.Value.Should().NotBe(string.Empty);
+            domainEvents.NextGlobalPosition.Value.ShouldNotBe(string.Empty);
         }
 
         [Test]
@@ -317,8 +333,8 @@ namespace EventFlow.TestHelpers.Suites
                 CancellationToken.None);
 
             // Assert
-            domainEvents.DomainEvents.OfType<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>().Should().Contain(e => e.AggregateEvent.PingId == pingIds[0]);
-            domainEvents.DomainEvents.OfType<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>().Should().Contain(e => e.AggregateEvent.PingId == pingIds[1]);
+            domainEvents.DomainEvents.OfType<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>().ShouldContain(e => e.AggregateEvent.PingId == pingIds[0]);
+            domainEvents.DomainEvents.OfType<IDomainEvent<ThingyAggregate, ThingyId, ThingyPingEvent>>().ShouldContain(e => e.AggregateEvent.PingId == pingIds[1]);
         }
 
         [Test]
@@ -353,13 +369,13 @@ namespace EventFlow.TestHelpers.Suites
 
             // Act
             aggregate1 = await LoadAggregateAsync(id);
-            aggregate1.PingsReceived.Single().Should().Be(pingId1);
+            aggregate1.PingsReceived.Single().ShouldBe(pingId1);
             aggregate1.Ping(pingId2);
             await aggregate1.CommitAsync(EventStore, SnapshotStore, SourceId.New, CancellationToken.None);
 
             // Assert
             aggregate1 = await LoadAggregateAsync(id);
-            aggregate1.PingsReceived.Should().BeEquivalentTo(new[] {pingId1, pingId2});
+            aggregate1.PingsReceived.SequenceEqual(new[] { pingId1, pingId2 }).ShouldBeTrue();
         }
 
         [Test]
@@ -388,7 +404,7 @@ namespace EventFlow.TestHelpers.Suites
 
             // Assert
             var aggregate = await LoadAggregateAsync(id);
-            aggregate.PingsReceived.Should().BeEquivalentTo(new []{pingId1, pingId2});
+            aggregate.PingsReceived.SequenceEqual(new[] { pingId1, pingId2 }).ShouldBeTrue();
         }
 
         [Test]
@@ -404,8 +420,8 @@ namespace EventFlow.TestHelpers.Suites
                 ;
 
             // Assert
-            PublishedDomainEvents.Count.Should().Be(10);
-            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).Should().BeEquivalentTo(Enumerable.Range(1, 10));
+            PublishedDomainEvents.Count.ShouldBe(10);
+            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).SequenceEqual(Enumerable.Range(1, 10)).ShouldBeTrue();
         }
 
         [Test]
@@ -425,8 +441,8 @@ namespace EventFlow.TestHelpers.Suites
                 ;
 
             // Assert
-            PublishedDomainEvents.Count.Should().Be(10);
-            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).Should().BeEquivalentTo(Enumerable.Range(11, 10));
+            PublishedDomainEvents.Count.ShouldBe(10);
+            PublishedDomainEvents.Select(d => d.AggregateSequenceNumber).SequenceEqual(Enumerable.Range(11, 10)).ShouldBeTrue();
         }
 
         [Test]
@@ -447,18 +463,20 @@ namespace EventFlow.TestHelpers.Suites
             var idsWithGap = ids.Where(i => !removedIds.Contains(i));
             foreach (var id in removedIds)
             {
-                await EventPersistence.DeleteEventsAsync(id, CancellationToken.None)
-                    ;
+                await EventPersistence.DeleteEventsAsync(id, CancellationToken.None);
             }
 
             // Act
             var result = await EventStore
-                .LoadAllEventsAsync(GlobalPosition.Start, 5, new EventUpgradeContext(), CancellationToken.None)
-                ;
+                .LoadAllEventsAsync(GlobalPosition.Start, 5, new EventUpgradeContext(), CancellationToken.None);
 
             // Assert
-            var domainEventIds = result.DomainEvents.Select(d => d.GetIdentity());
-            domainEventIds.Should().Contain(idsWithGap);
+            var domainEventIds = result.DomainEvents.Select(d => d.GetIdentity()).ToList();
+
+            foreach (var id in idsWithGap)
+            {
+                domainEventIds.ShouldContain(id);
+            }
         }
 
         [SetUp]
@@ -498,7 +516,7 @@ namespace EventFlow.TestHelpers.Suites
                 }
             }
 
-            wasCorrectException.Should().BeTrue("Action was expected to throw exception {0}", typeof(TException).PrettyPrint());
+            wasCorrectException.ShouldBeTrue($"Action was expected to throw exception {typeof(TException).PrettyPrint()}");
         }
     }
 }

@@ -20,13 +20,14 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using EventFlow.Configuration;
 using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using System;
 
 namespace EventFlow.EntityFramework.Tests.InMemory
 {
@@ -35,12 +36,12 @@ namespace EventFlow.EntityFramework.Tests.InMemory
     {
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, InMemoryDbContextProvider>(ServiceLifetime.Singleton)
                 .ConfigureForSnapshotStoreTest();
 
-            var serviceProvider = base.Configure(resolver);
+            var serviceProvider = base.Configure(eventFlowOptions);
 
             return serviceProvider;
         }

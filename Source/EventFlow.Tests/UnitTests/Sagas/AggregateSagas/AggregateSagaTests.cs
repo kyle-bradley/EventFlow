@@ -30,13 +30,13 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Sagas;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
 {
@@ -88,7 +88,7 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
             }
 
             // Assert
-            exception.Should().BeNull();
+            exception.ShouldBeNull();
         }
 
         [Test]
@@ -119,7 +119,7 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
             }
 
             // Assert
-            exception.Should().BeNull();
+            exception.ShouldBeNull();
         }
 
         [Test]
@@ -154,7 +154,7 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
             }
 
             // Assert
-            exception.Should().BeNull();
+            exception.ShouldBeNull();
         }
 
         [Test]
@@ -186,19 +186,19 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
             }
 
             // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeAssignableTo<SagaPublishException>();
+            exception.ShouldNotBeNull();
+            exception.ShouldBeAssignableTo<SagaPublishException>();
             var sagaPublishException = exception as SagaPublishException;
-            sagaPublishException.InnerExceptions.Count.Should().Be(1);
+            sagaPublishException.InnerExceptions.Count.ShouldBe(1);
             var innerException = sagaPublishException.InnerExceptions[0];
-            innerException.Should().BeAssignableTo<CommandException>();
+            innerException.ShouldBeAssignableTo<CommandException>();
             var commandException = innerException as CommandException;
-            commandException.Message.Should().Contain(message);
-            commandException.Message.Should().Contain(Sut.Id.ToString());
-            commandException.CommandType.Should().Be(typeof(ThingyAddMessageCommand));
-            commandException.ExecutionResult.Should().NotBeNull();
-            commandException.ExecutionResult.IsSuccess.Should().BeFalse();
-            commandException.ExecutionResult.ToString().Should().Contain(message);
+            commandException.Message.ShouldContain(message);
+            commandException.Message.ShouldContain(Sut.Id.ToString());
+            commandException.CommandType.ShouldBe(typeof(ThingyAddMessageCommand));
+            commandException.ExecutionResult.ShouldNotBeNull();
+            commandException.ExecutionResult.IsSuccess.ShouldBeFalse();
+            commandException.ExecutionResult.ToString().ShouldContain(message);
         }
 
         [Test]
@@ -234,20 +234,20 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
             }
 
             // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeAssignableTo<SagaPublishException>();
+            exception.ShouldNotBeNull();
+            exception.ShouldBeAssignableTo<SagaPublishException>();
             var sagaPublishException = exception as SagaPublishException;
-            sagaPublishException.InnerExceptions.Count.Should().Be(2);
+            sagaPublishException.InnerExceptions.Count.ShouldBe(2);
             foreach (var innerException in sagaPublishException.InnerExceptions)
             {
-                innerException.Should().BeAssignableTo<CommandException>();
+                innerException.ShouldBeAssignableTo<CommandException>();
                 var commandException = innerException as CommandException;
-                commandException.Message.Should().Contain(message);
-                commandException.Message.Should().Contain(Sut.Id.ToString());
-                commandException.CommandType.Should().Be(typeof(ThingyAddMessageCommand));
-                commandException.ExecutionResult.Should().NotBeNull();
-                commandException.ExecutionResult.IsSuccess.Should().BeFalse();
-                commandException.ExecutionResult.ToString().Should().Contain(message);
+                commandException.Message.ShouldContain(message);
+                commandException.Message.ShouldContain(Sut.Id.ToString());
+                commandException.CommandType.ShouldBe(typeof(ThingyAddMessageCommand));
+                commandException.ExecutionResult.ShouldNotBeNull();
+                commandException.ExecutionResult.IsSuccess.ShouldBeFalse();
+                commandException.ExecutionResult.ToString().ShouldContain(message);
             }
         }
 
@@ -280,19 +280,19 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
             }
 
             // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeAssignableTo<SagaPublishException>();
+            exception.ShouldNotBeNull();
+            exception.ShouldBeAssignableTo<SagaPublishException>();
             var sagaPublishException = exception as SagaPublishException;
-            sagaPublishException.InnerExceptions.Count.Should().Be(1);
+            sagaPublishException.InnerExceptions.Count.ShouldBe(1);
             var innerException = sagaPublishException.InnerExceptions[0];
-            innerException.Should().BeAssignableTo<CommandException>();
+            innerException.ShouldBeAssignableTo<CommandException>();
             var commandException = innerException as CommandException;
-            commandException.Message.Should().Contain(message);
-            commandException.Message.Should().Contain(Sut.Id.ToString());
-            commandException.CommandType.Should().Be(typeof(ThingyAddMessageCommand));
-            commandException.InnerException.Should().NotBeNull();
-            commandException.InnerException.Should().BeAssignableTo<ApplicationException>();
-            commandException.InnerException.Message.Should().Be(message);
+            commandException.Message.ShouldContain(message);
+            commandException.Message.ShouldContain(Sut.Id.ToString());
+            commandException.CommandType.ShouldBe(typeof(ThingyAddMessageCommand));
+            commandException.InnerException.ShouldNotBeNull();
+            commandException.InnerException.ShouldBeAssignableTo<ApplicationException>();
+            commandException.InnerException.Message.ShouldBe(message);
         }
 
         [Test]
@@ -328,20 +328,20 @@ namespace EventFlow.Tests.UnitTests.Sagas.AggregateSagas
             }
 
             // Assert
-            exception.Should().NotBeNull();
-            exception.Should().BeAssignableTo<SagaPublishException>();
+            exception.ShouldNotBeNull();
+            exception.ShouldBeAssignableTo<SagaPublishException>();
             var sagaPublishException = exception as SagaPublishException;
-            sagaPublishException.InnerExceptions.Count.Should().Be(2);
+            sagaPublishException.InnerExceptions.Count.ShouldBe(2);
             foreach (var innerException in sagaPublishException.InnerExceptions)
             {
-                innerException.Should().BeAssignableTo<CommandException>();
+                innerException.ShouldBeAssignableTo<CommandException>();
                 var commandException = innerException as CommandException;
-                commandException.Message.Should().Contain(message);
-                commandException.Message.Should().Contain(Sut.Id.ToString());
-                commandException.CommandType.Should().Be(typeof(ThingyAddMessageCommand));
-                commandException.InnerException.Should().NotBeNull();
-                commandException.InnerException.Should().BeAssignableTo<ApplicationException>();
-                commandException.InnerException.Message.Should().Be(message);
+                commandException.Message.ShouldContain(message);
+                commandException.Message.ShouldContain(Sut.Id.ToString());
+                commandException.CommandType.ShouldBe(typeof(ThingyAddMessageCommand));
+                commandException.InnerException.ShouldNotBeNull();
+                commandException.InnerException.ShouldBeAssignableTo<ApplicationException>();
+                commandException.InnerException.Message.ShouldBe(message);
             }
         }
     }

@@ -56,7 +56,7 @@ namespace EventFlow.EntityFramework.Tests.Model
             modelBuilder.Entity<PersonReadModelEntity>()
                 .Property(e => e.AggregateId)
                 .ValueGeneratedOnAdd();
-
+            
             modelBuilder.Entity<AddressReadModelEntity>()
                 .Property(e => e.AddressId)
                 .ValueGeneratedNever();

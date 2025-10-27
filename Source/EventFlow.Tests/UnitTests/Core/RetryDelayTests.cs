@@ -23,8 +23,8 @@
 using System;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
@@ -46,8 +46,8 @@ namespace EventFlow.Tests.UnitTests.Core
             var delay = sut.PickDelay();
 
             // Assert
-            delay.TotalMilliseconds.Should().BeGreaterOrEqualTo(min);
-            delay.TotalMilliseconds.Should().BeLessOrEqualTo(max);
+            delay.TotalMilliseconds.ShouldBeGreaterThanOrEqualTo(min);
+            delay.TotalMilliseconds.ShouldBeLessThanOrEqualTo(max);
         }
     }
 }

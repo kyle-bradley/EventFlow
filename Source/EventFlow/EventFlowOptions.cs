@@ -29,6 +29,8 @@ using EventFlow.Commands;
 using EventFlow.Commands.Serialization;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Cancellation;
+using EventFlow.Configuration.EventNamingStrategy;
+using EventFlow.Configuration.Serialization;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
@@ -234,6 +236,8 @@ namespace EventFlow
                 _aggregateEventTypes,
                 _sagaTypes,
                 _snapshotTypes));
+            
+            serviceCollection.TryAddTransient<IEventNamingStrategy, DefaultStrategy>();
         }
 
         private void RegisterObsoleteDefaults(IServiceCollection serviceCollection)

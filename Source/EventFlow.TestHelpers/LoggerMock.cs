@@ -25,8 +25,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using EventFlow.Core;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Shouldly;
 
 namespace EventFlow.TestHelpers
 {
@@ -79,7 +79,7 @@ namespace EventFlow.TestHelpers
             var messages = Logs(LogLevel.Critical, LogLevel.Error)
                 .Select(m => m.Message)
                 .ToList();
-            messages.Should().BeEmpty(string.Join(", ", messages));
+            messages.ShouldBeEmpty(string.Join(", ", messages));
         }
 
         public void VerifyProblemLogged(params Exception[] expectedExceptions)
@@ -87,7 +87,11 @@ namespace EventFlow.TestHelpers
             var exceptions = Logs(LogLevel.Error, LogLevel.Critical)
                 .Select(m => m.Exception)
                 .ToList();
-            exceptions.Should().AllBeEquivalentTo(expectedExceptions);
+
+            foreach (var exception in exceptions)
+            {
+                exception.ShouldBeOneOf(expectedExceptions);
+            }
         }
 
         public IReadOnlyCollection<LogMessage> Logs(params LogLevel[] logLevels)

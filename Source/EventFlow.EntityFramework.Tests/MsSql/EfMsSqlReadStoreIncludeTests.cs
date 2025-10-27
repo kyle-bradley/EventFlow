@@ -23,7 +23,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.EntityFramework.Tests.MsSql.IncludeTests;
@@ -32,9 +31,9 @@ using EventFlow.EntityFramework.Tests.MsSql.IncludeTests.Queries;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.MsSql;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.EntityFramework.Tests.MsSql
 {
@@ -47,14 +46,14 @@ namespace EventFlow.EntityFramework.Tests.MsSql
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
 
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .RegisterServices(sr => sr.AddTransient(c => _testDatabase.ConnectionString))
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, MsSqlDbContextProvider>()
                 .ConfigureForReadStoreIncludeTest()
                 .AddDefaults(typeof(EfMsSqlReadStoreIncludeTests).Assembly);
 
-            var serviceProvider = base.Configure(resolver);
+            var serviceProvider = base.Configure(eventFlowOptions);
 
             return serviceProvider;
         }
@@ -81,9 +80,9 @@ namespace EventFlow.EntityFramework.Tests.MsSql
                 .ConfigureAwait(false);
 
             // Assert
-            readModel.Should().NotBeNull();
-            readModel.Name.Should().Be("Bob");
-            readModel.Addresses.Should().BeNullOrEmpty();
+            readModel.ShouldNotBeNull();
+            readModel.Name.ShouldBe("Bob");
+            readModel.Addresses.ShouldBeEmpty();
         }
 
         [Test]
@@ -115,11 +114,21 @@ namespace EventFlow.EntityFramework.Tests.MsSql
                 .ConfigureAwait(false);
 
             // Assert
-            readModel.Should().NotBeNull();
-            readModel.NumberOfAddresses.Should().Be(2);
-            readModel.Addresses.Should().HaveCount(2);
-            readModel.Addresses.Should().ContainEquivalentOf(address1);
-            readModel.Addresses.Should().ContainEquivalentOf(address2);
+            readModel.ShouldNotBeNull();
+            readModel.NumberOfAddresses.ShouldBe(2);
+            readModel.Addresses.Count.ShouldBe(2);
+
+            readModel.Addresses.ShouldContain(a => 
+                a.Street == address1.Street && 
+                a.PostalCode == address1.PostalCode && 
+                a.City == address1.City && 
+                a.Country == address1.Country);
+
+            readModel.Addresses.ShouldContain(a => 
+                a.Street == address2.Street && 
+                a.PostalCode == address2.PostalCode && 
+                a.City == address2.City && 
+                a.Country == address2.Country);
         }
     }
 }
