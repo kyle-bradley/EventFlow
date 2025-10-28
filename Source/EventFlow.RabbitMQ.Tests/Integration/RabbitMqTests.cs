@@ -113,14 +113,14 @@ namespace EventFlow.RabbitMQ.Tests.Integration
                 await commandBus.PublishAsync(new ThingyPingCommand(ThingyId.New, pingId), _timeout.Token).ConfigureAwait(false);
 
                 var rabbitMqMessage = consumer.GetMessages(TimeSpan.FromMinutes(1)).Single();
-                rabbitMqMessage.Exchange.Value.Should().Be(exchange.Value);
-                rabbitMqMessage.RoutingKey.Value.Should().Be("eventflow.applicationcommand.thingy.thingy-ping.1");
+                rabbitMqMessage.Exchange.Value.ShouldBe(exchange.Value);
+                rabbitMqMessage.RoutingKey.Value.ShouldBe("eventflow.applicationcommand.thingy.thingy-ping.1");
 
                 var pingCommand = (ThingyPingCommand)commandJsonSerializer.Deserialize(
                     rabbitMqMessage.Message,
                     new CommandMetadata(rabbitMqMessage.Headers));
 
-                pingCommand.PingId.Should().Be(pingId);
+                pingCommand.PingId.ShouldBe(pingId);
             }
         }
 

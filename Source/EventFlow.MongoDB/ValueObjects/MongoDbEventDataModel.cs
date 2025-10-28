@@ -33,7 +33,7 @@ namespace EventFlow.MongoDB.ValueObjects
         [BsonElement("_id")]
         public long _id { get; set; }
 
-        [JsonProperty("batchId")]
+        [BsonElement("batchId")]
         [BsonGuidRepresentation(GuidRepresentation.Standard)]
         public Guid BatchId { get; set; }
 

@@ -36,7 +36,9 @@ namespace EventFlow.EntityFramework.Tests.MsSql
     [Category(Categories.Integration)]
     public class EfMsSqlReadStoreTests : TestSuiteForReadModelStore
     {
+#pragma warning disable NUnit1032 // Disposed by DisposedSafe
         private IMsSqlDatabase _testDatabase;
+#pragma warning restore NUnit1032 // Disposed by DisposedSafe
 
         protected override Type ReadModelType => typeof(ThingyReadModelEntity);
 

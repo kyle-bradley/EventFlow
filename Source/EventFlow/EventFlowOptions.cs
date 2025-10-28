@@ -30,7 +30,6 @@ using EventFlow.Commands.Serialization;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Cancellation;
 using EventFlow.Configuration.EventNamingStrategy;
-using EventFlow.Configuration.Serialization;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;

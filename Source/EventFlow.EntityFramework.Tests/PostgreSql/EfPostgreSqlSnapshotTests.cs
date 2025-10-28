@@ -35,7 +35,9 @@ namespace EventFlow.EntityFramework.Tests.PostgreSql
     [Category(Categories.Integration)]
     public class EfPostgreSqlSnapshotTests : TestSuiteForSnapshotStore
     {
+#pragma warning disable NUnit1032 // Disposed by DisposedSafe
         private IPostgreSqlDatabase _testDatabase;
+#pragma warning restore NUnit1032 // Disposed by DisposedSafe
 
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {

@@ -135,27 +135,6 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             // Assert
             domainEvents.Count.ShouldBe(expectedNumberOfEvents);
         }
-        
-        [Description("Mock test")]
-        [TestCase(5, 3, 5, 3)]
-        [TestCase(5, 0, 5, 5)]
-        [TestCase(5, 1, 2, 2)]
-        [TestCase(0, 1, 2, 0)]
-        public async Task Test_Arrange_EventStore_SequenceRange(int eventInStore, int fromEventSequenceNumber, int toEventSequenceNumber, int expectedNumberOfEvents)
-        {
-            // Arrange
-            Arrange_EventStore(ManyDomainEvents<ThingyPingEvent>(eventInStore));
-
-            // Act
-            var domainEvents = await _eventStoreMock.Object.LoadEventsAsync<ThingyAggregate, ThingyId>(
-                A<ThingyId>(),
-                fromEventSequenceNumber,
-                toEventSequenceNumber,
-                CancellationToken.None);
-
-            // Assert
-            domainEvents.Should().HaveCount(expectedNumberOfEvents);
-        }
 
         private void Arrange_EventStore(IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> domainEvents)
         {

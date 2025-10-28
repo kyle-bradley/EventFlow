@@ -1,4 +1,4 @@
-﻿// The MIT License (MIT)
+// The MIT License (MIT)
 // 
 // Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
@@ -20,19 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.EntityFramework.EventStores;
-using EventFlow.Extensions;
-using Microsoft.EntityFrameworkCore;
+using EventFlow.Aggregates;
+using EventFlow.EventStores;
 
-namespace EventFlow.EntityFramework.Extensions
+namespace EventFlow.TestHelpers.Aggregates.Events
 {
-    public static class EventFlowOptionsEntityFrameworkEventStoreExtensions
+    [EventVersion("ThingyInitiatedEvent", 1)]
+    public class ThingyInitiatedEvent : AggregateEvent<ThingyAggregate, ThingyId>
     {
-        public static IEventFlowOptions UseEntityFrameworkEventStore<TDbContext>(
-            this IEventFlowOptions eventFlowOptions)
-            where TDbContext : DbContext
-        {
-            return eventFlowOptions.UseEventPersistence<EntityFrameworkEventPersistence<TDbContext>>();
-        }
     }
 }

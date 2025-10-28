@@ -20,16 +20,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<<<<<<<< HEAD:Source/EventFlow.TestHelpers/Aggregates/Events/ThingyInitiatedEvent.cs
-using EventFlow.Aggregates;
-using EventFlow.EventStores;
 
-namespace EventFlow.TestHelpers.Aggregates.Events
-{
-    [EventVersion("ThingyInitiatedEvent", 1)]
-    public class ThingyInitiatedEvent : AggregateEvent<ThingyAggregate, ThingyId>
-    {
-========
 using System;
 
 namespace EventFlow.Configuration.EventNamingStrategy
@@ -37,6 +28,5 @@ namespace EventFlow.Configuration.EventNamingStrategy
     internal class DefaultStrategy : IEventNamingStrategy
     {
         public string CreateEventName(int version, Type eventType, string name) => name;
->>>>>>>> origin/develop-v1:Source/EventFlow/Configuration/EventNamingStrategy/DefaultStrategy.cs
     }
 }

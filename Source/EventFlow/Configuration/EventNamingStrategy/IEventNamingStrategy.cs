@@ -20,20 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<<<<<<<< HEAD:Source/EventFlow/Sagas/ISagaTimeoutHandles.cs
-using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Aggregates;
-
-namespace EventFlow.Sagas
-{
-    public interface ISagaTimeoutHandles<in TSaga, TIdentity, in TTimeout> : ISaga
-        where TSaga : IAggregateRoot<TIdentity>
-        where TIdentity : ISagaId
-        where TTimeout : ISagaTimeout<TSaga, TIdentity>
-    {
-        Task HandleTimeoutAsync(TTimeout timeout, ISagaContext sagaContext, CancellationToken cancellationToken);
-========
 using System;
 
 namespace EventFlow.Configuration.EventNamingStrategy
@@ -41,6 +27,5 @@ namespace EventFlow.Configuration.EventNamingStrategy
     public interface IEventNamingStrategy
     {
         public string CreateEventName(int version, Type eventType, string name);
->>>>>>>> origin/develop-v1:Source/EventFlow/Configuration/EventNamingStrategy/IEventNamingStrategy.cs
     }
 }

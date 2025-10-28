@@ -26,7 +26,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using EventFlow.TestHelpers;
 using EventFlow.ValueObjects;
-using FluentAssertions;
 using NUnit.Framework;
 using Shouldly;
 

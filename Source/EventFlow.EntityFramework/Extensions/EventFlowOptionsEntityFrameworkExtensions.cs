@@ -26,6 +26,7 @@ using EventFlow.EntityFramework.ReadStores;
 using EventFlow.EntityFramework.ReadStores.Configuration;
 using EventFlow.EntityFramework.SnapshotStores;
 using EventFlow.Extensions;
+using EventFlow.ReadStores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;

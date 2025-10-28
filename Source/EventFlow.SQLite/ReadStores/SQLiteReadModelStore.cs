@@ -33,12 +33,13 @@ namespace EventFlow.SQLite.ReadStores
         where TReadModel : class, IReadModel
     {
         public SQLiteReadModelStore(
+            IReadStoreCachingStrategy memoryCacheStrategy,
             ILogger<SQLiteReadModelStore<TReadModel>> logger,
             ISQLiteConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator,
             IReadModelFactory<TReadModel> readModelFactory,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
-            : base(logger, connection, readModelSqlGenerator, readModelFactory, transientFaultHandler)
+            : base(memoryCacheStrategy, logger, connection, readModelSqlGenerator, readModelFactory, transientFaultHandler)
         {
         }
     }

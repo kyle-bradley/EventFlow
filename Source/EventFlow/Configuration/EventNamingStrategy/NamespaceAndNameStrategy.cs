@@ -20,33 +20,13 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<<<<<<<< HEAD:Source/EventFlow.TestHelpers/Aggregates/Sagas/Timeouts/ThingySagaReminderTimeout.cs
-using EventFlow.Sagas;
-========
->>>>>>>> origin/develop-v1:Source/EventFlow/Configuration/EventNamingStrategy/NamespaceAndNameStrategy.cs
 using System;
-using System.Collections.Generic;
 
-<<<<<<<< HEAD:Source/EventFlow.TestHelpers/Aggregates/Sagas/Timeouts/ThingySagaReminderTimeout.cs
-namespace EventFlow.TestHelpers.Aggregates.Sagas.Timeouts
-{
-    public class ThingySagaReminderTimeout : SagaDistinctTimeout<ThingySaga, ThingySagaId>
-    {
-        public ThingySagaReminderTimeout(ThingySagaId aggregateId) : base(aggregateId)
-        {
-        }
-
-        protected override IEnumerable<byte[]> GetSourceIdComponents()
-        {
-            yield return Guid.NewGuid().ToByteArray();
-        }
-========
 namespace EventFlow.Configuration.EventNamingStrategy
 {
     public class NamespaceAndNameStrategy : IEventNamingStrategy
     {
         public string CreateEventName(int version, Type eventType, string name) 
             => $"{eventType.Namespace}.{name}";
->>>>>>>> origin/develop-v1:Source/EventFlow/Configuration/EventNamingStrategy/NamespaceAndNameStrategy.cs
     }
 }

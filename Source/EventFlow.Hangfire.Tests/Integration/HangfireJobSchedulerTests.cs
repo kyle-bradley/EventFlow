@@ -65,10 +65,10 @@ namespace EventFlow.Hangfire.Tests.Integration
         }
 
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
-        {   
+        {
             RegisterHangfire(eventFlowOptions);
-            
-            var serviceProvider =  eventFlowOptions.ServiceCollection.BuildServiceProvider();
+
+            var serviceProvider = eventFlowOptions.ServiceCollection.BuildServiceProvider();
             _backgroundService = serviceProvider.GetRequiredService<IHostedService>();
             _backgroundService.StartAsync(CancellationToken.None);
             return serviceProvider;
@@ -78,7 +78,7 @@ namespace EventFlow.Hangfire.Tests.Integration
         {
             _log = new HangfireJobLog();
             var jobFilterCollection = new JobFilterCollection { _log };
-            
+
             eventFlowOptions.ServiceCollection
                 .AddHangfire(c => c.UseInMemoryStorage())
                 .AddHangfireServer(options =>
@@ -88,7 +88,7 @@ namespace EventFlow.Hangfire.Tests.Integration
                 });
             eventFlowOptions.UseHangfireJobScheduler();
         }
-        
+
         [SetUp]
         public void TestSuiteForSchedulerSetUp()
         {
@@ -166,10 +166,10 @@ namespace EventFlow.Hangfire.Tests.Integration
                     {
                         elapsed.ShouldBeGreaterThanOrEqualTo(minimumElapsed.Value);
                     }
-                    Assert.Contains(pingId, testAggregate.PingsReceived.ToList());
+                    Assert.That(testAggregate.PingsReceived.ToList().Any(x => x.Equals(pingId)));
                     return;
                 }
-                
+
                 await Task.Delay(TimeSpan.FromSeconds(0.2)).ConfigureAwait(false);
             }
 

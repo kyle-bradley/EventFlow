@@ -28,11 +28,11 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.ResilienceStrategies;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using System;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
+using Shouldly;
 
 namespace EventFlow.Tests.IntegrationTests.Strategies
 {
@@ -58,14 +58,14 @@ namespace EventFlow.Tests.IntegrationTests.Strategies
                     new ThingyInitiateCommand(thingyId),
                     CancellationToken.None)
                 .ConfigureAwait(false);
-            executionResult.IsSuccess.Should().BeTrue();
+            executionResult.IsSuccess.ShouldBeTrue();
 
             // Assert
             var thingyAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(
                     thingyId,
                     CancellationToken.None)
                 .ConfigureAwait(false);
-            thingyAggregate.Version.Should().Be(expectedAggregateVersion);
+            thingyAggregate.Version.ShouldBe(expectedAggregateVersion);
         }
 
         [Test]
@@ -113,14 +113,14 @@ namespace EventFlow.Tests.IntegrationTests.Strategies
                     CancellationToken.None)
                 .ConfigureAwait(false);
 
-            executionResult.IsSuccess.Should().BeTrue();
+            executionResult.IsSuccess.ShouldBeTrue();
 
             // Assert
             var thingyAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(
                     thingyId,
                     CancellationToken.None)
                 .ConfigureAwait(false);
-            thingyAggregate.IsDeleted.Should().BeTrue();
+            thingyAggregate.IsDeleted.ShouldBeTrue();
         }
 
         [Test]

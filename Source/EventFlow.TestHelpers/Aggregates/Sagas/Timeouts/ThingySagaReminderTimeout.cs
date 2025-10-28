@@ -1,6 +1,7 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2025 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 Rasmus Mikkelsen
+// Copyright (c) 2015-2021 eBay Software Foundation
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,21 +21,21 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.EntityFramework.SnapshotStores;
-using EventFlow.Extensions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using EventFlow.Sagas;
+using System;
+using System.Collections.Generic;
 
-namespace EventFlow.EntityFramework.Extensions
+namespace EventFlow.TestHelpers.Aggregates.Sagas.Timeouts
 {
-    public static class EventFlowOptionsEntityFrameworkSnapshotExtensions
+    public class ThingySagaReminderTimeout : SagaDistinctTimeout<ThingySaga, ThingySagaId>
     {
-        public static IEventFlowOptions UseEntityFrameworkSnapshotStore<TDbContext>(
-                this IEventFlowOptions eventFlowOptions)
-                where TDbContext : DbContext
+        public ThingySagaReminderTimeout(ThingySagaId aggregateId) : base(aggregateId)
         {
-            return eventFlowOptions
-                .UseSnapshotPersistence<EntityFrameworkSnapshotPersistence<TDbContext>>(ServiceLifetime.Transient);
+        }
+
+        protected override IEnumerable<byte[]> GetSourceIdComponents()
+        {
+            yield return Guid.NewGuid().ToByteArray();
         }
     }
 }
