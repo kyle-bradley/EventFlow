@@ -136,6 +136,7 @@ namespace EventFlow.ReadStores
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Population of readmodels failed");
+                throw;
             }
             finally
             {
@@ -283,6 +284,7 @@ namespace EventFlow.ReadStores
             catch (Exception e)
             {
                 _logger.LogError(e, $"Exception when populating: {readModelType}");
+                throw;
             }
         }
 
