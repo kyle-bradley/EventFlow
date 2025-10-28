@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -168,7 +168,7 @@ namespace EventFlow.EventStores
                     toEventSequenceNumber,
                     cancellationToken)
                 .ConfigureAwait(false);
-
+            
             return await MapToDomainEvents<TAggregate, TIdentity>(id, cancellationToken, committedDomainEvents);
         }
 

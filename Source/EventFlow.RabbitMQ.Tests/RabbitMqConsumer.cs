@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -55,7 +55,7 @@ namespace EventFlow.RabbitMQ.Tests
             _connection = connectionFactory.CreateConnectionAsync().Result;
             _model = _connection.CreateChannelAsync().Result;
 
-            _model.ExchangeDeclareAsync(exchange.Value, ExchangeType.Topic, false).RunSynchronously();
+            _model.ExchangeDeclareAsync(exchange.Value, ExchangeType.Topic, false).Wait();
 
             var queueName = $"test-{Guid.NewGuid():N}";
             _model.QueueDeclareAsync(
@@ -63,7 +63,7 @@ namespace EventFlow.RabbitMQ.Tests
                 false,
                 false,
                 true,
-                null).RunSynchronously();
+                null).Wait();
 
             foreach (var routingKey in routingKeys)
             {
@@ -71,7 +71,7 @@ namespace EventFlow.RabbitMQ.Tests
                     queueName,
                     exchange.Value,
                     routingKey,
-                    null).RunSynchronously();
+                    null).Wait();
             }
 
             _eventingBasicConsumer = new AsyncEventingBasicConsumer(_model);

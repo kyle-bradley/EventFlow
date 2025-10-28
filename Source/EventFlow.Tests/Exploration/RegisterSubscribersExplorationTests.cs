@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,9 +34,9 @@ using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Queries;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.Exploration
 {
@@ -68,7 +68,7 @@ namespace EventFlow.Tests.Exploration
             }
 
             // Assert
-            wasHandled.Should().BeTrue();
+            wasHandled.ShouldBeTrue();
         }
 
         public static IEnumerable<Func<IEventFlowOptions, IEventFlowOptions>> TestCases()

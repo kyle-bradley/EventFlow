@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,8 +26,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using EventFlow.TestHelpers;
 using EventFlow.ValueObjects;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.ValueObjects
 {
@@ -58,16 +58,14 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             // Arrange
             var values = Many<string>(10);
             var orderedValues = values.OrderBy(s => s).ToList();
-            values.Should().NotEqual(orderedValues); // Data test
+            values.ShouldNotBe(orderedValues); // Data test
             var singleValueObjects = values.Select(s => new StringSingleValue(s)).ToList();
 
             // Act
             var orderedSingleValueObjects = singleValueObjects.OrderBy(v => v).ToList();
 
             // Assert
-            orderedSingleValueObjects.Select(v => v.Value).Should().BeEquivalentTo(
-                orderedValues,
-                o => o.WithStrictOrdering());
+            orderedSingleValueObjects.Select(v => v.Value).ShouldBe(orderedValues, ignoreOrder: false);
         }
 
         [Test]
@@ -76,16 +74,14 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             // Arrange
             var values = Many<MagicEnum>(10);
             var orderedValues = values.OrderBy(s => s).ToList();
-            values.Should().NotEqual(orderedValues); // Data test
+            values.ShouldNotBe(orderedValues); // Data test
             var singleValueObjects = values.Select(s => new MagicEnumSingleValue(s)).ToList();
 
             // Act
             var orderedSingleValueObjects = singleValueObjects.OrderBy(v => v).ToList();
 
             // Assert
-            orderedSingleValueObjects.Select(v => v.Value).Should().BeEquivalentTo(
-                orderedValues,
-                o => o.WithStrictOrdering());
+            orderedSingleValueObjects.Select(v => v.Value).ShouldBe(orderedValues, ignoreOrder: false);
         }
 
         [Test]
@@ -94,7 +90,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             // Act + Assert
             // ReSharper disable once ObjectCreationAsStatement
             var exception = Assert.Throws<ArgumentException>(() => new MagicEnumSingleValue((MagicEnum)42));
-            exception.Message.Should().Be("The value '42' isn't defined in enum 'MagicEnum'");
+            exception.Message.ShouldBe("The value '42' isn't defined in enum 'MagicEnum'");
         }
 
         [Test]
@@ -116,15 +112,13 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
                 .ToList();
             
             // Assert
-            orderedValues.Should().BeEquivalentTo(
-                new []
+            orderedValues.ShouldBe(new []
                 {
                     MagicEnum.Zero,
                     MagicEnum.One,
                     MagicEnum.Two,
                     MagicEnum.Three,
-                },
-                o => o.WithStrictOrdering());
+                }, ignoreOrder: false);
         }
 
         [Test]
@@ -136,7 +130,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
 
             // Assert
             // ReSharper disable once ExpressionIsAlwaysNull
-            obj.Equals(null_).Should().BeFalse();
+            obj.Equals(null_).ShouldBeFalse();
         }
 
         [Test]
@@ -148,8 +142,8 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var obj2 = new StringSingleValue(value);
 
             // Assert
-            (obj1 == obj2).Should().BeTrue();
-            obj1.Equals(obj2).Should().BeTrue();
+            (obj1 == obj2).ShouldBeTrue();
+            obj1.Equals(obj2).ShouldBeTrue();
         }
 
         [Test]
@@ -162,8 +156,8 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var obj2 = new StringSingleValue(value2);
 
             // Assert
-            (obj1 == obj2).Should().BeFalse();
-            obj1.Equals(obj2).Should().BeFalse();
+            (obj1 == obj2).ShouldBeFalse();
+            obj1.Equals(obj2).ShouldBeFalse();
         }
 
         private static readonly JsonSerializerOptions Settings = new JsonSerializerOptions()
@@ -199,8 +193,8 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var with = JsonSerializer.Deserialize<WithNullableIntSingleValue>(json);
 
             // Assert
-            with.Should().NotBeNull();
-            with.I.Should().BeNull();
+            with.ShouldNotBeNull();
+            with.I.ShouldBeNull();
         }
 
         [Test]
@@ -213,8 +207,8 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var with = JsonSerializer.Deserialize<WithNullableIntSingleValue>(json);
 
             // Assert
-            with.Should().NotBeNull();
-            with.I.Should().BeNull();
+            with.ShouldNotBeNull();
+            with.I.ShouldBeNull();
         }
 
         [Test]
@@ -228,8 +222,8 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var with = JsonSerializer.Deserialize<WithNullableIntSingleValue>(json, Settings);
 
             // Assert
-            with.Should().NotBeNull();
-            with.I.Value.Should().Be(i);
+            with.ShouldNotBeNull();
+            with.I.Value.ShouldBe(i);
         }
 
         [Test]
@@ -242,7 +236,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var json = JsonSerializer.Serialize(with, Settings);
 
             // Assert
-            json.Should().Be("{}");
+            json.ShouldBe("{}");
         }
 
         [Test]
@@ -255,7 +249,7 @@ namespace EventFlow.Tests.UnitTests.ValueObjects
             var json = JsonSerializer.Serialize(with, Settings);
 
             // Assert
-            json.Should().Be("{\"I\":42}");
+            json.ShouldBe("{\"I\":42}");
         }
     }
 }

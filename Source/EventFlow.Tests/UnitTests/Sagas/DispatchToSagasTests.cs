@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,16 +24,14 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
-using EventFlow.Commands;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Sagas;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Sagas;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Sagas
 {
@@ -144,7 +142,7 @@ namespace EventFlow.Tests.UnitTests.Sagas
                 async () => await Sut.ProcessAsync(domainEvents, CancellationToken.None).ConfigureAwait(false));
 
             // Assert
-            thrownException.Should().BeSameAs(expectedException);
+            thrownException.ShouldBeSameAs(expectedException);
         }
 
         private Exception Arrange_Faulty_SagaStore()

@@ -1,8 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <IsPackable>False</IsPackable>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="9.0.2" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventFlow.Examples.Shipping\EventFlow.Examples.Shipping.csproj" />
   </ItemGroup>

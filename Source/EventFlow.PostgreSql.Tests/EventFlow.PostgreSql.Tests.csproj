@@ -5,6 +5,7 @@
 	  <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
   </PropertyGroup>
 
+ 
   <ItemGroup>
     <None Remove="IntegrationTests\ReadStores\Scripts\0001 - Create table ReadModel-ThingyAggregate.sql" />
     <None Remove="IntegrationTests\ReadStores\Scripts\0002 - Create table ReadModel-ThingyMessage.sql" />
@@ -15,14 +16,16 @@
     <EmbeddedResource Include="IntegrationTests\ReadStores\Scripts\0002 - Create table ReadModel-ThingyMessage.sql" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Properties\**" />
+		<EmbeddedResource Remove="Properties\**" />
+		<None Remove="Properties\**" />
+	</ItemGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-	  <PackageReference Include="NUnit" Version="4.2.2" />
-	<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+	  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+	  <PackageReference Include="NUnit" Version="4.3.2" />
+	  <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

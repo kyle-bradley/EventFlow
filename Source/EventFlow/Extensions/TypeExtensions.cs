@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -110,7 +110,7 @@ namespace EventFlow.Extensions
             return typeof(T).GetTypeInfo().IsAssignableFrom(type);
         }
 
-        internal static IReadOnlyDictionary<Type, Action<T, IAggregateEvent>> GetAggregateEventApplyMethods<TAggregate, TIdentity, T>(this Type type)
+        public static IReadOnlyDictionary<Type, Action<T, IAggregateEvent>> GetAggregateEventApplyMethods<TAggregate, TIdentity, T>(this Type type)
             where TAggregate : IAggregateRoot<TIdentity>
             where TIdentity : IIdentity
         {

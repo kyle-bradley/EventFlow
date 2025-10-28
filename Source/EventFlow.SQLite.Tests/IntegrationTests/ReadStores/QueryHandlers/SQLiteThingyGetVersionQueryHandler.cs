@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,6 +45,7 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores.QueryHandlers
         {
             var readModels = await _sqLiteConnection.QueryAsync<SQLiteThingyReadModel>(
                 Label.Named("sqlite-fetch-test-read-model"),
+                string.Empty,
                 cancellationToken,
                 "SELECT * FROM [ReadModel-ThingyAggregate] WHERE AggregateId = @AggregateId",
                 new { AggregateId = query.ThingyId.Value })

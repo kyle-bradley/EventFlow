@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,9 +35,9 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Snapshots
 {
@@ -84,9 +84,9 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             await Sut.LoadAsync(_eventStoreMock.Object, _snapshotStore.Object, CancellationToken.None);
 
             // Assert
-            Sut.Version.Should().Be(eventsInStore);
-            Sut.SnapshotVersion.GetValueOrDefault().Should().Be(ThingyAggregate.SnapshotEveryVersion);
-            Sut.PreviousSourceIds.Should().NotBeEmpty();
+            Sut.Version.ShouldBe(eventsInStore);
+            Sut.SnapshotVersion.GetValueOrDefault().ShouldBe(ThingyAggregate.SnapshotEveryVersion);
+            Sut.PreviousSourceIds.ShouldNotBeEmpty();
         }
 
         [SetUp]
@@ -112,7 +112,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 CancellationToken.None);
 
             // Assert
-            domainEvents.Should().HaveCount(expectedNumberOfEvents);
+            domainEvents.Count.ShouldBe(expectedNumberOfEvents);
         }
         
         [Description("Mock test")]
@@ -133,7 +133,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 CancellationToken.None);
 
             // Assert
-            domainEvents.Should().HaveCount(expectedNumberOfEvents);
+            domainEvents.Count.ShouldBe(expectedNumberOfEvents);
         }
 
         private void Arrange_EventStore(IEnumerable<IDomainEvent<ThingyAggregate, ThingyId>> domainEvents)

@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -59,19 +59,18 @@ namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
         }
 
         public void Create(IUpdateEntry entry, IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
-        {
-            //_entityType = entry.EntityType;
+        {   
             var indexEntries = _indexDefinitions
                 .Select(d => d.Properties.Select(entry.GetCurrentValue).ToArray())
                 .Select(values => new IndexEntry(values))
                 .ToArray();
-
+            
             if (indexEntries.Select((item, i) => _indexes[i].Contains(item)).Any(contains => contains))
                 throw new DbUpdateException("Error while updating.", new Exception("Unique constraint violated."));
-
+            
             _innerTable.Create(entry, updateLogger);
-
-            indexEntries.Select((item, i) => _indexes[i].Add(item)).ToArray();
+            
+            _ = indexEntries.Select((item, i) => _indexes[i].Add(item)).ToArray();
         }
 
         public void Delete(IUpdateEntry entry, IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)

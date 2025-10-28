@@ -1,6 +1,6 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -72,19 +72,16 @@ namespace EventFlow.Strategies
             return Task.CompletedTask;
         }
 
-        public Task<ReadModelEnvelope<TReadModel>> QueryReadStoreModel<TReadModel>(string readModelId, CancellationToken cancellationToken)
+        public async Task<ReadModelEnvelope<TReadModel>> QueryReadStoreModel<TReadModel>(string readModelId, Func<string, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> fetchNew,
+            CancellationToken cancellationToken)
             where TReadModel : class, IReadModel
         {
             var cacheKey = GenerateKey(typeof(TReadModel), readModelId);
             var exists = memoryCache.TryGetValue(cacheKey, out ReadModelEnvelope<TReadModel> model);
-            if (exists)
-            {
-                memoryCache.Set(cacheKey, model, cachingConfig.ReadModelCachePeriodOnRead);
-            }
+            var finalModel = exists ? model : await fetchNew(readModelId, cancellationToken);
+            memoryCache.Set(cacheKey, finalModel, cachingConfig.ReadModelCachePeriodOnRead);
 
-            var wrappedResult = exists ? model : ReadModelEnvelope<TReadModel>.Empty(readModelId);
-
-            return Task.FromResult(wrappedResult);
+            return finalModel;
         }
     }
 }

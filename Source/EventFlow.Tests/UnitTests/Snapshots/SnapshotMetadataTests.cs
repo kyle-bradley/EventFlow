@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,8 +26,8 @@ using EventFlow.Core;
 using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Extensions;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Snapshots
 {
@@ -52,12 +52,12 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             var snapshotMetadata = JsonSerializer.Deserialize<SnapshotMetadata>(json);
 
             // Assert
-            snapshotMetadata.AggregateId.Should().Be("thingy-42");
-            snapshotMetadata.AggregateName.Should().Be("thingy");
-            snapshotMetadata.AggregateSequenceNumber.Should().Be(42);
-            snapshotMetadata.SnapshotName.Should().Be("thingy");
-            snapshotMetadata.SnapshotVersion.Should().Be(84);
-            snapshotMetadata.PreviousSourceIds.Select(s => s.Value).Should().BeEquivalentTo("cool", "magic");
+            snapshotMetadata.AggregateId.ShouldBe("thingy-42");
+            snapshotMetadata.AggregateName.ShouldBe("thingy");
+            snapshotMetadata.AggregateSequenceNumber.ShouldBe(42);
+            snapshotMetadata.SnapshotName.ShouldBe("thingy");
+            snapshotMetadata.SnapshotVersion.ShouldBe(84);
+            snapshotMetadata.PreviousSourceIds.Select(s => s.Value).ShouldBe(new [] { "cool", "magic" });
         }
 
         [Test]
@@ -83,12 +83,12 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             var deserializedSnapshotMetadata = JsonSerializer.Deserialize<SnapshotMetadata>(json);
 
             // Assert
-            deserializedSnapshotMetadata.AggregateId.Should().Be("thingy-42");
-            deserializedSnapshotMetadata.AggregateName.Should().Be("thingy");
-            deserializedSnapshotMetadata.AggregateSequenceNumber.Should().Be(42);
-            deserializedSnapshotMetadata.SnapshotName.Should().Be("thingy");
-            deserializedSnapshotMetadata.SnapshotVersion.Should().Be(84);
-            deserializedSnapshotMetadata.PreviousSourceIds.Select(s => s.Value).Should().BeEquivalentTo("cool", "magic");
+            deserializedSnapshotMetadata.AggregateId.ShouldBe("thingy-42");
+            deserializedSnapshotMetadata.AggregateName.ShouldBe("thingy");
+            deserializedSnapshotMetadata.AggregateSequenceNumber.ShouldBe(42);
+            deserializedSnapshotMetadata.SnapshotName.ShouldBe("thingy");
+            deserializedSnapshotMetadata.SnapshotVersion.ShouldBe(84);
+            deserializedSnapshotMetadata.PreviousSourceIds.Select(s => s.Value).ShouldBe(new [] { "cool", "magic" });
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace EventFlow.Tests.UnitTests.Snapshots
             var previousSourceIds = snapshotMetadata.PreviousSourceIds;
 
             // Assert
-            previousSourceIds.Should().BeEmpty();
+            previousSourceIds.ShouldBeEmpty();
         }
     }
 }

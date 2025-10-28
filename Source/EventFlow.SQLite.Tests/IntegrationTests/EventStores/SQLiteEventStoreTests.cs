@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,8 +23,6 @@
 using System;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.MetadataProviders;
@@ -32,6 +30,7 @@ using EventFlow.SQLite.Connections;
 using EventFlow.SQLite.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Suites;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
@@ -41,19 +40,20 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
     {
         private string _databasePath;
 
-        protected override IRootResolver CreateRootResolver(IEventFlowOptions eventFlowOptions)
+        protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _databasePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.sqlite");
 
             using (File.Create(_databasePath)){ }
 
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .AddMetadataProvider<AddGuidMetadataProvider>()
                 .ConfigureSQLite(SQLiteConfiguration.New.SetConnectionString($"Data Source={_databasePath};Version=3;"))
-                .UseSQLiteEventStore()
-                .CreateResolver();
+                .UseSQLiteEventStore();
 
-            var connection = resolver.Resolve<ISQLiteConnection>();
+            var serviceProvider = base.Configure(eventFlowOptions);
+
+            var connection = serviceProvider.GetRequiredService<ISQLiteConnection>();
             const string sqlCreateTable = @"
                 CREATE TABLE [EventFlow](
                     [GlobalSequenceNumber] [INTEGER] PRIMARY KEY ASC NOT NULL,
@@ -70,10 +70,10 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.EventStores
                     [AggregateId] ASC,
                     [AggregateSequenceNumber] ASC
                 )";
-            connection.ExecuteAsync(Label.Named("create-table"), CancellationToken.None, sqlCreateTable, null).Wait();
-            connection.ExecuteAsync(Label.Named("create-index"), CancellationToken.None, sqlCreateIndex, null).Wait();
+            connection.ExecuteAsync(Label.Named("create-table"), string.Empty, CancellationToken.None, sqlCreateTable, null).Wait();
+            connection.ExecuteAsync(Label.Named("create-index"), string.Empty, CancellationToken.None, sqlCreateIndex, null).Wait();
 
-            return resolver;
+            return serviceProvider;
         }
 
         [TearDown]

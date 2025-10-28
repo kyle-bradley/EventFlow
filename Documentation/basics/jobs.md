@@ -5,48 +5,48 @@ parent: Basics
 nav_order: 2
 ---
 
-.. \_jobs:
-
 # Jobs
 
-A job is basically a task that you want to execute outside of the
-current context, on another server or at a later time. EventFlow
-provides basic functionality for jobs.
+Jobs let you execute work outside of the current request or process. They are
+ideal when something should happen later, needs retries, or has to run on a
+different machine. EventFlow ships with the primitives required to define,
+register, and schedule jobs.
 
-There are areas where you might find jobs very useful, here are some
-examples
+Typical use cases include:
 
-- Publish a command at a specific time in the future
-- Transient error handling
+- Publishing a command at a specific time in the future
+- Retrying transient operations without blocking the caller
+- Deferring background work to a dedicated processor
 
 ```csharp
 var jobScheduler = resolver.Resolve<IJobScheduler>();
 var job = PublishCommandJob.Create(new SendEmailCommand(id), resolver);
+
 await jobScheduler.ScheduleAsync(
-  job,
-  TimeSpan.FromDays(7),
-  CancellationToken.None)
-  .ConfigureAwait(false);
+    job,
+    TimeSpan.FromDays(7),
+    CancellationToken.None);
 ```
 
-In the above example the `SendEmailCommand` command will be published
-in seven days.
+The code above schedules the `SendEmailCommand` to run seven days from now.
 
-!!! attention
-When working with jobs, you should be aware of the following
+!!! warning
+    The default `IJobScheduler` implementation in EventFlow is the
+    `InstantJobScheduler`. It executes jobs **immediately in the current
+    process**, ignoring `runAt` and `delay` arguments. To perform actual delayed
+    or distributed execution you must register another scheduler, for example
+    the Hangfire integration shown later on this page.
 
-    - The default implementation does executes the job *now* (completely ignoring `runAt`/`delay` parameters) and in the
-      current context. To get support for scheduled jobs, inject another implementation of `IJobScheduler`,
-      e.g. by  installing ``EventFlow.Hangfire`` (Read below for details).
-    - Your jobs should serialize to JSON properly, see the section on
-      `value objects <./ValueObjects.md>`__ for more information
-    - If you use the provided ``PublishCommandJob``, make sure that your
-      commands serialize properly as well
+!!! note
+    Jobs must serialize to JSON cleanly, because schedulers typically persist
+    the job payload. Review the guidance on [value
+    objects](../additional/value-objects.md) and ensure any commands emitted via
+    `PublishCommandJob` serialize correctly as well.
 
 ## Create your own jobs
 
-To create your own jobs, your job merely needs to implement the `IJob`
-interface and be registered in EventFlow.
+Implement the `IJob` interface for each job type you want to schedule and
+register it with EventFlow.
 
 Here's an example of a job implementing `IJob`
 
@@ -62,61 +62,64 @@ public class LogMessageJob : IJob
   public string Message { get; }
 
   public Task ExecuteAsync(
-    IResolver resolver,
+    IServiceProvider serviceProvider,
     CancellationToken cancellationToken)
   {
-    var log = resolver.Resolve<ILog>();
-    log.Debug(Message);
+    var log = serviceProvider.GetRequiredService<ILogger<LogMessageJob>>();
+    log.LogDebug(Message);
+    return Task.CompletedTask;
   }
 }
 ```
 
-Note that the `JobVersion` attribute specifies the job name and
-version to EventFlow and this is how EventFlow distinguishes between the
-different job types. This makes it possible for you to reorder your
-code, even rename the job type. As long as you keep the same attribute
-values it is considered the same job in EventFlow. If the attribute is
-omitted, the name will be the type name and version will be `1`.
+The `JobVersion` attribute sets the logical job name and version used during
+serialization. This allows you to move or rename the CLR type without breaking
+existing scheduled jobs. If you omit the attribute, EventFlow falls back to the
+type name and version `1`.
 
 Here's how the job is registered in EventFlow.
 
 ```csharp
-var resolver = EventFlowOptions.new
-  .AddJobs(typeof(LogMessageJob))
-  ...
-  .CreateResolver();
+public void ConfigureServices(IServiceCollection services)
+{
+  services.AddEventFlow(ef =>
+  {
+    ef.AddJobs(typeof(LogMessageJob));
+  });
+}
 ```
 
-Then to schedule the job
+Then schedule the job through `IJobScheduler`:
 
 ```csharp
-var jobScheduler = resolver.Resolve<IJobScheduler>();
+var jobScheduler = serviceProvider.GetRequiredService<IJobScheduler>();
 var job = new LogMessageJob("Great log message");
 await jobScheduler.ScheduleAsync(
   job,
   TimeSpan.FromDays(7),
-  CancellationToken.None)
-  .ConfigureAwait(false);
+  CancellationToken.None);
 ```
 
 ## Hangfire
 
-To use `Hangfire <http://hangfire.io/>`\_\_ as the job scheduler, install
-the NuGet package `EventFlow.Hangfire` and configure EventFlow to use
-the scheduler like this.
-
-hangfire supports several different storage solutions including Microsoft SQL Server and MongoDB. Use only inMemoryStorage for testing and development.
+For production-grade scheduling scenarios we recommend
+[Hangfire](http://hangfire.io/). Install the `EventFlow.Hangfire` package and
+configure EventFlow to use the Hangfire-backed scheduler. Hangfire supports
+multiple storage providers (SQL Server, PostgreSQL, MongoDB, Redis, etc.). Use
+the in-memory storage only during development.
 
 ```csharp
 private void RegisterHangfire(IEventFlowOptions eventFlowOptions)
 {
-    eventFlowOptions.ServiceCollection
-        .AddHangfire(c => c.UseInMemoryStorage())
-        .AddHangfireServer();
-    eventFlowOptions.UseHangfireJobScheduler();
+  eventFlowOptions.ServiceCollection
+    .AddHangfire(configuration => configuration.UseSqlServerStorage(connectionString))
+    .AddHangfireServer();
+
+  eventFlowOptions.UseHangfireJobScheduler();
 }
 ```
 
 !!! note
-The `UseHangfireJobScheduler()` doesn't do any Hangfire
-configuration, but merely registers the proper scheduler in EventFlow.
+  `UseHangfireJobScheduler()` simply swaps the scheduler implementation in
+  EventFlow. You are still responsible for configuring Hangfire storage,
+  servers, and dashboards according to your environment.

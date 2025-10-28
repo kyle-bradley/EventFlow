@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,7 @@ namespace EventFlow.EntityFramework.Tests.InMemory.Infrastructure
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Only for test")]
     public class IndexingInMemoryTableFactory : InMemoryTableFactory
     {
-        public IndexingInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions options) : base(loggingOptions, options)
+        public IndexingInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions option) : base(loggingOptions, option)
         {
         }
 

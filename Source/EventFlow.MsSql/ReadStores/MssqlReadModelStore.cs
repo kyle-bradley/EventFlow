@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -81,12 +81,13 @@ namespace EventFlow.MsSql.ReadStores
         }
 
         public MssqlReadModelStore(
+            IReadStoreCachingStrategy memoryCacheStrategy,
             ILogger<MssqlReadModelStore<TReadModel>> logger,
             IMsSqlConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator,
             IReadModelFactory<TReadModel> readModelFactory,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
-            : base(logger)
+            : base(memoryCacheStrategy, logger)
         {
             _connection = connection;
             _readModelSqlGenerator = readModelSqlGenerator;
@@ -94,23 +95,28 @@ namespace EventFlow.MsSql.ReadStores
             _transientFaultHandler = transientFaultHandler;
         }
 
-        public override async Task UpdateAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
+        protected override async Task<IReadOnlyCollection<ReadModelUpdateResult<TReadModel>>> UpdateReadModelsAsync(IReadOnlyCollection<ReadModelUpdate> readModelUpdates,
             IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken,
                 Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken)
         {
+            var readModelUpdateResults = new List<ReadModelUpdateResult<TReadModel>>();
             foreach (var readModelUpdate in readModelUpdates)
             {
-                await _transientFaultHandler.TryAsync(
+                var result = await _transientFaultHandler.TryAsync(
                     c => UpdateReadModelAsync(readModelContextFactory, updateReadModel, c, readModelUpdate),
                     Label.Named($"mssql-read-model-update-{ReadModelNameLowerCase}"),
                     cancellationToken)
                     .ConfigureAwait(false);
+
+                readModelUpdateResults.Add(result);
             }
+
+            return readModelUpdateResults;
         }
 
-        private async Task UpdateReadModelAsync(
+        private async Task<ReadModelUpdateResult<TReadModel>> UpdateReadModelAsync(
             IReadModelContextFactory readModelContextFactory,
             Func<IReadModelContext, IReadOnlyCollection<IDomainEvent>, ReadModelEnvelope<TReadModel>, CancellationToken, Task<ReadModelUpdateResult<TReadModel>>> updateReadModel,
             CancellationToken cancellationToken,
@@ -148,14 +154,14 @@ namespace EventFlow.MsSql.ReadStores
                 .ConfigureAwait(false);
             if (!readModelUpdateResult.IsModified)
             {
-                return;
+                return readModelUpdateResult;
             }
 
             readModelEnvelope = readModelUpdateResult.Envelope;
             if (readModelContext.IsMarkedForDeletion)
             {
                 await DeleteAsync(readModelId, cancellationToken).ConfigureAwait(false);
-                return;
+                return ReadModelUpdateResult<TReadModel>.WithDeleted(readModelUpdate.ReadModelId);
             }
 
             mssqlReadModel = readModel as IMssqlReadModel;
@@ -197,9 +203,11 @@ namespace EventFlow.MsSql.ReadStores
                     readModelId,
                     readModelEnvelope.Version);
             }
+
+            return readModelUpdateResult;
         }
 
-        public override async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
+        protected override async Task<ReadModelEnvelope<TReadModel>> GetReadModelAsync(string id, CancellationToken cancellationToken)
         {
             var readModelType = typeof(TReadModel);
             var selectSql = _readModelSqlGenerator.CreateSelectSql<TReadModel>();
@@ -239,7 +247,7 @@ namespace EventFlow.MsSql.ReadStores
             return ReadModelEnvelope<TReadModel>.With(id, readModel, readModelVersion);
         }
 
-        public override async Task DeleteAsync(
+        protected override async Task DeleteReadModelAsync(
             string id,
             CancellationToken cancellationToken)
         {
@@ -260,7 +268,7 @@ namespace EventFlow.MsSql.ReadStores
             }
         }
 
-        public override async Task DeleteAllAsync(CancellationToken cancellationToken)
+        protected override async Task DeleteAllReadModelsAsync(CancellationToken cancellationToken)
         {
             var sql = _readModelSqlGenerator.CreatePurgeSql<TReadModel>();
             var readModelName = typeof(TReadModel).Name;

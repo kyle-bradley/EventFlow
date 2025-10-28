@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,6 +23,7 @@
 using System;
 using EventFlow.EventStores;
 using EventFlow.ValueObjects;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace EventFlow.MongoDB.ValueObjects
@@ -33,6 +34,7 @@ namespace EventFlow.MongoDB.ValueObjects
         public long _id { get; set; }
 
         [BsonElement("batchId")]
+        [BsonGuidRepresentation(GuidRepresentation.Standard)]
         public Guid BatchId { get; set; }
 
         long? _version { get; set; }

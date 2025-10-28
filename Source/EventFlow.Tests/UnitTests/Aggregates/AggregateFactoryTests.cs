@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,9 +25,9 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
@@ -52,8 +52,8 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var idOnlyAggregateRoot = await Sut.CreateNewAggregateAsync<IdOnlyAggregateRoot, AggregateId>(aggregateId).ConfigureAwait(false);
 
             // Assert
-            idOnlyAggregateRoot.Should().NotBeNull();
-            idOnlyAggregateRoot.Id.Should().Be(aggregateId);
+            idOnlyAggregateRoot.ShouldNotBeNull();
+            idOnlyAggregateRoot.Id.ShouldBe(aggregateId);
         }
 
         [Test]
@@ -68,9 +68,9 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             var aggregateWithServices = await Sut.CreateNewAggregateAsync<AggregateWithServices, AggregateId>(aggregateId).ConfigureAwait(false);
 
             // Assert
-            aggregateWithServices.Should().NotBeNull();
-            aggregateWithServices.Id.Should().Be(aggregateId);
-            aggregateWithServices.Service.Should().BeSameAs(serviceMock.Object);
+            aggregateWithServices.ShouldNotBeNull();
+            aggregateWithServices.Id.ShouldBe(aggregateId);
+            aggregateWithServices.Service.ShouldBeSameAs(serviceMock.Object);
 
         }
 

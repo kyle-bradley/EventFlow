@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,8 +26,8 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Aggregates
 {
@@ -44,7 +44,7 @@ namespace EventFlow.Tests.UnitTests.Aggregates
             Sut.Apply(null, new ThingyPingEvent(pingId));
 
             // Assert
-            Sut.PingIds.Should().Contain(pingId);
+            Sut.PingIds.ShouldContain(pingId);
         }
 
         public class TestAggregateState : AggregateState<ThingyAggregate, ThingyId, TestAggregateState>,

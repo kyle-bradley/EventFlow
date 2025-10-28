@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,8 +23,8 @@
 using System;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
@@ -39,7 +39,7 @@ namespace EventFlow.Tests.UnitTests.Core
             var result = caller(new Calculator(), 1, 2);
 
             // Assert
-            result.Should().Be(3);
+            result.ShouldBe(3);
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace EventFlow.Tests.UnitTests.Core
 
             // Assert
             var c = (Number) result;
-            c.I.Should().Be(3);
+            c.I.ShouldBe(3);
         }
 
         [Test]
@@ -71,7 +71,7 @@ namespace EventFlow.Tests.UnitTests.Core
 
             // Assert
             var c = (Number)result;
-            c.I.Should().Be(3);
+            c.I.ShouldBe(3);
         }
 
         public interface INumber { }

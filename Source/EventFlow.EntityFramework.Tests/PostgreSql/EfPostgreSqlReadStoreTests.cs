@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,7 +21,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using System;
-using EventFlow.Configuration;
 using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.Extensions;
@@ -36,7 +35,9 @@ namespace EventFlow.EntityFramework.Tests.PostgreSql
     [Category(Categories.Integration)]
     public class EfPostgreSqlReadStoreTests : TestSuiteForReadModelStore
     {
+#pragma warning disable NUnit1032 // Disposed by DisposedSafe
         private IPostgreSqlDatabase _testDatabase;
+#pragma warning restore NUnit1032 // Disposed by DisposedSafe
 
         protected override Type ReadModelType => typeof(ThingyReadModelEntity);
 
@@ -44,13 +45,13 @@ namespace EventFlow.EntityFramework.Tests.PostgreSql
         {
             _testDatabase = PostgreSqlHelpz.CreateDatabase("eventflow");
 
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .RegisterServices(sr => sr.AddTransient(c => _testDatabase.ConnectionString))
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, PostgreSqlDbContextProvider>()
                 .ConfigureForReadStoreTest();
 
-            var serviceProvider = base.Configure(resolver);
+            var serviceProvider = base.Configure(eventFlowOptions);
 
             return serviceProvider;
         }

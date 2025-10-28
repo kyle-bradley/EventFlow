@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,6 +22,8 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels.Attributes;
@@ -43,19 +45,29 @@ namespace EventFlow.SQLite.Tests.IntegrationTests.ReadStores.ReadModels
 
         public string Message { get; set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageAddedEvent> domainEvent,
+            CancellationToken cancellationToken)
         {
             ThingyId = domainEvent.AggregateIdentity.Value;
             Message = domainEvent.AggregateEvent.ThingyMessage.Message;
+
+            return Task.CompletedTask;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent> domainEvent)
+        public Task ApplyAsync(
+            IReadModelContext context,
+            IDomainEvent<ThingyAggregate, ThingyId, ThingyMessageHistoryAddedEvent> domainEvent,
+            CancellationToken cancellationToken)
         {
             ThingyId = domainEvent.AggregateIdentity.Value;
 
             var messageId = new ThingyMessageId(context.ReadModelId);
             var thingyMessage = domainEvent.AggregateEvent.ThingyMessages.Single(m => m.Id == messageId);
             Message = thingyMessage.Message;
+
+            return Task.CompletedTask;
         }
 
         public ThingyMessage ToThingyMessage()

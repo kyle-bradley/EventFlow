@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -19,16 +19,14 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+namespace EventFlow.EntityFramework.SnapshotStores;
 
-namespace EventFlow.EntityFramework.SnapshotStores
+public class SnapshotEntity
 {
-    public class SnapshotEntity
-    {
-        public long Id { get; set; }
-        public string AggregateId { get; set; }
-        public string AggregateName { get; set; }
-        public int AggregateSequenceNumber { get; set; }
-        public string Data { get; set; }
-        public string Metadata { get; set; }
-    }
+    public string AggregateId { get; init; } = default!;
+    public string AggregateName { get; init; } = default!;
+    public int AggregateSequenceNumber { get; init; }
+    public string Data { get; init; } = default!;
+    public long Id { get; init; }
+    public string Metadata { get; init; } = default!;
 }

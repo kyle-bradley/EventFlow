@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,6 @@
 
 using System;
 using EventFlow.Aggregates;
-using EventFlow.Configuration;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.ReadStores;
@@ -31,6 +30,8 @@ using EventFlow.SQLite.Connections;
 using EventFlow.SQLite.EventStores;
 using EventFlow.SQLite.ReadStores;
 using EventFlow.SQLite.RetryStrategies;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EventFlow.SQLite.Extensions
 {
@@ -40,21 +41,17 @@ namespace EventFlow.SQLite.Extensions
             this IEventFlowOptions eventFlowOptions,
             ISQLiteConfiguration sqLiteConfiguration)
         {
-            return eventFlowOptions
-                .RegisterServices(f =>
-                {
-                    f.Register<ISQLiteConnection, SQLiteConnection>();
-                    f.Register<ISQLiteConnectionFactory, SQLiteConnectionFactory>();
-                    f.Register<ISQLiteErrorRetryStrategy, SQLiteErrorRetryStrategy>();
-                    f.Register(_ => sqLiteConfiguration, Lifetime.Singleton);
-                });
+            eventFlowOptions.ServiceCollection.TryAddTransient<ISQLiteConnection, SQLiteConnection>();
+            eventFlowOptions.ServiceCollection.TryAddTransient<ISQLiteConnectionFactory, SQLiteConnectionFactory>();
+            eventFlowOptions.ServiceCollection.TryAddTransient<ISQLiteErrorRetryStrategy, SQLiteErrorRetryStrategy>();
+            eventFlowOptions.ServiceCollection.TryAddSingleton(sqLiteConfiguration);
+            return eventFlowOptions;
         }
 
         public static IEventFlowOptions UseSQLiteEventStore(
             this IEventFlowOptions eventFlowOptions)
         {
-            return eventFlowOptions
-                .UseEventStore<SQLiteEventPersistence>();
+            return eventFlowOptions.UseEventPersistence<SQLiteEventPersistence>();
         }
 
         public static IEventFlowOptions UseSQLiteReadModel<TReadModel, TReadModelLocator>(
@@ -89,12 +86,12 @@ namespace EventFlow.SQLite.Extensions
         }
 
         private static void RegisterSQLiteReadStore<TReadModel>(
-            IServiceRegistration serviceRegistration)
+            IServiceCollection serviceCollection)
             where TReadModel : class, IReadModel
         {
-            serviceRegistration.Register<IReadModelSqlGenerator, ReadModelSqlGenerator>(Lifetime.Singleton, true);
-            serviceRegistration.Register<ISQLiteReadModelStore<TReadModel>, SQLiteReadModelStore<TReadModel>>();
-            serviceRegistration.Register<IReadModelStore<TReadModel>>(r => r.Resolver.Resolve<ISQLiteReadModelStore<TReadModel>>());
+            serviceCollection.TryAddSingleton<IReadModelSqlGenerator, ReadModelSqlGenerator>();
+            serviceCollection.TryAddTransient<ISQLiteReadModelStore<TReadModel>, SQLiteReadModelStore<TReadModel>>();
+            serviceCollection.TryAddTransient<IReadModelStore<TReadModel>>(sp => sp.GetRequiredService<ISQLiteReadModelStore<TReadModel>>());
         }
     }
 }

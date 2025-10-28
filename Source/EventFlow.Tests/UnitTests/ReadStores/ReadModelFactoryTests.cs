@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,10 +25,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
 using EventFlow.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -61,9 +61,9 @@ namespace EventFlow.Tests.UnitTests.ReadStores
                 var readModelC = await resolver.GetRequiredService<IReadModelFactory<FancyReadModelC>>().CreateAsync(A<string>(), CancellationToken.None);
 
                 // Assert
-                readModelA.MagicNumber.Should().Be(expectedMagicNumberForReadModelA);
-                readModelB.MagicNumber.Should().Be(expectedMagicNumberForReadModelB);
-                readModelC.MagicNumber.Should().Be(expectedMagicNumberForReadModelC);
+                readModelA.MagicNumber.ShouldBe(expectedMagicNumberForReadModelA);
+                readModelB.MagicNumber.ShouldBe(expectedMagicNumberForReadModelB);
+                readModelC.MagicNumber.ShouldBe(expectedMagicNumberForReadModelC);
             }
         }
 
@@ -76,7 +76,7 @@ namespace EventFlow.Tests.UnitTests.ReadStores
             
             // Assert
             // ReSharper disable once PossibleNullReferenceException
-            exception.InnerException.Message.Should().Contain("doesn't have an empty constructor");
+            exception.InnerException.Message.ShouldContain("doesn't have an empty constructor");
         }
 
         public class ReadModelWithConstructorArguments : IReadModel

@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,14 +26,15 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Commands;
 using EventFlow.Configuration;
+using EventFlow.Configuration.EventNamingStrategy;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using Shouldly;
 
 // ReSharper disable IdentifierTypo
 // ReSharper disable StringLiteralTypo
@@ -50,7 +51,7 @@ namespace EventFlow.Tests.IntegrationTests
             Action action = () => new Identität1("Identität1-00000000-0000-0000-0000-000000000000");
 
             // Assert
-            action.Should().Throw<ArgumentException>();
+            action.ShouldThrow<ArgumentException>();
         }
 
         [Test]
@@ -60,7 +61,7 @@ namespace EventFlow.Tests.IntegrationTests
             var id = new Identität1("identität1-00000000-0000-0000-0000-000000000000");
 
             // Assert
-            id.GetGuid().Should().BeEmpty();
+            id.GetGuid().ShouldBe(Guid.Empty);
         }
 
         [Test]
@@ -70,7 +71,7 @@ namespace EventFlow.Tests.IntegrationTests
             var identität = Identität1.New.Value;
             
             // Assert
-            identität.Should().StartWith("identität1-");
+            identität.ShouldStartWith("identität1-");
         }
 
         [Test]
@@ -85,7 +86,7 @@ namespace EventFlow.Tests.IntegrationTests
             Action action = () => commandDefinitions.Load(typeof(Cömmand));
 
             // Assert
-            action.Should().NotThrow();
+            action.ShouldNotThrow();
         }
 
         [Test]
@@ -94,13 +95,14 @@ namespace EventFlow.Tests.IntegrationTests
             // Arrange
             var eventDefinitionService = new EventDefinitionService(
                 Mock<ILogger<EventDefinitionService>>(),
-                Mock<ILoadedVersionedTypes>());
+                Mock<ILoadedVersionedTypes>(),
+                new DefaultStrategy());
 
             // Act
             Action action = () => eventDefinitionService.Load(typeof(Püng1Event));
 
             // Assert
-            action.Should().NotThrow();
+            action.ShouldNotThrow();
         }
 
         [Test]
@@ -110,6 +112,7 @@ namespace EventFlow.Tests.IntegrationTests
                 .AddEvents(typeof(Püng1Event))
                 .AddCommands(typeof(Cömmand))
                 .AddCommandHandlers(typeof(CömmandHändler))
+                .RegisterServices(s => s.AddScoped<IEventNamingStrategy, NamespaceAndClassNameStrategy>())
                 .ServiceCollection.BuildServiceProvider();
 
             var bus = resolver.GetRequiredService<ICommandBus>();

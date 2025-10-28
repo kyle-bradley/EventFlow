@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,7 +20,6 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-using EventFlow.Configuration;
 using EventFlow.EntityFramework.Extensions;
 using EventFlow.EntityFramework.Tests.Model;
 using EventFlow.Extensions;
@@ -36,19 +35,21 @@ namespace EventFlow.EntityFramework.Tests.MsSql
     [Category(Categories.Integration)]
     public class EfMsSqlSnapshotTests : TestSuiteForSnapshotStore
     {
+#pragma warning disable NUnit1032 // Disposed by DisposedSafe
         private IMsSqlDatabase _testDatabase;
+#pragma warning restore NUnit1032 // Disposed by DisposedSafe
 
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow-snapshots");
 
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .RegisterServices(sr => sr.AddTransient(c => _testDatabase.ConnectionString))
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, MsSqlDbContextProvider>()
                 .ConfigureForSnapshotStoreTest();
 
-            var serviceProvider = base.Configure(resolver);
+            var serviceProvider = base.Configure(eventFlowOptions);
 
             return serviceProvider;
         }

@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>12.0</LangVersion>
+    <ImplicitUsings>true</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IncludeBuildOutput>false</IncludeBuildOutput>    
+    <Title>EventFlow.SourceGenerators</Title>
+    <Authors>Alexey Fedorov</Authors>
+    <Company>Rasmus Mikkelsen</Company>
+    <Copyright>Copyright (c) Rasmus Mikkelsen 2015 - 2025</Copyright>
+    <Description>Source Generators for EventFlow</Description>
+    <PackageTags>CQRS ES event sourcing</PackageTags>
+    <PackageReleaseNotes>UPDATED BY BUILD</PackageReleaseNotes>
+    <IsPackable>false</IsPackable>
+    <SymbolPackageFormat></SymbolPackageFormat>
+    <IncludeSymbols>false</IncludeSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true"
+      PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+
+</Project>

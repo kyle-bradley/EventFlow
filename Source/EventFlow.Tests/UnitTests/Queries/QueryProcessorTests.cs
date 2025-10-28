@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,9 +25,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Queries;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Queries
 {
@@ -62,7 +62,7 @@ namespace EventFlow.Tests.UnitTests.Queries
             var result = await Sut.ProcessAsync(new TestQuery(), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            result.Should().Be(42);
+            result.ShouldBe(42);
             _queryHandlerMock.Verify(q => q.ExecuteQueryAsync(It.IsAny<IQuery<int>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }

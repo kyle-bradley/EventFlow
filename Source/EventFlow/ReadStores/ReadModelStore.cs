@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,12 +44,7 @@ namespace EventFlow.ReadStores
 
         public async Task<ReadModelEnvelope<TReadModel>> GetAsync(string id, CancellationToken cancellationToken)
         {
-            var cachedResult = await memoryCacheStrategy.QueryReadStoreModel<TReadModel>(id, cancellationToken);
-            if (cachedResult.IsEmpty)
-            {
-                return await GetReadModelAsync(id, cancellationToken);
-            }
-
+            var cachedResult = await memoryCacheStrategy.QueryReadStoreModel(id, GetReadModelAsync, cancellationToken);
             return cachedResult;
         }
 

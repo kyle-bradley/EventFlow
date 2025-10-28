@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,8 +23,8 @@
 using System;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Core
 {
@@ -46,8 +46,8 @@ namespace EventFlow.Tests.UnitTests.Core
             var delay = sut.PickDelay();
 
             // Assert
-            delay.TotalMilliseconds.Should().BeGreaterOrEqualTo(min);
-            delay.TotalMilliseconds.Should().BeLessOrEqualTo(max);
+            delay.TotalMilliseconds.ShouldBeGreaterThanOrEqualTo(min);
+            delay.TotalMilliseconds.ShouldBeLessThanOrEqualTo(max);
         }
     }
 }

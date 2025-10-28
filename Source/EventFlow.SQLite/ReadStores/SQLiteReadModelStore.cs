@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,10 +22,10 @@
 
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
-using EventFlow.Logs;
 using EventFlow.ReadStores;
 using EventFlow.Sql.ReadModels;
 using EventFlow.SQLite.Connections;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.SQLite.ReadStores
 {
@@ -33,12 +33,13 @@ namespace EventFlow.SQLite.ReadStores
         where TReadModel : class, IReadModel
     {
         public SQLiteReadModelStore(
-            ILog log,
+            IReadStoreCachingStrategy memoryCacheStrategy,
+            ILogger<SQLiteReadModelStore<TReadModel>> logger,
             ISQLiteConnection connection,
             IReadModelSqlGenerator readModelSqlGenerator,
             IReadModelFactory<TReadModel> readModelFactory,
             ITransientFaultHandler<IOptimisticConcurrencyRetryStrategy> transientFaultHandler)
-            : base(log, connection, readModelSqlGenerator, readModelFactory, transientFaultHandler)
+            : base(memoryCacheStrategy, logger, connection, readModelSqlGenerator, readModelFactory, transientFaultHandler)
         {
         }
     }

@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,19 +35,21 @@ namespace EventFlow.EntityFramework.Tests.PostgreSql
     [Category(Categories.Integration)]
     public class EfPostgreSqlSnapshotTests : TestSuiteForSnapshotStore
     {
+#pragma warning disable NUnit1032 // Disposed by DisposedSafe
         private IPostgreSqlDatabase _testDatabase;
+#pragma warning restore NUnit1032 // Disposed by DisposedSafe
 
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
         {
             _testDatabase = PostgreSqlHelpz.CreateDatabase("snapshots");
 
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .RegisterServices(sr => sr.AddTransient(c => _testDatabase.ConnectionString))
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, PostgreSqlDbContextProvider>()
                 .ConfigureForSnapshotStoreTest();
 
-            var serviceProvider = base.Configure(resolver);
+            var serviceProvider = base.Configure(eventFlowOptions);
 
             return serviceProvider;
         }

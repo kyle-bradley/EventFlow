@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,8 +26,8 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Extensions
 {
@@ -48,7 +48,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
             var prettyPrint = type.PrettyPrint();
 
             // Assert
-            prettyPrint.Should().Be(expectedPrettyPrint);
+            prettyPrint.ShouldBe(expectedPrettyPrint);
         }
 
         [TestCase(typeof(TestAggregateWithOutAttribute), "TestAggregateWithOutAttribute")]
@@ -59,7 +59,7 @@ namespace EventFlow.Tests.UnitTests.Extensions
             var aggregateName = aggregateType.GetAggregateName();
 
             // Assert
-            aggregateName.Value.Should().Be(expectedAggregateName);
+            aggregateName.Value.ShouldBe(expectedAggregateName);
         }
 
         public class TestId : Identity<TestId>

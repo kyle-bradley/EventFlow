@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,8 +31,8 @@ using EventFlow.Commands;
 using EventFlow.Core;
 using EventFlow.Sagas;
 using EventFlow.ValueObjects;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 
 namespace EventFlow.Tests.IntegrationTests.Sagas
 {
@@ -60,7 +60,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
 
             public void UpdateShouldNotHaveBeenCalled()
             {
-                this._hasUpdateBeenCalled.Should().BeFalse();
+                this._hasUpdateBeenCalled.ShouldBeFalse();
             }
 
             public override async Task<ISaga> UpdateAsync(

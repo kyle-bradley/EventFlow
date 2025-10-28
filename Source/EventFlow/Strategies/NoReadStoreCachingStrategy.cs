@@ -1,6 +1,6 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 using EventFlow.ReadStores;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,10 +40,11 @@ namespace EventFlow.Strategies
             return Task.CompletedTask;
         }
 
-        public Task<ReadModelEnvelope<TReadModel>> QueryReadStoreModel<TReadModel>(string readModelId, CancellationToken cancellationToken)
+        public async Task<ReadModelEnvelope<TReadModel>> QueryReadStoreModel<TReadModel>(string readModelId, Func<string, CancellationToken, Task<ReadModelEnvelope<TReadModel>>> fetchNew,
+            CancellationToken cancellationToken)
             where TReadModel : class, IReadModel
         {
-            return Task.FromResult(ReadModelEnvelope<TReadModel>.Empty(readModelId));
+            return await fetchNew(readModelId, cancellationToken);
         }
 
         public Task UpdateReadStoreModel<TReadModel>(IReadOnlyCollection<ReadModelUpdateResult<TReadModel>> updatedModels,
@@ -51,6 +53,5 @@ namespace EventFlow.Strategies
         {
             return Task.CompletedTask;
         }
-
     }
 }

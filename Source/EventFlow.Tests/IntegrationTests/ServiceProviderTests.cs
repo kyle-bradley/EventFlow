@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,9 +29,9 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Queries;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.IntegrationTests
 {
@@ -64,10 +64,8 @@ namespace EventFlow.Tests.IntegrationTests
                 var serviceDependentAggregate = await aggregateFactory.CreateNewAggregateAsync<ServiceDependentAggregate, ThingyId>(ThingyId.New).ConfigureAwait(false);
 
                 // Assert
-                serviceDependentAggregate.Service.Should()
-                    .NotBeNull()
-                    .And
-                    .BeOfType<Service>();
+                serviceDependentAggregate.Service.ShouldNotBeNull();
+                serviceDependentAggregate.Service.ShouldBeOfType<Service>();
             }
         }
 

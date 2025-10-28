@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,9 @@ namespace EventFlow.EntityFramework.Tests.MsSql
     [Category(Categories.Integration)]
     public class EfMsSqlReadStoreTests : TestSuiteForReadModelStore
     {
+#pragma warning disable NUnit1032 // Disposed by DisposedSafe
         private IMsSqlDatabase _testDatabase;
+#pragma warning restore NUnit1032 // Disposed by DisposedSafe
 
         protected override Type ReadModelType => typeof(ThingyReadModelEntity);
 
@@ -44,13 +46,13 @@ namespace EventFlow.EntityFramework.Tests.MsSql
         {
             _testDatabase = MsSqlHelpz.CreateDatabase("eventflow");
 
-            var resolver = eventFlowOptions
+            eventFlowOptions
                 .RegisterServices(sr => sr.AddTransient(c => _testDatabase.ConnectionString))
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<TestDbContext, MsSqlDbContextProvider>()
                 .ConfigureForReadStoreTest();
 
-            var serviceProvider = base.Configure(resolver);
+            var serviceProvider = base.Configure(eventFlowOptions);
 
             return serviceProvider;
         }

@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Configuration;
+using EventFlow.Configuration.EventNamingStrategy;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.EventStores.InMemory;
@@ -38,8 +39,8 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.EventStores
 {
@@ -75,7 +76,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
                 int.MaxValue,
                 new EventUpgradeContext(),
                 CancellationToken.None);
-            allEvents.DomainEvents.Count.Should().Be(NumberOfEvents * DegreeOfParallelism);
+            allEvents.DomainEvents.Count.ShouldBe(NumberOfEvents * DegreeOfParallelism);
         }
 
         private EventStoreBase CreateStore()
@@ -87,7 +88,7 @@ namespace EventFlow.Tests.UnitTests.EventStores
             var factory = new DomainEventFactory();
             var persistence = new InMemoryEventPersistence(Logger<InMemoryEventPersistence>());
             var upgradeManager = new EventUpgradeManager(Logger<EventUpgradeManager>(), serviceProvider, new EventUpgradeContextFactory());
-            var definitionService = new EventDefinitionService(Logger<EventDefinitionService>(), Mock<ILoadedVersionedTypes>());
+            var definitionService = new EventDefinitionService(Logger<EventDefinitionService>(), Mock<ILoadedVersionedTypes>(), new NamespaceAndClassNameStrategy());
             definitionService.Load(typeof(ThingyPingEvent));
             var serializer = new EventJsonSerializer(new DefaultJsonSerializer(), definitionService, factory);
 

@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,10 +34,10 @@ using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Sagas;
 using EventFlow.TestHelpers.Aggregates.Sagas.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.IntegrationTests.Sagas
 {
@@ -53,7 +53,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
             var thingySaga = await LoadSagaAsync(A<ThingyId>());
 
             // Assert
-            thingySaga.State.Should().Be(SagaState.New);
+            thingySaga.State.ShouldBe(SagaState.New);
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
 
             // Assert
             var thingySaga = await LoadSagaAsync(thingyId);
-            thingySaga.State.Should().Be(SagaState.New);
+            thingySaga.State.ShouldBe(SagaState.New);
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
 
             // Assert
             var thingyAggregate = await LoadAggregateAsync(thingyId);
-            thingyAggregate.Messages.Should().BeEmpty();
+            thingyAggregate.Messages.ShouldBeEmpty();
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
 
             // Assert
             var thingySaga = await LoadSagaAsync(thingyId);
-            thingySaga.State.Should().Be(SagaState.New);
+            thingySaga.State.ShouldBe(SagaState.New);
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
 
             // Assert
             var thingySaga = await LoadSagaAsync(thingyId);
-            thingySaga.State.Should().Be(SagaState.Running);
+            thingySaga.State.ShouldBe(SagaState.Running);
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
 
             // Assert
             var thingySaga = await LoadSagaAsync(thingyId);
-            thingySaga.State.Should().Be(SagaState.Completed);
+            thingySaga.State.ShouldBe(SagaState.Completed);
         }
 
         [Test]
@@ -157,18 +157,19 @@ namespace EventFlow.Tests.IntegrationTests.Sagas
 
             // Assert - saga
             var thingySaga = await LoadSagaAsync(thingyId);
-            thingySaga.State.Should().Be(SagaState.Completed);
-            thingySaga.PingIdsSinceStarted.Should().BeEquivalentTo(pingsWithRunningSaga);
+            thingySaga.State.ShouldBe(SagaState.Completed);
+            thingySaga.PingIdsSinceStarted.ShouldBe(pingsWithRunningSaga, ignoreOrder: true);
 
             // Assert - aggregate
             var thingyAggregate = await LoadAggregateAsync(thingyId);
-            thingyAggregate.PingsReceived.Should().BeEquivalentTo(
-                pingsWithNewSaga.Concat(pingsWithRunningSaga).Concat(pingsWithCompletedSaga));
+            thingyAggregate.PingsReceived.ShouldBe(
+                pingsWithNewSaga.Concat(pingsWithRunningSaga).Concat(pingsWithCompletedSaga),
+                ignoreOrder: true);
             var receivedSagaPingIds = thingyAggregate.Messages
                 .Select(m => PingId.With(m.Message))
                 .ToList();
-            receivedSagaPingIds.Should().HaveCount(3);
-            receivedSagaPingIds.Should().BeEquivalentTo(pingsWithRunningSaga);
+            receivedSagaPingIds.Count.ShouldBe(3);
+            receivedSagaPingIds.ShouldBe(pingsWithRunningSaga, ignoreOrder: true);
         }
 
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)

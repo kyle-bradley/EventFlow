@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,8 +30,8 @@ using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.EventStores;
 using EventFlow.Exceptions;
-using EventFlow.Logs;
 using EventFlow.SQLite.Connections;
+using Microsoft.Extensions.Logging;
 
 namespace EventFlow.SQLite.EventStores
 {
@@ -48,14 +48,14 @@ namespace EventFlow.SQLite.EventStores
             public int AggregateSequenceNumber { get; set; }
         }
 
-        private readonly ILog _log;
+        private readonly ILogger<SQLiteEventPersistence> _logger;
         private readonly ISQLiteConnection _connection;
 
         public SQLiteEventPersistence(
-            ILog log,
+            ILogger<SQLiteEventPersistence> logger,
             ISQLiteConnection connection)
         {
-            _log = log;
+            _logger = logger;
             _connection = connection;
         }
 
@@ -79,6 +79,7 @@ namespace EventFlow.SQLite.EventStores
                 LIMIT @pageSize";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
                     Label.Named("sqlite-fetch-events"),
+                    null,
                     cancellationToken,
                     sql,
                     new
@@ -100,9 +101,9 @@ namespace EventFlow.SQLite.EventStores
             IReadOnlyCollection<SerializedEvent> serializedEvents,
             CancellationToken cancellationToken)
         {
-            if (!serializedEvents.Any())
+            if (serializedEvents.Count == 0)
             {
-                return new ICommittedDomainEvent[] { };
+                return Array.Empty<ICommittedDomainEvent>();
             }
 
             var eventDataModels = serializedEvents
@@ -117,8 +118,8 @@ namespace EventFlow.SQLite.EventStores
                     })
                 .ToList();
 
-            _log.Verbose(
-                "Committing {0} events to SQLite event store for entity with ID '{1}'",
+            _logger.LogTrace(
+                "Committing {EventCount} events to SQLite event store for entity with ID '{EntityId}'",
                 eventDataModels.Count,
                 id);
 
@@ -136,6 +137,7 @@ namespace EventFlow.SQLite.EventStores
             {
                 ids = await _connection.InsertMultipleAsync<long, EventDataModel>(
                     Label.Named("sqlite-insert-events"),
+                    null,
                     cancellationToken,
                     sql,
                     eventDataModels)
@@ -180,6 +182,7 @@ namespace EventFlow.SQLite.EventStores
                     AggregateSequenceNumber ASC";
             var eventDataModels = await _connection.QueryAsync<EventDataModel>(
                 Label.Named("sqlite-fetch-events"),
+                null,
                 cancellationToken,
                 sql,
                 new
@@ -191,20 +194,52 @@ namespace EventFlow.SQLite.EventStores
             return eventDataModels;
         }
 
+        public async Task<IReadOnlyCollection<ICommittedDomainEvent>> LoadCommittedEventsAsync(
+            IIdentity id,
+            int fromEventSequenceNumber,
+            int toEventSequenceNumber,
+            CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                SELECT
+                    GlobalSequenceNumber, BatchId, AggregateId, AggregateName, Data, Metadata, AggregateSequenceNumber
+                FROM EventFlow
+                WHERE
+                    AggregateId = @AggregateId AND
+                    AggregateSequenceNumber >= @FromEventSequenceNumber AND
+                    AggregateSequenceNumber <= @ToEventSequenceNumber
+                ORDER BY
+                    AggregateSequenceNumber ASC";
+            var eventDataModels = await _connection.QueryAsync<EventDataModel>(
+                    Label.Named("sqlite-fetch-events"),
+                    null,
+                    cancellationToken,
+                    sql,
+                    new
+                    {
+                        AggregateId = id.Value,
+                        FromEventSequenceNumber = fromEventSequenceNumber,
+                        ToEventSequenceNumber = toEventSequenceNumber
+                    })
+                .ConfigureAwait(false);
+            return eventDataModels;
+        }
+
         public async Task DeleteEventsAsync(
             IIdentity id,
             CancellationToken cancellationToken)
         {
-            const string sql = @"DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
+            const string sql = "DELETE FROM EventFlow WHERE AggregateId = @AggregateId";
             var affectedRows = await _connection.ExecuteAsync(
                 Label.Named("sqlite-delete-aggregate"),
+                null,
                 cancellationToken,
                 sql,
                 new { AggregateId = id.Value })
                 .ConfigureAwait(false);
 
-            _log.Verbose(
-                "Deleted entity with ID '{0}' by deleting all of its {1} events",
+            _logger.LogTrace(
+                "Deleted entity with ID '{EntityId}' by deleting all of its {EventCount} events",
                 id,
                 affectedRows);
         }

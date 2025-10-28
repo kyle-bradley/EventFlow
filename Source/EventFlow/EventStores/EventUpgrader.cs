@@ -1,6 +1,6 @@
 ﻿// The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,7 +23,6 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 
@@ -43,6 +42,9 @@ namespace EventFlow.EventStores
             IEventUpgradeContext eventUpgradeContext,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
+            // We check as it now before calling as it is not passed to the legacy method
+            cancellationToken.ThrowIfCancellationRequested();
+
             foreach (var upgradedDomainEvent in Upgrade(domainEvent))
             {
                 yield return upgradedDomainEvent;
@@ -60,7 +62,7 @@ namespace EventFlow.EventStores
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var castDomainEvent = (IDomainEvent<TAggregate, TIdentity>) domainEvent;
-            await foreach (var e in UpgradeAsync(castDomainEvent, eventUpgradeContext, cancellationToken).WithCancellation(cancellationToken))
+            await foreach (var e in UpgradeAsync(castDomainEvent, eventUpgradeContext, cancellationToken))
             {
                 yield return e;
             }

@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,9 +30,9 @@ using EventFlow.Snapshots;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.Snapshots
 {
@@ -57,9 +57,9 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 .ConfigureAwait(false);
 
             // Assert
-            serializedSnapshot.Should().NotBeNull();
-            serializedSnapshot.SerializedData.Should().NotBeNullOrEmpty();
-            serializedSnapshot.SerializedMetadata.Should().NotBeNullOrEmpty();
+            serializedSnapshot.ShouldNotBeNull();
+            serializedSnapshot.SerializedData.ShouldNotBeNullOrEmpty();
+            serializedSnapshot.SerializedMetadata.ShouldNotBeNullOrEmpty();
         }
 
         [Test]
@@ -77,12 +77,10 @@ namespace EventFlow.Tests.UnitTests.Snapshots
                 .ConfigureAwait(false);
 
             // Assert
-            snapshotContainer.Should().NotBeNull();
-            snapshotContainer.Metadata.Should().NotBeNull();
-            snapshotContainer.Snapshot.Should()
-                .NotBeNull()
-                .And
-                .BeOfType<ThingySnapshot>();
+            snapshotContainer.ShouldNotBeNull();
+            snapshotContainer.Metadata.ShouldNotBeNull();
+            snapshotContainer.Snapshot.ShouldNotBeNull();
+            snapshotContainer.Snapshot.ShouldBeOfType<ThingySnapshot>();
         }
 
         [SetUp]

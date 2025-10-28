@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,14 +40,13 @@ namespace EventFlow.ReadStores
         private readonly TReadModelLocator _readModelLocator;
 
         public MultipleAggregateReadStoreManager(
-            IReadStoreCachingStrategy memoryCacheStrategy,
             ILogger<MultipleAggregateReadStoreManager<TReadStore, TReadModel, TReadModelLocator>> logger,
             IServiceProvider serviceProvider,
             TReadStore readModelStore,
             IReadModelDomainEventApplier readModelDomainEventApplier,
             TReadModelLocator readModelLocator,
             IReadModelFactory<TReadModel> readModelFactory)
-            : base(logger, serviceProvider, readModelStore, readModelDomainEventApplier, readModelFactory, memoryCacheStrategy)
+            : base(logger, serviceProvider, readModelStore, readModelDomainEventApplier, readModelFactory)
         {
             _readModelLocator = readModelLocator;
         }

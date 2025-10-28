@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,6 +29,7 @@ using EventFlow.Commands;
 using EventFlow.Commands.Serialization;
 using EventFlow.Configuration;
 using EventFlow.Configuration.Cancellation;
+using EventFlow.Configuration.EventNamingStrategy;
 using EventFlow.Core;
 using EventFlow.Core.RetryStrategies;
 using EventFlow.EventStores;
@@ -180,7 +181,7 @@ namespace EventFlow
             serviceCollection.TryAddTransient<IDispatchToReadStoresResilienceStrategy, NoDispatchToReadStoresResilienceStrategy>();
             serviceCollection.TryAddTransient<ISagaUpdateResilienceStrategy, NoSagaUpdateResilienceStrategy>();
             serviceCollection.TryAddTransient<IDispatchToSubscriberResilienceStrategy, NoDispatchToSubscriberResilienceStrategy>();
-            serviceCollection.TryAddSingleton<IReadStoreCachingStrategy, InMemoryReadStoreCachingStrategy>();
+            serviceCollection.TryAddSingleton<IReadStoreCachingStrategy, NoReadStoreCachingStrategy>();
             serviceCollection.TryAddTransient<IReadStoreCachingConfiguration, ReadStoreCachingConfiguration>();
 
             serviceCollection.TryAddSingleton<IDispatchToReadStores, DispatchToReadStores>();
@@ -234,6 +235,8 @@ namespace EventFlow
                 _aggregateEventTypes,
                 _sagaTypes,
                 _snapshotTypes));
+            
+            serviceCollection.TryAddTransient<IEventNamingStrategy, DefaultStrategy>();
         }
 
         private void RegisterObsoleteDefaults(IServiceCollection serviceCollection)

@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,8 +23,8 @@
 using System.Linq;
 using EventFlow.PostgreSql.EventStores;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.PostgreSql.Tests.IntegrationTests.EventStores
 {
@@ -38,9 +38,9 @@ namespace EventFlow.PostgreSql.Tests.IntegrationTests.EventStores
             var sqlScripts = EventFlowEventStoresPostgreSql.GetSqlScripts().ToDictionary(s => s.Name, s => s);
 
             // Assert
-            sqlScripts.Should().HaveCount(2);
-            sqlScripts.Should().ContainKey("EventStores.Scripts.0001 - Create table EventFlow.sql");
-            sqlScripts.Should().ContainKey("EventStores.Scripts.0002 - Create eventdatamodel_list_type.sql");
+            sqlScripts.Count.ShouldBe(2);
+            sqlScripts.ShouldContainKey("EventStores.Scripts.0001 - Create table EventFlow.sql");
+            sqlScripts.ShouldContainKey("EventStores.Scripts.0002 - Create eventdatamodel_list_type.sql");
         }
     }
 }

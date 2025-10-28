@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,8 +27,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using NUnit.Framework;
+using Shouldly;
 
 // ReSharper disable StringLiteralTypo
 
@@ -50,7 +50,7 @@ namespace EventFlow.Tests
             @"Copyright \(c\) (?<from>20\d{2})\-(?<to>20\d{2}) (?<name>.*)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private static readonly int CurrentYear = 2024; // Hardcoded, we don't want test failing every January 1'st
+        private static readonly int CurrentYear = 2025; // Hardcoded, we don't want test failing every January 1'st
 
         [Test]
         public async Task EveryFileHasCorrectLicenseHeader()
@@ -61,7 +61,7 @@ namespace EventFlow.Tests
             var sourceFiles = await Task.WhenAll(sourceFilesPaths.Select(GetSourceFileAsync));
 
             // Sanity asserts
-            sourceFiles.Should().HaveCountGreaterThan(700);
+            sourceFiles.Length.ShouldBeGreaterThan(700);
 
             // Missing headers
             var missingHeaders = sourceFiles
@@ -79,8 +79,8 @@ namespace EventFlow.Tests
             validationErrors.ForEach(Console.WriteLine);
 
             // Asserts
-            missingHeaders.Should().BeEmpty();
-            validationErrors.Should().BeEmpty();
+            missingHeaders.ShouldBeEmpty();
+            validationErrors.ShouldBeEmpty();
         }
 
         private static string PathRelativeTo(string root, string fullPath)

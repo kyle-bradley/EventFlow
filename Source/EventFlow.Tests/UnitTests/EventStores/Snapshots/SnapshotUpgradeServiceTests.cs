@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,9 +29,9 @@ using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates.Snapshots;
 using EventFlow.TestHelpers.Aggregates.Snapshots.Upgraders;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
 {
@@ -66,11 +66,11 @@ namespace EventFlow.Tests.UnitTests.EventStores.Snapshots
             var snapshot = await Sut.UpgradeAsync(new ThingySnapshotV1(pingIds), CancellationToken.None).ConfigureAwait(false);
 
             // Assert
-            snapshot.Should().BeOfType<ThingySnapshot>();
+            snapshot.ShouldBeOfType<ThingySnapshot>();
             var snapshotV3 = (ThingySnapshot) snapshot;
-            snapshotV3.PingsReceived.Should().BeEquivalentTo(pingIds);
-            snapshotV3.PreviousVersions.Should().Contain(ThingySnapshotVersion.Version1);
-            snapshotV3.PreviousVersions.Should().Contain(ThingySnapshotVersion.Version2);
+            snapshotV3.PingsReceived.ShouldBeEquivalentTo(pingIds);
+            snapshotV3.PreviousVersions.ShouldContain(ThingySnapshotVersion.Version1);
+            snapshotV3.PreviousVersions.ShouldContain(ThingySnapshotVersion.Version2);
         }
     }
 }

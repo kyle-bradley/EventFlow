@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,13 +37,12 @@ using EventFlow.TestHelpers.Aggregates;
 using EventFlow.TestHelpers.Aggregates.Commands;
 using EventFlow.TestHelpers.Aggregates.Events;
 using EventFlow.TestHelpers.Aggregates.ValueObjects;
-using FluentAssertions;
-using FluentAssertions.Common;
 using Hangfire;
 using Hangfire.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Hangfire.Tests.Integration
 {
@@ -65,10 +65,10 @@ namespace EventFlow.Hangfire.Tests.Integration
         }
 
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)
-        {   
+        {
             RegisterHangfire(eventFlowOptions);
-            
-            var serviceProvider =  eventFlowOptions.ServiceCollection.BuildServiceProvider();
+
+            var serviceProvider = eventFlowOptions.ServiceCollection.BuildServiceProvider();
             _backgroundService = serviceProvider.GetRequiredService<IHostedService>();
             _backgroundService.StartAsync(CancellationToken.None);
             return serviceProvider;
@@ -78,7 +78,7 @@ namespace EventFlow.Hangfire.Tests.Integration
         {
             _log = new HangfireJobLog();
             var jobFilterCollection = new JobFilterCollection { _log };
-            
+
             eventFlowOptions.ServiceCollection
                 .AddHangfire(c => c.UseInMemoryStorage())
                 .AddHangfireServer(options =>
@@ -88,7 +88,7 @@ namespace EventFlow.Hangfire.Tests.Integration
                 });
             eventFlowOptions.UseHangfireJobScheduler();
         }
-        
+
         [SetUp]
         public void TestSuiteForSchedulerSetUp()
         {
@@ -113,7 +113,7 @@ namespace EventFlow.Hangfire.Tests.Integration
 
             // Assert
             var receivedPingId = await Task.Run(() => _testAsynchronousSubscriber.PingIds.Take(), cts.Token).ConfigureAwait(false);
-            receivedPingId.Should().Equals(pingId);
+            receivedPingId.ShouldBe(pingId);
         }
 
         [Test]
@@ -125,16 +125,23 @@ namespace EventFlow.Hangfire.Tests.Integration
         [Test]
         public async Task ScheduleAsyncWithDateTime()
         {
-            await ValidateScheduleHappens((j, s) => s.ScheduleAsync(j, DateTimeOffset.Now.AddSeconds(1), CancellationToken.None)).ConfigureAwait(false);
+            var minimumDelay = TimeSpan.FromSeconds(0.75);
+            var runAt = DateTimeOffset.UtcNow.AddSeconds(1);
+            await ValidateScheduleHappens(
+                (j, s) => s.ScheduleAsync(j, runAt, CancellationToken.None),
+                minimumDelay).ConfigureAwait(false);
         }
 
         [Test]
         public async Task ScheduleAsyncWithTimeSpan()
         {
-            await ValidateScheduleHappens((j, s) => s.ScheduleAsync(j, TimeSpan.FromSeconds(1), CancellationToken.None)).ConfigureAwait(false);
+            var minimumDelay = TimeSpan.FromSeconds(0.75);
+            await ValidateScheduleHappens(
+                (j, s) => s.ScheduleAsync(j, TimeSpan.FromSeconds(1), CancellationToken.None),
+                minimumDelay).ConfigureAwait(false);
         }
 
-        private async Task ValidateScheduleHappens(Func<IJob, IJobScheduler, Task<IJobId>> schedule)
+        private async Task ValidateScheduleHappens(Func<IJob, IJobScheduler, Task<IJobId>> schedule, TimeSpan? minimumElapsed = null)
         {
             // Arrange
             var testId = ThingyId.New;
@@ -142,33 +149,41 @@ namespace EventFlow.Hangfire.Tests.Integration
             var executeCommandJob = PublishCommandJob.Create(new ThingyPingCommand(testId, pingId), ServiceProvider);
 
             // Act
+            // Use a monotonic timer to avoid false negatives from wall-clock drift in CI.
+            var stopwatch = Stopwatch.StartNew();
             var jobId = await schedule(executeCommandJob, _jobScheduler).ConfigureAwait(false);
 
             // Assert
-            var start = DateTimeOffset.Now;
-            while (DateTimeOffset.Now < start + TimeSpan.FromSeconds(10))
+            while (stopwatch.Elapsed < TimeSpan.FromSeconds(10))
             {
                 var testAggregate = await AggregateStore.LoadAsync<ThingyAggregate, ThingyId>(testId, CancellationToken.None).ConfigureAwait(false);
                 if (!testAggregate.IsNew)
                 {
+                    var elapsed = stopwatch.Elapsed;
+                    stopwatch.Stop();
                     await AssertJobIsSuccessfullyAsync(jobId).ConfigureAwait(false);
-                    Assert.That(testAggregate.PingsReceived.ToList(), Contains.Item(pingId));
-                    Assert.Pass();
+                    if (minimumElapsed.HasValue)
+                    {
+                        elapsed.ShouldBeGreaterThanOrEqualTo(minimumElapsed.Value);
+                    }
+                    Assert.That(testAggregate.PingsReceived.ToList().Any(x => x.Equals(pingId)));
+                    return;
                 }
-                
+
                 await Task.Delay(TimeSpan.FromSeconds(0.2)).ConfigureAwait(false);
             }
 
+            stopwatch.Stop();
             Assert.Fail("Aggregate did not receive the command as expected");
         }
 
         async Task AssertJobIsSuccessfullyAsync(IJobId jobId)
         {
             var context = await _log.GetAsync(jobId.Value);
-            context.Should().NotBeNull();
-            context.Exception.Should().BeNull();
+            context.ShouldNotBeNull();
+            context.Exception.ShouldBeNull();
             var displayName = context.BackgroundJob.Job.Args[0].ToString();
-            displayName.Should().Be("PublishCommand");
+            displayName.ShouldBe("PublishCommand");
         }
 
         [TearDown]

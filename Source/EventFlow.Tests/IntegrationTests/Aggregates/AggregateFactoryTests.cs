@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,9 +26,9 @@ using EventFlow.Aggregates;
 using EventFlow.Extensions;
 using EventFlow.TestHelpers;
 using EventFlow.TestHelpers.Aggregates;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.IntegrationTests.Aggregates
 {
@@ -49,7 +49,7 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
                 var aggregateWithIdParameter = await sut.CreateNewAggregateAsync<TestAggregate, ThingyId>(id).ConfigureAwait(false);
 
                 // Assert
-                aggregateWithIdParameter.Id.Should().Be(id);
+                aggregateWithIdParameter.Id.ShouldBe(id);
             }
         }
 
@@ -65,7 +65,7 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
                 var aggregateWithIdAndInterfaceParameters = await sut.CreateNewAggregateAsync<TestAggregateWithResolver, ThingyId>(ThingyId.New).ConfigureAwait(false);
 
                 // Assert
-                aggregateWithIdAndInterfaceParameters.ServiceProvider.Should().BeAssignableTo<IServiceProvider>();
+                aggregateWithIdAndInterfaceParameters.ServiceProvider.ShouldBeAssignableTo<IServiceProvider>();
             }
         }
 
@@ -83,7 +83,7 @@ namespace EventFlow.Tests.IntegrationTests.Aggregates
                 var aggregateWithIdAndTypeParameters = await sut.CreateNewAggregateAsync<TestAggregateWithPinger, ThingyId>(ThingyId.New).ConfigureAwait(false);
 
                 // Assert
-                aggregateWithIdAndTypeParameters.Pinger.Should().BeOfType<Pinger>();
+                aggregateWithIdAndTypeParameters.Pinger.ShouldBeOfType<Pinger>();
             }
         }
 

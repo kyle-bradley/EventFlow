@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,9 +31,9 @@ using EventFlow.Extensions;
 using EventFlow.Queries;
 using EventFlow.ReadStores;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 // ReSharper disable ClassNeverInstantiated.Local
 
@@ -71,9 +71,7 @@ namespace EventFlow.Tests.IntegrationTests.ReadStores
                 new ReadModelByIdQuery<ReadModelAB>(ReadModelId),
                 CancellationToken.None);
             
-            readModelAb.Indexes.Should().BeEquivalentTo(
-                new []{0, 1, 2, 3},
-                o => o.WithStrictOrdering());
+            readModelAb.Indexes.ShouldBe(new []{0, 1, 2, 3}, ignoreOrder: false);
         }
         
         protected override IServiceProvider Configure(IEventFlowOptions eventFlowOptions)

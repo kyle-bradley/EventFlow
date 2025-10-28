@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,9 +25,9 @@ using System.Threading.Tasks;
 using EventFlow.Aggregates;
 using EventFlow.Core;
 using EventFlow.TestHelpers;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shouldly;
 
 namespace EventFlow.Tests.Exploration
 {
@@ -48,7 +48,7 @@ namespace EventFlow.Tests.Exploration
                var customAggregate = await aggregateStore.LoadAsync<CustomAggregate, CustomId>(customId, CancellationToken.None).ConfigureAwait(false);
 
                 // Assert
-                customAggregate.Id.Value.Should().Be(customId.Value);
+                customAggregate.Id.Value.ShouldBe(customId.Value);
             }
         }
 

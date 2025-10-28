@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 // 
-// Copyright (c) 2015-2024 Rasmus Mikkelsen
+// Copyright (c) 2015-2025 Rasmus Mikkelsen
 // https://github.com/eventflow/EventFlow
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,6 +20,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+using System;
+using System.Diagnostics.CodeAnalysis;
 using EventFlow.EntityFramework.Tests.InMemory.Infrastructure;
 using EventFlow.EntityFramework.Tests.Model;
 using Microsoft.EntityFrameworkCore;
@@ -27,15 +29,15 @@ using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 
 namespace EventFlow.EntityFramework.Tests.InMemory
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Only for test")]
+    [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Only for tests")]
     public class InMemoryDbContextProvider : IDbContextProvider<TestDbContext>
     {
         private readonly DbContextOptions<TestDbContext> _options;
-
+    
         public InMemoryDbContextProvider()
         {
             _options = new DbContextOptionsBuilder<TestDbContext>()
-                .UseInMemoryDatabase("EventFlowTest")
+                .UseInMemoryDatabase($"EventFlowTest-{Guid.NewGuid()}")
                 .ReplaceService<IInMemoryTableFactory, IndexingInMemoryTableFactory>()
                 .Options;
         }
